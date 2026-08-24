@@ -1,0 +1,1014 @@
+\documentclass{article}
+\usepackage{comment,amsmath,amssymb,bm,mathtools,cancel,parskip,fancyhdr,mathrsfs,stmaryrd,nicematrix}
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\geometry{margin=1in}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\usepackage{comment}
+
+\begin{document}
+\begin{center}
+\textbf{\LARGE{Deriving the Determinant}}
+\vspace{1.5 mm}\\
+By: Jake Peyser
+\vspace{1.5 mm}\\
+7/29/2026
+\end{center}
+\vspace{3 mm}
+In these notes, the notion of the determinant of a linear transformation will be developed and motivated accordingly. To achieve this without loss of generality, we consider an $n$-dimensional vector space $\bm V$ over the field $\mathbb R$, which (optionally) admits an inner product $\langle\cdot,\cdot\rangle$, and an orthonormal basis given by $\beta=\left\{\bm e_i\right\}_{i=1}^n$.
+\vspace{3 mm}\\
+We now aim to construct a (hyper) volume-form which accepts $n$ vectors from $\bm V$ that span an $n$-dimensional oriented parallelepiped, and then outputs the respective signed (hyper) volume. In particular, consider the multi-linear form $\omega:\bm V^n\to\mathbb R$ (i.e. $\omega\in\mathscr{L}(\bm V^n,\mathbb{R})$) which satisfies the following properties:
+\begin{itemize}
+    \item The signed (hyper) volume of the $n$-dimensional (hyper) cube spanned by the (positively oriented) orthonormal basis $\beta$ is normalized to unity:
+    $$\omega\left(\bm e_1,\dots,\bm e_n\right)=1$$
+    \item The signed (hyper) volume of any degenerate $n$-dimensional parallelepiped spanned by any redundant collection of $n$ vectors is necessarily null:
+    $$\omega\left(\dots,v,\dots,v,\dots\right)=0\quad\text{for any}\quad v\in\bm V$$
+\end{itemize}
+Using the degenerate (hyper) volume property in conjunction with multi-linearity, the action of $\omega$ on any linearly dependent input can be evaluated. Specifically, consider linearly dependent vectors $w_1,\dots,w_n\in\bm V$, and without loss of generality, assume $w_n\in\mathrm{span}\left(w_1,\dots,w_{n-1}\right)$, implying $\exists\,a_1,\dots,a_n\in\mathbb{R}$ such that $w_n=a_1w_1+\cdots+a_{n-1}w_{n-1}$, from which it entails:
+$$\omega\left(w_1,\dots,w_{n-1},w_n\right)=\omega\left(w_1,\dots,w_{n-1},\sum_{i=1}^{n-1}a_iw_i\right)=\sum_{i=1}^{n-1}a_i\,\omega\underbrace{\left(w_1,\dots,w_{n-1},w_i\right)}_{\text{redundant}}=\sum_{i=1}^{n-1}a_i\cdot0=0$$
+Likewise, observe how these properties imply anti-symmetry/alternation. To be specific, given any $u,v\in\bm V$:
+\begin{align*}
+&\omega\left(\dots,u+v,\dots,u+v,\dots\right)=\omega\left(\dots,u,\dots,u+v,\dots\right)+\omega\left(\dots,v,\dots,u+v,\dots\right)
+\\[4 mm]
+&=\underbrace{\omega\left(\dots,u,\dots,u,\dots\right)}_{=0}+\omega\left(\dots,u,\dots,v,\dots\right)+\omega\left(\dots,v,\dots,u,\dots\right)+\underbrace{\omega\left(\dots,v,\dots,v,\dots\right)}_{=0}
+\\[2 mm]
+&=\omega\left(\dots,u,\dots,v,\dots\right)+\omega\left(\dots,v,\dots,u,\dots\right)=0
+\quad\implies\quad\omega\left(\dots,v,\dots,u,\dots\right)=-\omega\left(\dots,u,\dots,v,\dots\right)
+\end{align*}
+Now, let $S_n=\left\{\sigma:\left\{1,\dots,n\right\}\to\left\{1,\dots,n\right\}|\,\sigma\;\text{is bijective}\right\}$ be the set of all possible permutations/orderings of $n$ elements. We call $\tau\in S_n$ a transposition if $\exists\,i,j$ such that $\tau(i)=j$, $\tau(j)=i$, and $\tau(k)=k$ for any $k\neq i,j$. Given any $\sigma\in S_n$, there exists a collection of transpositions $\tau_1,\dots,\tau_{N(\sigma)}\in S_n$, for some $N(\sigma)\leq\frac{1}{2}n(n-1)$ such that $\sigma=\tau_1\circ\cdots\circ\tau_{N(\sigma)}$. We now define the permuted volume-form as such:
+$$\omega_\sigma\left(v_1,\dots,v_n\right)\coloneq\omega\left(v_{\sigma(1)},\dots,v_{\sigma(n)}\right)\quad\text{for any}\quad v_1,\dots,v_n\in\bm V\quad\text{and}\quad\sigma\in S_n$$
+With this, via the transposition decomposition $\sigma=\tau_1\circ\cdots\circ\tau_{N(\sigma)}\in S_n$, we can always write the following:
+\begin{align*}
+\omega_{\sigma}\left(v_1,\dots,v_n\right)&=\omega_{\tau_1\circ\cdots\circ\tau_{N(\sigma)}}\left(v_1,\dots,v_n\right)=\omega_{\tau_1\circ\cdots\circ\tau_{N(\sigma)-1}}\left(v_{\tau_{N(\sigma)}(1)},\dots,v_{\tau_{N(\sigma)}(n)}\right)
+\\[4 mm]
+&=-\omega_{\tau_1\circ\cdots\circ\tau_{N(\sigma)-1}}\left(v_1,\dots,v_n\right)
+\\[1 mm]
+\text{(induction)}\quad&\;\;\vdots
+\\[1 mm]
+&=\left(-1\right)^{N(\sigma)}\omega\left(v_1,\dots,v_n\right)\quad\implies\quad\omega_\sigma=(-1)^{N(\sigma)}\omega
+\end{align*}
+\newpage
+In order to validate the uniqueness of $\omega_{\sigma}$, and thus $(-1)^{N(\sigma)}$, suppose $\omega_{\sigma}=a\omega$ and $\omega_{\sigma}=b\omega$ for some $a,b=\pm1$. We aim to show uniqueness using the volumetric normalization/orientation property: 
+$$a\omega=b\omega\quad\implies\quad\left(a-b\right)\omega=0\quad\implies\quad\left(a-b\right)\underbrace{\omega\left(\bm e_1,\dots,\bm e_n\right)}_{=1}=0\quad\implies\quad a=b$$
+It thereby follows that $\omega_{\sigma}$ is uniquely determined by $\sigma$, and so the sign of the permutation $\sigma$, which will be defined by $\mathrm{sgn}\left(\sigma\right)\coloneq(-1)^{N(\sigma)}$, is well defined. We therefore arrive at the following identity:
+$$\omega\left(v_{\sigma(1)},\dots,v_{\sigma(n)}\right)=\mathrm{sgn}\left(\sigma\right)\,\omega\left(v_1,\dots,v_n\right)\quad\text{for any}\quad v_1,\dots,v_n\in\bm V$$
+Since $\sigma\in S_n$ is a bijection, it necessarily has an inverse $\sigma^{-1}\in S_n$. Moreover, because these two permutations compose to $\sigma\circ\sigma^{-1}=\mathrm{id}_{\left\{1,\dots,n\right\}}\in S_n$, one has that:
+$$\omega=\omega_{\mathrm{id}_{\left\{1,\dots,n\right\}}}=\omega_{\sigma\circ\sigma^{-1}}=\mathrm{sgn}\left(\sigma\right)\omega_{\sigma^{-1}}=\mathrm{sgn}\left(\sigma\right)\mathrm{sgn}\left(\sigma^{-1}\right)\omega\quad\implies\quad\mathrm{sgn}\left(\sigma^{-1}\right)=\mathrm{sgn}\left(\sigma\right)$$
+We now desire an algorithm for the function $\mathrm{sgn}:S_n\to\pm1$. With some foresight at hand, consider the auxiliary candidate as follows:
+$$P:\sigma\in S_n\mapsto\prod_{1\leq i<j\leq n}\left(\sigma(j)-\sigma(i)\right)$$
+This function (i.e. $P$) has two characteristic properties that make its relationship to $\mathrm{sgn}:S_n\to\pm1$ concrete. In particular, observe both the magnitude and the sign of $P(\sigma)$ as below:
+$$|P(\sigma)|=\prod_{1\leq i<j\leq n}\left|\sigma(j)-\sigma(i)\right|=\prod_{1\leq i<j\leq n}\left|j-i\right|=\prod_{1\leq i<j\leq n}\left(j-i\right)$$
+\begin{center}
+\vspace{3 mm}
+    ------ and ------
+\vspace{3 mm}
+\end{center}
+$$\mathrm{sgn}\left(P(\sigma)\right)=\prod_{1\leq i<j\leq n}\mathrm{sgn}\left(\sigma(j)-\sigma(i)\right)=\prod_{i=1}^{N(\sigma)}\underbrace{\mathrm{sgn}\left(\tau_i\right)}_{=-1}\prod_{j=1}^{n-N(\sigma)}\underbrace{\mathrm{sgn}\left(\mathrm{id}_{\left\{1,\dots,n\right\}}\right)}_{=1}=(-1)^{N(\sigma)}=\mathrm{sgn}\left(\sigma\right)$$
+\begin{center}
+\vspace{3 mm}
+    ------ which implies ------
+\vspace{3 mm}
+\end{center}
+$$P(\sigma)=\mathrm{sgn}\left(P(\sigma)\right)|P(\sigma)|=\mathrm{sgn}\left(\sigma\right)\prod_{1\leq i<j\leq n}\left(j-i\right)=\prod_{1\leq i<j\leq n}\left(\sigma(j)-\sigma(i)\right)$$
+\vspace{-1.5 mm}\\
+Upon a simple rearrangement of the above relationships, we arrive at a precise (conventional) algorithm for computing the sign of any permutation. The algorithm is given below: 
+$$\mathrm{sgn}\left(\sigma\right)=\prod_{1\leq i<j\leq n}\mathrm{sgn}\left(\sigma(j)-\sigma(i)\right)=\prod_{1\leq i<j\leq n}\frac{\sigma(j)-\sigma(i)}{j-i}\quad\text{for any}\quad\sigma\in S_n$$
+Observe that if $v_{i_1},\dots,v_{i_n}\in\bm V$ is indexed redundantly, then $\omega\left(v_{i_1},\dots,v_{i_n}\right)=0$. Otherwise, there exists a permutation $\sigma\in S_n$ such that $\sigma(k)=i_k$, and thus $\omega\left(v_{i_1},\dots,v_{i_n}\right)=\mathrm{sgn}\left(\sigma\right)\omega\left(v_1,\dots,v_n\right)$. This casework breakdown is encapsulated by the Levi-Civita symbol $\varepsilon$ as follows:
+\[
+\varepsilon_{i_1\dots i_n}=
+\begin{cases}
+\mathrm{sgn}\left(\sigma\right),\quad&\exists\,\sigma\in S_n:\sigma(k)=i_k
+\\
+0,&\exists\,j,k:i_j=i_k
+\end{cases}
+\]
+It thereby follows that the signed (hyper) volume generated by the (potentially redundant) collection of vectors $v_{i_1},\dots,v_{i_n}\in\bm V$ with index structure $\left\{i_1,\dots,i_n\right\}\subseteq\left\{1,\dots,n\right\}$ can be expressed as follows:
+$$\omega\left(v_{i_1},\dots,v_{i_n}\right)=\varepsilon_{i_1\dots i_n}\omega\left(v_1,\dots,v_n\right)$$
+At this point, we will study how the volume-form interacts with a composite linear transformation. That is, under the linear map $T:\bm V\to\bm V$ (i.e. $T\in\mathscr{L}(\bm V)$), the restriction $\left.\omega\right|_{T(\bm V)^n}$ will be analyzed in order to understand how $T$ distorts signed (hyper) volumes.
+\newpage
+To be more precise, for any such $T\in\mathscr{L}(\bm V)$, we define the pullback with respect to the linear map $T$, hereby denoted by $T^*:\mathscr{L}(\bm V^n,\mathbb{R})\to\mathscr{L}(\bm V^n,\mathbb{R})$, as such:
+$$T^*:\theta\in\mathscr{L}(\bm V^n,\mathbb{R})\mapsto\left(T^*\theta:v_1,\dots,v_n\in\bm V\mapsto\theta\left(T(v_1),\dots,T(v_n)\right)\right)$$
+Note for later reference that $T^*$ is a linear operator in it of itself. Specifically, given any vectors $v_1,\dots,v_n\in\bm V$, for any $\lambda\in\mathbb{R}$, and for any $\theta,\phi\in\mathscr{L}(\bm V^n,\mathbb{R})$, one has:
+\begin{align*}
+    T^*(\theta+\lambda\phi)\left(v_1,\dots,v_n\right)&=(\theta+\lambda\phi)\left(T(v_1),\dots,T(v_n)\right)=\theta\left(T(v_1),\dots,T(v_n)\right)+\lambda\phi\left(T(v_1),\dots,T(v_n)\right)
+    \\[4 mm]
+    &=T^*\theta\left(v_1,\dots,v_n \right)+\lambda T^*\phi\left(v_1,\dots,v_n\right)=\left(T^*\theta+\lambda T^*\phi\right)\left(v_1,\dots,v_n\right)
+    \\[4 mm]
+    \text{(holds $\forall\,v_1,\dots,v_n$)}\quad&\implies T^*(\theta+\lambda\phi)=T^*\theta+\lambda T^*\phi\quad\implies\quad T^*\in\mathscr{L}(\mathscr{L}(\bm V^n,\mathbb{R}))
+\end{align*}
+Now, we construct the pulled-back volume-form given by $T^*\omega\in\mathscr{L}(\bm V^n,\mathbb{R})$ accordingly. Also, keep in mind that $\exists!\,[T]_\beta\in\mathbb{R}^{n\times n}$ such that $T(\bm e_j)=\sum_{i=1}^n\left([T]_\beta\right)_{ij}\bm e_i$. The following computation directly follows:
+\begin{align*}
+&T^*\omega\left(\bm e_1,\dots,\bm e_n\right)=\omega\left(T(\bm e_1),\dots,T(\bm e_n)\right)=\omega\left(\,\sum_{i_1=1}^n\left([T]_\beta\right)_{i_11}\bm e_{i_1},\dots,\sum_{i_n=1}^n\left([T]_\beta\right)_{i_nn}\bm e_{i_n}\right)
+\\[4 mm]
+&=\sum_{i_1=1}^n\cdots\sum_{i_n=1}^n\left([T]_\beta\right)_{i_11}\cdots\left([T]_\beta\right)_{i_nn}\omega\left(\bm e_{i_1},\dots,\bm e_{i_n}\right)=\sum_{1\leq i_1,\dots,i_n\leq n} \left[\,\prod_{j=1}^n\left([T]_\beta\right)_{i_jj}\right]\omega\left(\bm e_{i_1},\dots,\bm e_{i_n}\right)
+\\[4 mm]
+&=\sum_{1\leq i_1,\dots,i_n\leq n} \left[\,\prod_{j=1}^n\left([T]_\beta\right)_{i_jj}\right]\varepsilon_{i_1\dots i_n}\underbrace{\omega\left(\bm e_1,\dots,\bm e_n\right)}_{=1}=\sum_{1\leq i_1,\dots,i_n\leq n}\varepsilon_{i_1\dots i_n}\prod_{j=1}^n\left([T]_\beta\right)_{i_jj}
+\end{align*}
+In fact, if we define the determinant $\det:\mathbb{R}^{n\times n}\to\mathbb{R}$ as the function alluded to above (given below), then this computation could be made illustratively simpler:
+$$
+\det(A)\coloneq\sum_{1\leq i_1,\dots,i_n\leq n} \varepsilon_{i_1\dots i_n}\prod_{j=1}^nA_{i_jj}
+\quad\implies\quad
+T^*\omega\left(\bm e_1,\dots,\bm e_n\right)=\det\left([T]_\beta\right)
+$$
+Alternatively, this identity can be reformatted via a restriction to the basis of the pulled-back volume-form:
+$$T^*\omega\left(\bm e_1,\dots,\bm e_n\right)=\det\left([T]_\beta\right)\omega\left(\bm e_1,\dots,\bm e_n\right)$$
+Overall, this perspective makes the meaning of the determinant clear. For any $A\in\mathbb{R}^{n\times n}$, by insisting upon the interpretation $A_{*j}=[T(\bm e_j)]_\beta$ for some linear map $T\in\mathscr{L}(\bm V)$, the scalar $\det(A)$ naturally computes the signed (hyper) volume of the deformed parallelepiped spanned by $\left\{\bm e_i\right\}_{i=1}^n$ under the map $T$. 
+\vspace{3 mm}\\
+Since all of the redundant combinations of $i_1,\dots,i_n\in\left\{1,\dots,n\right\}$ correspond to $\varepsilon=0$, within the above definition of the determinant, summing over all non-redundant $1\leq i_1,\dots,i_n\leq n$ is equivalent to summing over all permutations $\sigma\in S_n$ such that $\sigma(j)=i_j$. We can thus deduce the Leibniz determinant formula:
+$$\det\left(A\right)=\sum_{\sigma\in S_n}\varepsilon_{\sigma(1)\dots\sigma(n)}\prod_{j=1}^nA_{\sigma(j)j}=\sum_{\sigma\in S_n}\mathrm{sgn}\left(\sigma\right)\prod_{j=1}^nA_{\sigma(j)j}$$
+One simple result from this formulation is that the determinant is invariant under matrix transposition. In order to streamline the analysis, take note that $\prod_{j=1}^nA_{\sigma(j)j}=\prod_{j=1}^nA_{j\sigma^{-1}(j)}$. We can therefore write:
+\begin{align*}
+    \det\left(A^\top\right)&=\sum_{\sigma\in S_n}\mathrm{sgn}\left(\sigma\right)\prod_{j=1}^n\left(A^\top\right)_{\sigma(j)j}=\sum_{\sigma\in S_n}\mathrm{sgn}\left(\sigma\right)\prod_{j=1}^nA_{j\sigma(j)}=\sum_{\sigma\in S_n}\mathrm{sgn}\left(\sigma\right)\prod_{j=1}^nA_{\sigma^{-1}(j)j}
+    \\[4 mm]
+    &=\sum_{\sigma\in S_n}\mathrm{sgn}\left(\sigma^{-1}\right)\prod_{j=1}^nA_{\sigma(j)j}=\sum_{\sigma\in S_n}\mathrm{sgn}\left(\sigma\right)\prod_{j=1}^nA_{\sigma(j)j}=\det\left(A\right)
+\end{align*}
+\newpage
+Given a secondary linear transformation $U\in\mathscr{L}(\bm V)$ with the property that $u_i=U(\bm e_i)$ for convenience, consider the signed (hyper) volume generated by $u_1,\dots,u_n$ as such:
+$$\omega\left(u_1,\dots,u_n\right)=\omega\left(U(\bm e_1),\dots,U(\bm e_n)\right)=U^*\omega\left(\bm e_1,\dots,\bm e_n\right)=\det\left([U]_\beta\right)=\det\left([u_1]_\beta\cdots[u_n]_\beta\right)$$
+Some immediate consequences from this perspective follow directly for the determinant due to the inherent properties of the volume-form $\omega$ as demonstrated (contextually) below:
+\begin{itemize}
+    \item The determinant of the identity matrix is unity:
+    $$\det\left(I\right)=\det\left([\mathrm{id}_{\bm V}]_\beta\right)=\det\left([\bm e_1]_\beta\cdots[\bm e_n]_\beta\right)=\omega\left(\bm e_1,\dots,\bm e_n\right)=1$$
+    \item The determinant is a linear (in)dependence detector:
+    $$\det\left([u_1]_\beta\cdots[u_n]_\beta\right)=\omega\left(u_1,\dots,u_n\right)=0\quad\iff\quad u_1,\dots,u_n\quad\text{are linearly dependent}$$
+    \item The determinant is column-wise linear:
+    \begin{align*}
+        \det\left([u_1]_\beta\cdots[v+\lambda w]_\beta\cdots[u_n]_\beta\right)&=\omega\left(u_1,\dots,v+\lambda w,\dots,u_n\right)
+        \\[4 mm]
+        &=\omega\left(u_1,\dots,v,\dots,u_n\right)+\lambda\omega\left(u_1,\dots,w,\dots,u_n\right)
+        \\[4 mm]
+        &=\det\left([u_1]_\beta\cdots[v]_\beta\cdots[u_n]_\beta\right)+\lambda\det\left([u_1]_\beta\cdots[w]_\beta\cdots[u_n]_\beta\right)
+    \end{align*}
+    \item The determinant is column-wise alternating:
+    $$\det\left(\cdots[u]_\beta\cdots[v]_\beta\cdots\right)=\omega\left(\dots,u,\dots,v,\dots\right)=-\omega\left(\dots,v,\dots,u,\dots\right)=-\det\left(\cdots[v]_\beta\cdots[u]_\beta\cdots\right)$$
+\end{itemize}
+An important observation to make is that since $\det\left(A^T\right)=\det\left(A\right)$, the above properties, which all apply to the column spaces of the respective determinant matrix arguments, also apply to the respective row spaces. 
+\vspace{3 mm}\\
+In particular, with the understanding that $u_1,\dots,u_n$ is linearly dependent if and only if the collection of columns $[u_1]_\beta,\dots,[u_n]_\beta$ is linearly dependent, which is to say $\dim\left(\mathrm{Col}\left([u_1]_\beta\cdots[u_n]_\beta\right)\right)<n$, that premise of linear dependence is equivalent to $\dim\left(\mathrm{Row}\left([u_1]_\beta\cdots[u_n]_\beta\right)\right)<n$ as well. As a general summary:
+$$
+A\in\mathbb{R}^{n\times n}\quad\text{is invertible}\quad\iff\quad\mathrm{rank}\left(A\right)=\mathrm{rank}\left(A^\top\right)=n\quad\iff\quad\det\left(A\right)\neq0
+$$
+In other words, if the columns of a matrix are linearly dependent, then so are its rows (and vice versa). If either the rows or columns are linearly dependent, then the matrix has a null determinant (and vice versa). Otherwise, the determinant of the matrix is non-zero. 
+\vspace{3 mm}\\
+It likewise follows that the determinant is row-wise linear. In particular, upon transposing the determinant matrix arguments of the linearity property: $$\det\left(\left([u_1]_\beta\cdots[v+\lambda w]_\beta\cdots[u_n]_\beta\right)^\top\right)=\det\left(\left([u_1]_\beta\cdots[v]_\beta\cdots[u_n]_\beta\right)^\top\right)+\lambda\det\left(\left([u_1]_\beta\cdots[w]_\beta\cdots[u_n]_\beta\right)^\top\right)$$
+\begin{center}
+\vspace{3 mm}
+    ------------ or equivalently ------------
+\vspace{3 mm}
+\end{center}
+$$
+\det
+\begin{pmatrix}
+\left([u_1]_\beta\right)^\top\\
+\vdots\\
+\left([v+\lambda w]_\beta\right)^\top\\
+\vdots\\
+\left([u_n]_\beta\right)^\top
+\end{pmatrix}
+=\det\begin{pmatrix}
+\left([u_1]_\beta\right)^\top\\
+\vdots\\
+\left([v]_\beta\right)^\top\\
+\vdots\\
+\left([u_n]_\beta\right)^\top
+\end{pmatrix}
++\lambda\det\begin{pmatrix}
+\left([u_1]_\beta\right)^\top\\
+\vdots\\
+\left([w]_\beta\right)^\top\\
+\vdots\\
+\left([u_n]_\beta\right)^\top
+\end{pmatrix}
+$$
+\vspace{1.5 mm}\\
+By inspection, adding a scalar multiple of any row (or column respectively) to any other row (or column respectively) within a matrix does not change its determinant. Contextually (above), if $w\in\left\{u_1,\dots,u_n\right\}$, then $\det\left([u_1]_\beta\cdots[w]_\beta\cdots[u_n]_\beta\right)=0$ because the vectors $u_1,\dots,v,\dots,u_n$ are linearly dependent.
+\newpage
+Analogously, due to invariance with respect to matrix transposition, the determinant is row-wise alternating. In particular, upon transposing the determinant matrix arguments of the alternation property:
+$$\det\left(\left(\cdots[u]_\beta\cdots[v]_\beta\cdots\right)^\top\right)=-\det\left(\left(\cdots[v]_\beta\cdots[u]_\beta\cdots\right)^\top\right)$$
+\begin{center}
+\vspace{3 mm}
+    ------------ or equivalently ------------
+\vspace{3 mm}
+\end{center}
+$$
+\det
+\begin{pmatrix}
+    \vdots\\
+    \left([u]_\beta\right)^\top\\
+    \vdots\\
+    \left([v]_\beta\right)^\top\\
+    \vdots
+\end{pmatrix}
+=-\det
+\begin{pmatrix}
+    \vdots\\
+    \left([v]_\beta\right)^\top\\
+    \vdots\\
+    \left([u]_\beta\right)^\top\\
+    \vdots
+\end{pmatrix}
+$$
+\vspace{1.5 mm}\\
+Due to the fact that internal row operations will scale the resultant determinant non-degenerately, under the mapping $A\mapsto\mathrm{RREF}(A)$, it thereby follows that $\det\left(A\right)=\pm\det\left(\mathrm{RREF}(A)\right)$, and so the matrix $A$ is invertible (i.e. $\det\left(A\right)\neq0$) if and only if $\mathrm{RREF}(A)$ is invertible (i.e. $\det\left(\mathrm{RREF}(A)\right)\neq0$).
+\vspace{3 mm}\\
+As a quick interlude, since $\omega$ is multi-linear, it contextually follows that $\omega\left(\lambda v_1,\dots,\lambda v_n\right)=\lambda^n\omega\left(v_1,\dots,v_n\right)$, and thus for any $A\in\mathbb{R}^{n\times n}$, $\det\left(\lambda A\right)=\lambda^n\det\left(A\right)$ due to the previous reasoning (column-wise linearity). 
+\vspace{3 mm}\\
+Now, upon synthesizing the fact that the pullbacks $T^*,U^*\in\mathscr{L}(\mathscr{L}(\bm V^n,\mathbb{R}))$ are linear operators with how the pulled-back volume-forms $T^*\omega,U^*\omega\in\mathscr{L}(\bm V^n,\mathbb{R})$ necessarily act on the basis $\beta$, the intrinsic nature of the determinant can be uncovered as such:
+\begin{align*}
+    T^*\omega\left(u_1,\dots,u_n\right)&=T^*\left(U^*\omega\right)\left(\bm e_1,\dots,\bm e_n\right)=T^*\left(\det\left([U]_\beta\right)\omega\right)\left(\bm e_1,\dots,\bm e_n\right)=\det\left([U]_\beta\right)T^*\omega\left(\bm e_1,\dots,\bm e_n\right)
+    \\[4 mm]
+    &=\det\left([U]_\beta\right)\det\left([T]_\beta\right)=\det\left([T]_\beta\right)\det\left([U]_\beta\right)=\det\left([T]_\beta\right)\omega\left(u_1,\dots,u_n\right)
+\end{align*}
+In particular, because there always exists a linear mapping $U:\bm e_i\mapsto u_i$ for any such vectors $u_1,\dots, u_n$, the above identity can be represented as an equivalence of maps:
+$$T^*\omega=\det\left([T]_\beta\right)\omega$$
+Upon closer inspection of the above reasoning, since matrix multiplication is defined in order to encode map composition accordingly, for any $T,U\in\mathscr{L}(\bm V)$, the following composition/multiplication law for the determinant emerges instantly:
+$$\det\left([T]_\beta[U]_\beta\right)=\det\left([T\circ U]_\beta\right)=(T\circ U)^*\omega\left(\bm e_1,\dots,\bm e_n\right)=T^*U^*\omega\left(\bm e_1\dots,\bm e_n\right)=\det\left([T]_\beta\right)\det\left([U]_\beta\right)$$
+Since the maps $T,U\in\mathscr{L}(\bm V)$ are arbitrary, they can be chosen such that, for any $A,B\in\mathbb{R}^{n\times n}$, one has that $[T]_\beta=A$ and $[U]_\beta=B$. From such a vantage point, the above property can be re-casted as below:  
+$$\det\left(AB\right)=\det\left(A\right)\det\left(B\right)\quad\text{for any}\quad A,B\in\mathbb{R}^{n\times n}$$
+An immediate consequence of this multiplication property is a direct means of computing the determinant of a matrix inverse. Specifically, assuming that $\det\left(A\right)\neq0$ (i.e. $A$ is invertible), one has:
+$$\det\left(A^{-1}\right)\det\left(A\right)=\det\left(A^{-1}A\right)=\det\left(I\right)=1\quad\implies\quad\det\left(A^{-1}\right)=\det\left(A\right)^{-1}$$ 
+Upon combining both of these properties, it can be deduced that similar matrices in fact have the same determinant. That is, given $A,B,Q\in\mathbb{R}^{n\times n}$, provided that $A=QBQ^{-1}$ (i.e. $A\sim B$), it then follows:
+$$\det\left(A\right)=\det\left(QBQ^{-1}\right)=\det\left(Q\right)\det\left(B\right)\det\left(Q^{-1}\right)=\det\left(Q\right)\det\left(B\right)\det\left(Q\right)^{-1}=\det\left(B\right)$$
+\newpage
+As a critical insight, for any other basis $\gamma$ of $\bm V$, because $[T]_\beta\sim[T]_\gamma$ per the change of basis matrix given by $[\mathrm{id}_{\bm V}]_\gamma^\beta$, and thus  $[T]_\beta=[\mathrm{id}_{\bm V}]_\gamma^\beta\,[T]_\gamma\,[\mathrm{id}_{\bm V}]_\beta^\gamma$, it immediately follows that the determinant is basis independent as depicted accordingly:
+$$\det\left([T]_\beta\right)=\det\left([T]_\gamma\right)\quad\text{for any basis $\gamma$ of $\bm V$}$$
+Consequently, the determinant is an intrinsic quantity associated with an underlying linear map, and so the pulled-back volume-form (map) identity can be re-casted intrinsically as such:
+$$T^*\omega=\det\left(T\right)\omega\quad\text{such that}\quad\det\left(T\right)\coloneq\det\left([T]_\gamma\right)\quad\text{for any basis $\gamma$ of $\bm V$}$$
+From a distinct perspective, because the pullback $T^*\in\mathscr{L}(\mathscr{L}(\bm V^n,\mathbb{R}))$ can be considered a linear operator in it of itself, the above identity can be viewed as an eigen equation, where $\omega\in\mathscr{L}(\bm V^n,\mathbb{R})$ is an eigenvector with a corresponding eigenvalue $\det\left(T\right)\in\mathbb{R}$ of the linear operator $T^*$. This perspective alone could have been used to show that $\det\left([T]_\beta\right)$, an eigenvalue, is intrinsic to the linear map $T$ and not the basis $\beta$.
+\vspace{3 mm}\\
+Overall, with this new viewpoint, the determinant can be interpreted as the signed (hyper) volumetric scale factor from any non-degenerate parallelepiped to its image under the linear map. In particular, the determinant of the $n$-dimensional linear map $T$ can be characterized as below:
+$$\det\left(T\right)=\frac{T^*\omega\left(v_1,\dots,v_n\right)}{\omega\left(v_1,\dots,v_n\right)}\quad\text{for any linearly independent}\quad v_1,\dots,v_n\in\bm V$$
+Though trivial, we can directly deduce the determinant of the identity map to be unity as shown below:
+$$\det\left(\mathrm{id}_{\bm V}\right)=\det\left([\mathrm{id}_{\bm V}]_\beta\right)=\det\left(I\right)=1$$
+Likewise, the multiplication/composition property of determinants can be re-casted intrinsically as such:
+$$\det\left(T\circ U\right)=\det\left([T\circ U]_\beta\right)=\det\left([T]_\beta\right)\det\left([U]_\beta\right)=\det\left(T\right)\det\left(U\right)$$
+From the same perspective, recalling that $\bm V$ is a vector space over $\mathbb{R}$ (i.e. not $\mathbb{C}$), the transpose property of the determinant can be re-casted intrinsically using the adjoint $\dagger$ as such:
+$$\det\left(T^\dagger\right)=\det\left(\left[T^\dagger\right]_\beta\right)=\det\left(\left([T]_\beta\right)^\top\right)=\det\left([T]_\beta\right)=\det\left(T\right)$$
+Additionally, if the linear transformation $T$ is invertible, then the corresponding matrix inversion determinant property can be re-casted intrinsically as such:  
+$$\det\left(T^{-1}\right)=\det\left(\left[T^{-1}\right]_\beta\right)=\det\left(\left([T]_\beta\right)^{-1}\right)=\det\left([T]_\beta\right)^{-1}=\det\left(T\right)^{-1}$$
+Let $R\in\mathscr{L}(\bm V)$ denote an orthogonal transformation (rotation/reflection), which is to say $R^{-1}=R^\dagger$. It is expected that the absolute (hyper) volume generated by an arbitrary set of vectors is invariant under the mapping $R$ (i.e. $\omega$ is consistent). To validate this, consider the supplementary calculation:  
+$$\det\left(R^{-1}\right)=\det\left(R^\dagger\right)\quad\implies\quad\det\left(R\right)^{-1}=\det\left(R\right)\quad\implies\quad\det\left(R\right)^2=1\quad\implies\quad\det\left(R\right)=\pm1$$
+As expected, it instantly 
+follows from the above result, and the pullback eigen equation, that the orthogonal transformation $R$ interacts with the volume-form $\omega$ accordingly:
+$$R^*\omega=\det\left(R\right)\omega=\pm\,\omega\quad\implies\quad R^*\omega\left(v_1,\dots,v_n\right)=\pm\,\omega\left(v_1,\dots,v_n\right)\quad\text{for any}\quad v_1,\dots,v_n\in\bm V$$
+It is in this sense that the volume-form consistently quantifies (hyper) volume. In this respect, regardless of the orientation, the absolute (hyper) volume of the parallelepiped generated by any orthonormal basis will be unity. This is all due to the fact that orthogonal transformations (in general) preserve the relative angles between vectors (with respect to the inner product $\langle\cdot,\cdot\rangle$) without scaling.
+\begin{center}
+    ------------------------\;Moving forward, the basis $\beta$ will no longer be orthonormal by default.\;------------------------
+\end{center}
+\newpage
+Because $\det\left(T\right)$ is intrinsic to the map $T$, it is natural to hypothesize that $\det\left(T\right)$ is a function of the spectrum (eigenvalues) of $T$. Suppose that $T$, or equivalently $[T]_\beta$, is diagonalizable. Then there exists linearly independent eigenvectors $v_1,\dots,v_n\in\bm V$ with corresponding eigenvalues $\lambda_1,\dots,\lambda_n\in\mathbb{R}$. According to the previously derived formula for the determinant:
+\begin{align*}
+\det\left(T\right)&=\frac{T^*\omega\left(v_1,\dots,v_n\right)}{\omega\left(v_1,\dots,v_n\right)}=\frac{\omega\left(T(v_1),\dots,T(v_n)\right)}{\omega\left(v_1,\dots,v_n\right)}=\frac{\omega\left(\lambda_1v_1,\dots,\lambda_nv_n\right)}{\omega\left(v_1,\dots,v_n\right)}=\frac{\lambda_1\cdots\lambda_n\,\omega\left(v_1,\dots,v_n\right)}{\omega\left(v_1,\dots,v_n\right)}
+\\[4 mm]
+&=\frac{\lambda_1\cdots\lambda_n\,\cancel{\omega\left(v_1,\dots,v_n\right)}}{\cancel{\omega\left(v_1,\dots,v_n\right)}}=\lambda_1\cdots\lambda_n\qquad\text{since}\qquad\omega\left(v_1,\dots,v_n\right)\neq0
+\end{align*}
+If we establish the eigenvalues to be the principal scaling factors of the linear map pertaining to each principal direction (eigenvector), then the overall scaling factor is simply the product of each principal scale factor.
+\vspace{3 mm}\\
+However, in the case that $T$ is not diagonalizable over $\mathbb{R}$ or even $\mathbb{C}$ (upon extending the field), we still aim to study the spectrum of $T$. In order to do so, consider the eigenspace $E_\lambda(T)$ defined below:
+$$E_{\lambda}(T)\coloneq\ker\left(T-\lambda\mathrm{id}_{\bm V}\right)\setminus\left\{0\right\}$$
+Importantly, if $v\in E_\lambda(T)$, then $\left(T-\lambda\mathrm{id}_{\bm V}\right)(v)=0$ if and only if $T(v)=\lambda v$ (for $v\neq0$). Therefore, $E_\lambda(T)$ is the set of all eigenvectors with corresponding eigenvalue $\lambda$. Thus, if $\lambda$ is an eigenvalue corresponding to an eigenvector of $T$, then $E_\lambda(T)\neq\emptyset$ by definition, and thus the map $T-\lambda\mathrm{id}_{\bm V}$ cannot be injective, which implies $\det\left(T-\lambda\mathrm{id}_{\bm V}\right)=0$. We can now define the characteristic polynomial of $T$ in $\lambda$ according to:
+$$p_T(\lambda)\coloneq\det\left(T-\lambda\mathrm{id}_{\bm V}\right)=\det\left([T-\lambda\mathrm{id}_{\bm V}]_\beta\right)=\det\left([T]_\beta-\lambda I\right)$$
+This motivates the definition for the characteristic polynomial pertaining to any matrix $A\in\mathbb{R}^{n\times n}$ as follows:
+$$p_A(\lambda)\coloneq\det\left(A-\lambda I\right)\qquad\implies\qquad p_T(\lambda)=p_{[T]_\beta}(\lambda)\qquad\text{for any basis $\beta$ of $\bm V$}$$
+By inspection, $p_T(\lambda)$ is in fact a polynomial in $\lambda$ with coefficients in $\mathbb{R}$, and thereby splits over $\mathbb{C}$ per the Fundamental Theorem of Algebra. Provided that $\lambda_1,\dots,\lambda_m\in\mathbb{C}$ are the roots of $p_T(\lambda)$, including multiplicities, each root necessarily satisfies the condition $p_T(\lambda_i)=\det\left(T-\lambda_i\mathrm{id}_{\bm V}\right)=0$, or equivalently, $E_{\lambda_i}(T)\neq\emptyset$. In other words, $\left\{\lambda_i\right\}_{i=1}^m$ is the total collection of eigenvalues of $T$. 
+\vspace{3 mm}\\
+Furthermore, because $\deg\left(p_T(\lambda)\right)=n$, by the Fundamental Theorem of Algebra once again, it has $n$ roots counting multiplicities (i.e. $m=n$). Now, for some coefficient $\kappa\in\mathbb{C}$, it follows from the Factor Theorem:   
+$$p_T(\lambda)=\kappa\prod_{i=1}^n\left(\lambda_i-\lambda\right)$$
+To determine the value of $\kappa$, with the understanding that $p_T(\lambda)=\kappa\left(-1\right)^n\lambda^n+\mathcal{O}\left(\lambda^{n-1}\right)$ is continuous in $\lambda$, upon studying the polynomial asymptotically, the leading coefficient can be computed as below:
+\begin{align*}
+\kappa&=\lim_{\lambda\to\infty}(-\lambda)^{-n}p_T(\lambda)=\lim_{\lambda\to\infty}(-\lambda)^{-n}\det\left([T]_\beta-\lambda I\right)=\lim_{\lambda\to\infty}\det\left(-\lambda^{-1}\left([T]_\beta-\lambda I\right)\right)
+\\[4 mm]
+&=\lim_{\lambda\to\infty}\det\left(I-\lambda^{-1}[T]_\beta\right)=\det\left(I-\lim_{\lambda\to\infty}\lambda^{-1}[T]_\beta\right)\qquad\text{since}\quad\det\in C(\mathbb{R}^{n\times n},\mathbb{R})
+\\[4 mm]
+&=\det\left(I-0\right)=\det\left(I\right)=1\quad\implies\quad p_T(\lambda)=\prod_{i=1}^n\left(\lambda_i-\lambda\right)
+\end{align*}
+Therefore, not only do similar matrices have the same spectrum (since they share the same characteristic polynomial whose roots are the eigenvalues), but if we carefully evaluate the characteristic polynomial at zero, we arrive at the familiar result relating the determinant to the eigenvalues of the linear map:
+$$\det\left(T\right)=\det\left(T-0\cdot\mathrm{id}_{\bm V}\right)=p_T(0)=\prod_{i=1}^n\left(\lambda_i-0\right)=\prod_{i=1}^n\lambda_i$$
+\begin{comment}
+Practically, these eigenvalues can be computed via an algorithmically driven Schur decomposition, which provides a unitary matrix $Q\in\mathbb{C}^{n\times n}$ (i.e. $Q^{-1}=Q^*$) such that $Q^*[T]_\beta Q$ is upper triangular with the eigenvalues of $T$ on its diagonal. Even so, this is not an efficient means of computing the determinant.  
+\end{comment}
+\newpage
+One neat application of the determinant is Cramer's Rule, which establishes a closed form algorithm involving the determinant for solving consistent/independent systems of linear equations. In particular, given the known parameters $A=[a_{ij}]_{i,j=1}^n\in\mathbb{R}^{n\times n}$ (full rank) and $b=[b_i]_{i=1}^n\in\mathbb{R}^{n\times1}$, and the unknown variable(s) $x=[x_j]_{j=1}^n\in\mathbb{R}^{n\times1}$, consider the linear system $Ax=b$:
+\[
+\begin{bmatrix}
+a_{11} & \dots & a_{1n} \\
+\vdots & \ddots & \vdots \\
+a_{n1} & \dots & a_{nn}
+\end{bmatrix}
+\begin{bmatrix}
+x_1\\
+\vdots\\
+x_n
+\end{bmatrix}
+=
+\begin{bmatrix}
+b_1\\
+\vdots\\
+b_n
+\end{bmatrix}
+\qquad\text{(or equivalently)}\qquad
+\sum_{j=1}^nx_j
+\begin{bmatrix}
+a_{1j}\\
+\vdots\\
+a_{nj}
+\end{bmatrix}
+=
+\begin{bmatrix}
+b_1\\
+\vdots\\
+b_n
+\end{bmatrix}
+\]
+Now, construct the following matrix structure $\hat A_k^b$ by replacing the $k^\text{th}$ column of the $A$ matrix with the column $b$ as demonstrated below: 
+\[
+\hat A_k^b=
+\begin{bmatrix}
+    a_{11} & \cdots & a_{1k-1} & b_1 & a_{1k+1} & \cdots & a_{1n}\\
+    \vdots & \ddots & \vdots & \vdots & \vdots & \ddots & \vdots\\
+    a_{n1} & \cdots & a_{nk-1} & b_n & a_{nk+1} & \cdots & a_{nn}
+\end{bmatrix}
+\]
+Upon taking the determinant of this matrix, by carefully applying the column-wise linearity and degeneracy properties of the determinant, the $k^\text{th}$ unknown (i.e. $x_k$) can be extracted from the system accordingly:  
+\begin{align*}
+    \det\left(\hat A_k^b\right)&=\det
+    \begin{pmatrix}
+    \begin{bmatrix}
+        a_{11}\\\vdots\\a_{n1}
+    \end{bmatrix}
+    &\cdots&
+    \begin{bmatrix}
+        a_{1k-1}\\\vdots\\a_{nk-1}
+    \end{bmatrix}
+    &
+    \begin{bmatrix}
+        b_1\\\vdots\\b_n
+    \end{bmatrix}
+    &
+    \begin{bmatrix}
+        a_{1k+1}\\\vdots\\a_{nk+1}
+    \end{bmatrix}
+    &\cdots&
+    \begin{bmatrix}
+        a_{1n}\\\vdots\\a_{nn}
+    \end{bmatrix}
+\end{pmatrix}
+\\[4 mm]
+&=\det
+\begin{pmatrix}
+    \begin{bmatrix}
+        a_{11}\\\vdots\\a_{n1}
+    \end{bmatrix}
+    &\cdots&
+    \begin{bmatrix}
+        a_{1k-1}\\\vdots\\a_{nk-1}
+    \end{bmatrix}
+    &
+    \displaystyle\sum_{j=1}^nx_j
+\begin{bmatrix}
+a_{1j}\\
+\vdots\\
+a_{nj}
+\end{bmatrix}
+&
+    \begin{bmatrix}
+        a_{1k+1}\\\vdots\\a_{nk+1}
+    \end{bmatrix}
+    &\cdots&
+    \begin{bmatrix}
+        a_{1n}\\\vdots\\a_{nn}
+    \end{bmatrix}
+\end{pmatrix}
+\\[4 mm]
+\text{(linearity)}\quad&=\displaystyle\sum_{j=1}^nx_j\det
+\begin{pmatrix}
+    \begin{bmatrix}
+        a_{11}\\\vdots\\a_{n1}
+    \end{bmatrix}
+    &\cdots&
+    \begin{bmatrix}
+        a_{1k-1}\\\vdots\\a_{nk-1}
+    \end{bmatrix}
+    &
+\begin{bmatrix}
+a_{1j}\\
+\vdots\\
+a_{nj}
+\end{bmatrix}
+&
+    \begin{bmatrix}
+        a_{1k+1}\\\vdots\\a_{nk+1}
+    \end{bmatrix}
+    &\cdots&
+    \begin{bmatrix}
+        a_{1n}\\\vdots\\a_{nn}
+    \end{bmatrix}
+\end{pmatrix}
+\\[4 mm]
+\text{(degeneracy)}\quad&=\displaystyle\sum_{j=1}^nx_j\delta_{jk}\det
+\begin{pmatrix}
+    \begin{bmatrix}
+        a_{11}\\\vdots\\a_{n1}
+    \end{bmatrix}
+    &\cdots&
+    \begin{bmatrix}
+        a_{1k-1}\\\vdots\\a_{nk-1}
+    \end{bmatrix}
+    &
+\begin{bmatrix}
+a_{1j}\\
+\vdots\\
+a_{nj}
+\end{bmatrix}
+&
+    \begin{bmatrix}
+        a_{1k+1}\\\vdots\\a_{nk+1}
+    \end{bmatrix}
+    &\cdots&
+    \begin{bmatrix}
+        a_{1n}\\\vdots\\a_{nn}
+    \end{bmatrix}
+\end{pmatrix}
+\\[4 mm]
+&=x_k\det
+\begin{pmatrix}
+    \begin{bmatrix}
+        a_{11}\\\vdots\\a_{n1}
+    \end{bmatrix}
+    &\cdots&
+    \begin{bmatrix}
+        a_{1k-1}\\\vdots\\a_{nk-1}
+    \end{bmatrix}
+    &
+\begin{bmatrix}
+a_{1k}\\
+\vdots\\
+a_{nk}
+\end{bmatrix}
+&
+    \begin{bmatrix}
+        a_{1k+1}\\\vdots\\a_{nk+1}
+    \end{bmatrix}
+    &\cdots&
+    \begin{bmatrix}
+        a_{1n}\\\vdots\\a_{nn}
+    \end{bmatrix}
+\end{pmatrix}
+=x_k\det\left(A\right)
+\end{align*}
+To be clear, because $\mathrm{rank}\left(A\right)=n$, the columns of $A$ are linearly independent. Therefore, regarding the degeneracy property/step, the only instance when the determinant contribution is non-zero (i.e. the columns are linearly independent) is when all the columns are distinct (i.e. when $j=k$). Now, since $\det\left(A\right)\neq0$, Cramer's Rule follows directly from above:
+\[
+x_k=\frac{\det\left(\hat A_k^b\right)}{\det\left(A\right)}
+=\det\begin{pmatrix}
+    a_{11} & \cdots & a_{1k-1} & b_1 & a_{1k+1} & \cdots & a_{1n}\\
+    \vdots & \ddots & \vdots & \vdots & \vdots & \ddots & \vdots\\
+    a_{n1} & \cdots & a_{nk-1} & b_n & a_{nk+1} & \cdots & a_{nn}
+\end{pmatrix}\Bigg/
+\det\begin{pmatrix}
+a_{11} & \dots & a_{1n} \\
+\vdots & \ddots & \vdots \\
+a_{n1} & \dots & a_{nn}
+\end{pmatrix}
+\]
+Although elegant, Cramer's Rule is very inefficient. Specifically, the number of operations needed to compute the determinants in the algorithm grows like $\mathcal{O}(n!)$, whereas the number of operations needed to row reduce a system via Gauss-Jordan elimination (RREF) grows like $\mathcal{O}(n^3)$.
+\newpage
+An immediate application of Cramer's Rule is a matrix inversion algorithm. Recall that $A^{-1}\in\mathbb{R}^{n\times n}$ is (contextually) the inverse of $A\in\mathbb{R}^{n\times n}$ if $AA^{-1}=I$. Therefore, provided that $\mathcal{B}=\left\{\bm E_i\right\}_{i=1}^n$ is the standard ordered basis of $\mathbb{R}^{n\times1}$, one has $A\left(A^{-1}\right)_{*j}=\bm E_j$ for each $j=1,\dots,n$. This implies that the $i^\text{th}$ entry of the $j^\text{th}$ column of $A^{-1}$ can be given by Cramer's Rule as follows:  
+$$\left(A^{-1}\right)_{ij}=\frac{\det\left(\hat A_i^{\bm E_j}\right)}{\det\left(A\right)}\qquad\text{which motivates the adjugate definition:}\qquad\mathrm{adj}\left(A\right)\coloneq\left[\det\left(\hat A_i^{\bm E_j}\right)\right]_{i,j=1}^n$$
+Using the adjugate, which exists regardless if $A$ is invertible or not, the matrix inversion algorithm can be reformatted as such without reference to indices:
+$$A^{-1}=\frac{\mathrm{adj}\left(A\right)}{\det\left(A\right)}\quad\text{for any full rank}\quad A\in\mathbb{R}^{n\times n}$$
+We now take note of how the adjugate responds to matrix transposition. In order to do so, we need to carefully take advantage of the determinant's invariance under matrix transposition as such:
+$$\left(\mathrm{adj}\left(A\right)^\top\right)_{ij}=\det\left(\hat A_j^{\bm E_i}\right)=\det\left(\left(\hat A_j^{\bm E_i}\right)^\top\right)=\det\left( \widehat{\left(A^\top\right)}_i^{\bm E_j}\right)=\left(\mathrm{adj}\left(A^\top\right)\right)_{ij}\;\;\implies\;\;\mathrm{adj}\left(A\right)^\top=\mathrm{adj}\left(A^\top\right)$$
+Now, without assuming $\mathrm{rank}\left(A\right)=n$, because the determinant is column-wise linear, we can construct the linear functional, which takes the determinant of $A$ with one of its columns replaced by an input vector. With the understanding that $b=\sum_{j=1}^nb_j\bm E_j$, we can make the definition tangible as below:
+$$\det\left(\hat A_i^{(\cdot)}\right):b\in\mathbb{R}^{n\times1}\mapsto\det\left(\hat A_i^b\right)\quad\implies\quad\det\left(\hat A_i^b\right)=\sum_{j=1}^n\det\left(\hat A_i^{\bm E_j}\right)b_j=\sum_{j=1}^n\left(\mathrm{adj}\left(A\right)\right)_{ij}b_j$$
+Given some coordinate vector $b\in\mathbb{R}^{n\times1}$, if the columns of $\hat A_i^b$ are linearly dependent, then we automatically have that $\det\,(\hat A_i^b)=0$. Therefore, if on the one hand $b=A_{*k}$ for any $k\neq i$, then $\det\,(\hat A_i^b)=0$. On the other hand, if $k=i$, then $\hat A_i^b=A$, and thus $\det\,(\hat A_i^b)=\det\left(A\right)$. We can summarize the results as follows: 
+$$\det\left(A\right)\delta_{ik}=\det\left(\hat A_i^{A_{*k}}\right)=\sum_{j=1}^n\left(\mathrm{adj}\left(A\right)\right)_{ij}\left(A_{*k}\right)_j=\sum_{j=1}^n\left(\mathrm{adj}\left(A\right)\right)_{ij}A_{jk}=\left(\mathrm{adj}\left(A\right)A\right)_{ik}$$
+\begin{center}
+    \vspace{3 mm}
+    ------ which implies ------
+    \vspace{1.5 mm}
+\end{center}
+\begin{align*}
+\det\left(A\right)I=\mathrm{adj}\left(A\right)A\quad&\implies\quad\det\left(A\right)I=\left(\det\left(A\right)I\right)^\top=\left(\mathrm{adj}\left(A\right)A\right)^\top=A^\top\mathrm{adj}\left(A\right)^\top=A^\top\mathrm{adj}\left(A^\top\right)
+\\[4 mm]
+&\implies\quad\det\left(A^\top\right)I=A^\top\mathrm{adj}\left(A^\top\right)\quad\implies\quad \det\left(A\right)I=A\,\mathrm{adj}\left(A\right)
+\\[4 mm]
+&\implies\quad \mathrm{adj}\left(A\right)A=\det\left(A\right)I=A\,\mathrm{adj}\left(A\right)
+\end{align*}
+The most striking consequence of the above identity involving the adjugate is that it can be used to prove the Cayley-Hamilton Theorem. Keeping in mind that $\mathrm{adj}\left(A-\lambda I\right)$ is in fact a polynomial in $\lambda$ with coefficients in $\mathbb{R}^{n\times n}$, by replacing each instance of $A$ with $A-\lambda I$ in the above identity:
+$$
+    \mathrm{adj}\left(A-\lambda I\right)\left(A-\lambda I\right)=\det\left(A-\lambda I\right)I=p_A(\lambda)\,I\quad\implies\quad p_A(A)\,I=\underbrace{\mathrm{adj}\left(A-AI\right)}_{=0}\underbrace{\left(A-AI\right)}_{=0}=0
+$$
+\begin{center}
+    ------ which implies ------
+    \vspace{3 mm}
+\end{center}
+$$
+\boxed{\;p_A(A)=0\vphantom{\frac{a}{}}\;}\quad\implies\quad p_{[T]_\beta}([T]_\beta)=\left[p_{[T]_\beta}(T)\right]_\beta=[p_T(T)]_\beta=0\quad\implies\quad\boxed{\;p_T(T)=0\vphantom{\frac{a}{}}\;}
+$$
+\begin{center}
+\vspace{3 mm}
+    for any $\quad A\in\mathbb{R}^{n\times n}\quad$ and $\quad T\in\mathscr{L}(\bm V)$
+\end{center}
+\newpage
+In order to attain a superior understanding of the adjugate, with foresight, for any $T\in\mathscr{L}(\bm V)$, consider the operator $\mathrm{adj}\left(T\right):\bm V\to\bm V$, which is referred to as the adjugate of $T$, and is implicitly defined as such:
+$$\omega\left(v_1,\dots,v_{n-1},\mathrm{adj}\left(T\right)(u)\right)=\omega\left(T(v_1),\dots,T(v_{n-1}),u\right)\quad\text{for any}\quad v_1,\dots,v_{n-1},u\in\bm V$$
+Observe that this implicit definition of the adjugate can be consistently extended as appropriately illustrated:
+\begin{align*}
+    &\omega\left(v_1,\dots,v_{i-1},\mathrm{adj}\left(T\right)(u),v_{i+1},\dots,v_n\right)=-\omega\left(v_1,\dots,v_{i-1},v_n,v_{i+1},\dots,v_{n-1},\mathrm{adj}\left(T\right)(u)\right)
+    \\[4 mm]
+    &=-\omega\left(T(v_1),\dots,T(v_{i-1}),T(v_n),T(v_{i+1}),\dots,T(v_{n-1}),u\right)
+    \\[4 mm]
+    &=\omega\left(T(v_1),\dots,T(v_{i-1}),u,T(v_{i+1}),\dots,T(v_n)\right)\quad\text{for any}\quad v_1,\dots,v_{i-1},u,v_{i+1},\dots,v_n\in\bm V
+\end{align*}
+Geometrically, given an $n$-dimensional parallelepiped, if all but one spanning vector is mapped under $T$, it would have the same (hyper) volume if instead only the excluded spanning vector was mapped via $\mathrm{adj}\left(T\right)$. Now, it clearly follows that $\mathrm{adj}\left(T\right)\in\mathscr{L}(\bm V)$ as demonstrated contextually:  
+\begin{align*}
+    &\omega\left(u_1,\dots,u_{n-1},\mathrm{adj}\left(T\right)(v+\lambda w)\right)=\omega\left(T(u_1),\dots,T(u_{n-1}),v+\lambda w\right)
+    \\[4 mm]
+    &=\omega\left(T(u_1),\dots,T(u_{n-1}),v\right)+\lambda\omega\left(T(u_1),\dots,T(u_{n-1}),w\right)
+    \\[4 mm]
+    &=\omega\left(u_1,\dots,u_{n-1},\mathrm{adj}\left(T\right)(v)\right)+\lambda\omega\left(u_1,\dots,u_{n-1},\mathrm{adj}\left(T\right)(w)\right)
+    \\[4 mm]
+    &=\omega\left(u_1,\dots,u_{n-1},\mathrm{adj}\left(T\right)(v)+\lambda\,\mathrm{adj}\left(T\right)(w)\right)\quad\implies\quad\mathrm{adj}\left(T\right)(v+\lambda w)=\mathrm{adj}\left(T\right)(v)+\lambda\,\mathrm{adj}\left(T\right)(w)
+\end{align*}
+With the understanding that $[\bm e_k]_\beta=\bm E_k$, the relationship between both notions of the adjugate, which are given by $\mathrm{adj}\left(T\right)$ and $\mathrm{adj}\left([T]_\beta\right)$, will be made clear below:
+\begin{align*}
+&\left(\mathrm{adj}\left([T]_\beta\right)\right)_{ik}=\det\left(\widehat{([T]_\beta)}_i^{\bm E_k}\right)=\det([T(\bm e_1)]_\beta,\dots,[T(\bm e_{i-1})]_\beta,\underbrace{[\bm e_k]_\beta}_{\bm E_k},[T(\bm e_{i+1})]_\beta,\dots,[T(\bm e_n)]_\beta)
+\\[4 mm]
+&=\omega\left(T(\bm e_1),\dots,T(\bm e_{i-1}),\bm e_k,T(\bm e_{i+1}),\dots,T(\bm e_n)\right)=\omega\left(\bm e_1,\dots,\bm e_{i-1},\mathrm{adj}\left(T\right)(\bm e_k),\bm e_{i+1},\dots,\bm e_n\right)
+\\[4 mm]
+&=\omega\left(\bm e_1,\dots,\bm e_{i-1},\sum_{j=1}^n\left([\mathrm{adj}\left(T\right)]_\beta\right)_{jk}\bm e_j,\bm e_{i+1},\dots,\bm e_n\right)=\sum_{j=1}^n\left([\mathrm{adj}\left(T\right)]_\beta\right)_{jk}\omega\left(\bm e_1,\dots,\bm e_{i-1},\bm e_j,\bm e_{i+1},\dots,\bm e_n\right)
+\\[4 mm]
+&=\sum_{j=1}^n\left([\mathrm{adj}\left(T\right)]_\beta\right)_{jk}\delta_{ij}=\left([\mathrm{adj}\left(T\right)]_\beta\right)_{ik}\quad\implies\quad [\mathrm{adj}\left(T\right)]_\beta=\mathrm{adj}\left([T]_\beta\right)
+\end{align*}
+Therefore, the two notions of the adjugate are representations of the same object, which is to say that they are isomorphic. Consequentially, the adjugate of $T$ satisfies the following:
+$$\mathrm{adj}\left(T\right)\circ T=\det\left(T\right)\mathrm{id}_{\bm V}=T\circ\mathrm{adj}\left(T\right)\qquad\text{and}\qquad\mathrm{adj}\left(T\right)=\det\left(T\right)T^{-1}\quad\text{iff}\quad\det\left(T\right)\neq0$$
+Moreover, using the intrinsic perspective of the adjugate, its properties can be further developed, which will simultaneously develop the matrix formulation. In this regard, for any vectors $v_1,\dots,v_{n-1},u\in\bm V$ and $T,U\in\mathscr{L}(\bm V)$, consider the treatment of map composition:
+\begin{align*}
+    &\omega\left(v_1,\dots,v_{n-1},\mathrm{adj}\left(T\circ U\right)(u)\right)
+    =\omega\left((T\circ U)(v_1),\dots,(T\circ U)(v_{n-1}),u\right)
+    \\[4 mm]
+    &=\omega\left(U(v_1),\dots,U(v_{n-1}),\mathrm{adj}\left(T\right)(u)\right)=\omega\left(v_1,\dots,v_{n-1},\mathrm{adj}\left(U\right)\circ\mathrm{adj}\left(T\right)(u)\right)
+\end{align*}
+\vspace{-1.5 mm}
+$$\implies\mathrm{adj}\left(T\circ U\right)=\mathrm{adj}\left(U\right)\circ\mathrm{adj}\left(T\right)\quad\text{and thus}\quad\mathrm{adj}\left(AB\right)=\mathrm{adj}\left(B\right)\mathrm{adj}\left(A\right)\quad\text{for any}\quad A,B\in\mathbb{R}^{n\times n}$$
+\begin{comment}
+\vspace{-3 mm}\\
+If it is not clear how the above matrix identity was arrived at, consider representing the above intrinsic adjugate composition identity as follows:
+\begin{align*}
+[\mathrm{adj}\left(T\circ U\right)]_\beta=[\mathrm{adj}\left(U\right)\circ\mathrm{adj}\left(T\right)]_\beta\quad&\implies\quad\mathrm{adj}\left([T\circ U]_\beta\right)=[\mathrm{adj}\left(U\right)]_\beta\,[\mathrm{adj}\left(T\right)]_\beta
+\\[4 mm]
+&\implies\quad\mathrm{adj}\left([T]_\beta[U]_\beta\right)=\mathrm{adj}\left([U]_\beta\right)\mathrm{adj}\left([T]_\beta\right)
+\end{align*}
+\vspace{-1.75 mm}\\
+Since this holds for any such basis $\beta$, the matrices $[T]_\beta$ and $[U]_\beta$ can be replaced arbitrarily. Therefore, the adjugate is an anti-homomorphism, which is without coincidence an essential property of inversion.
+\end{comment}
+\newpage
+Although the established algorithms for computing the determinant has had utility in developing the theory, they are not practical. Thus, we finally aim to develop a practical means of computing the determinant by exploring the notion of cofactor expansion.
+\vspace{3 mm}\\
+The angle of attack here is to consider expanding the determinant in a consistent manner along distinct rows/columns of the matrix. Before doing so, given a matrix $A=[a_{ik}]_{i,k=1}^n\in\mathbb{R}^{n\times n}$, consider the $(i,k)$ sub-matrix $\hat A_{ik}$, which is obtained by deleting both the $i^\text{th}$ row and the $k^\text{th}$ column of $A$ as shown below:
+\[
+\hat A_{ik}=
+\begin{bmatrix}
+    a_{11} & \cdots & a_{1\,k-1} & a_{1\,k+1} & \cdots & a_{1n}\\
+    \vdots & \ddots & \vdots & \vdots & \ddots & \vdots\\
+    a_{i-1\,1} & \cdots & a_{i-1\,k-1} & a_{i-1\,k+1} & \cdots & a_{j-1\,n}\\
+    a_{i+1\,1} & \cdots & a_{i+1\,k-1} & a_{i+1\,k+1} & \cdots & a_{i+1\,n}\\
+    \vdots & \ddots & \vdots & \vdots & \ddots & \vdots\\
+     a_{n1} & \cdots & a_{n\,k-1} & a_{n\,k+1} & \cdots & a_{nn}
+\end{bmatrix}
+\]
+Be mindful not to confuse this notation with objects of the form $\hat A_k^b$ which serve a separate purpose. Now, picking up from the Leibniz determinant formula, we will begin by expanding along a fixed ($i^\text{th}$) row:  
+\begin{align*}
+\det\left(A\right)
+&=\sum_{\sigma\in S_n}\mathrm{sgn}\left(\sigma\right)\prod_{k=1}^nA_{\sigma(k)k}
+=\sum_{j=1}^n\sum_{\substack{\sigma\in S_n\\ \sigma(j)=i}}
+\mathrm{sgn}\left(\sigma\right)\prod_{k=1}^nA_{\sigma(k)k}
+=\sum_{j=1}^n
+\sum_{\substack{\sigma\in S_n\\ \sigma(j)=i}}
+\mathrm{sgn}\left(\sigma\right)A_{ij}\prod_{k\neq j}A_{\sigma(k)k}
+\\[4mm]
+&=\sum_{j=1}^n
+\sum_{\varrho\in S_{n-1}}
+(-1)^{i+j}\mathrm{sgn}\left(\varrho\right)
+A_{ij}\prod_{k=1}^{n-1}
+\left(\hat A_{ij}\right)_{\varrho(k)k}
+=\sum_{j=1}^n(-1)^{i+j}A_{ij}
+\sum_{\varrho\in S_{n-1}}
+\mathrm{sgn}\left(\varrho\right)
+\prod_{k=1}^{n-1}
+\left(\hat A_{ij}\right)_{\varrho(k)k}
+\\[4mm]
+&=\sum_{j=1}^n(-1)^{i+j}A_{ij}\det\left(\hat A_{ij}\right)
+\end{align*}
+If it is not clear as to why $\mathrm{sgn}\left(\sigma\right)=(-1)^{i+j}\mathrm{sgn}\left(\varrho\right)$ above, because $\varrho\in S_{n-1}$ is the permutation $\sigma\in S_n$ with $j$ and $i$ removed from the domain and range respectively, the number of transpositions needed to construct $\sigma$ is $N(\sigma)\equiv N(\varrho)+(i-1)+(j-1)\equiv N(\varrho)+i+j$ (modulo 2). Therefore, we may contextually write:
+$$\mathrm{sgn}\left(\sigma\right)=(-1)^{N(\sigma)}=(-1)^{N(\varrho)+
+|i-j|}=(-1)^{|i-j|}(-1)^{N(\varrho)}=(-1)^{i+j}\mathrm{sgn}\left(\varrho\right)$$
+This recursive algorithm for expanding the determinant is known as cofactor expansion (aka the Laplace Expansion Theorem). The term $M_{ij}\coloneq\det\,(\hat A_{ij})$ is referred to as the $(i,j)$ minor of $A$, and we call the term $C_{ij}\coloneq(-1)^{i+j}M_{ij}=(-1)^{i+j}\det\,(\hat A_{ij})$ the corresponding $(i,j)$ cofactor of $A$, which is summarized below:
+$$\det\left(A\right)=\sum_{j=1}^nA_{ij}C_{ij}=\sum_{j=1}^nA_{ij}(-1)^{i+j}M_{ij}=\sum_{j=1}^n(-1)^{i+j}A_{ij}M_{ij}=\sum_{j=1}^n(-1)^{i+j}A_{ij}\det\left(\hat A_{ij}\right)$$
+The critical feature of cofactor expansion is that not only could the determinant be expanded initially along any row, but because $\det\left(A\right)=\det\left(A^\top\right)$, we could also initially expand along any fixed ($j^\text{th}$) column:
+$$\det\left(A\right)=\sum_{i=1}^nA_{ij}C_{ij}=\sum_{i=1}^nA_{ij}(-1)^{i+j}M_{ij}=\sum_{i=1}^n(-1)^{i+j}A_{ij}M_{ij}=\sum_{i=1}^n(-1)^{i+j}A_{ij}\det\left(\hat A_{ij}\right)$$
+Moreover, upon constructing the cofactor matrix $C=[C_{ij}]_{i,j=1}^n$, it can be related directly back to the concept of the adjugate. In particular, since $A$ and $\hat A_j^{\bm E_k}$ only differ in their $j^\text{th}$ column, they share the same cofactor $C_{ij}$, and so by expanding the determinant of $\hat A_j^{\bm E_k}$ along the $j^\text{th}$ column, we obtain:
+$$\left(\mathrm{adj}\left(A\right)\right)_{jk}=\det\left(\hat A_j^{\bm E_k}\right)=\sum_{i=1}^n\left(\hat A_j^{\bm E_k}\right)_{ij}C_{ij}=\sum_{i=1}^n\left(\bm E_k\right)_iC_{ij}=\sum_{i=1}^n\delta_{ik}C_{ij}=C_{kj}\quad\implies\quad\mathrm{adj}\left(A\right)=C^\top$$
+\newpage
+One quick result that follows immediately from the cofactor expansion algorithm is that the determinant of any triangular matrix is the product of its diagonal entries. To see this, consider the matrix $A\in\mathbb{R}^{n\times n}$ in the case that it is upper triangular:
+$$A=
+\begin{bmatrix}
+a_{11} & a_{12} & \dots & a_{1n} \\
+0 & a_{22} & \cdots & a_{2n} \\
+\vdots & \vdots & \ddots & \vdots \\
+0 & 0 & \cdots & a_{nn}
+\end{bmatrix}
+\qquad\text{noting}\qquad \hat A_{11}=
+\begin{bmatrix}
+a_{22} & a_{23} & \dots & a_{2n} \\
+0 & a_{33} & \cdots & a_{3n} \\
+\vdots & \vdots & \ddots & \vdots \\
+0 & 0 & \cdots & a_{nn}
+\end{bmatrix}
+\quad\text{is also upper triangular}$$
+Therefore, upon applying the cofactor expansion algorithm with respect to the first column, we obtain the following result for the evaluation of the determinant:
+$$\det\left(A\right)=a_{11}\det\left(\hat A_{11}\right)-0\cdot\det\left(\hat A_{21}\right)+\cdots+(-1)^{n-1}\cdot0\cdot\det\left(\hat A_{n1}\right)=a_{11}\det\left(\hat A_{11}\right)$$
+Again, due to the fact that $\hat A_{11}$ is also upper triangular, it thereby follows from $n-1$ iterations of this procedure (i.e. induction) that the determinant is given as such:
+$$\det\left(A\right)=a_{11}\cdots a_{n-1\,n-1}\det\left(a_{nn}\right)=a_{11}\cdots a_{nn}$$
+Keeping in mind that $A^\top$ is lower triangular, because the determinant is invariant with respect to matrix transposition, it follows that this result holds for lower triangular matrices as well:
+$$\det\left(A\right)=a_{11}\cdots a_{nn}\quad\text{for any triangular matrix}\quad A=[a_{ij}]_{i,j=1}^n\in\mathbb{R}^{n\times n}$$
+As alluded to previously, this directly implies that the eigenvalues of any triangular matrix are its diagonal entries. In particular, for any triangular $A=[a_{ij}]_{i,j=1}^n\in\mathbb{R}^{n\times n}$, because $A-\lambda I$ is triangular and its $i^\text{th}$ diagonal entry is
+$(A-\lambda I)_{ii}=a_{ii}-\lambda$, one has:
+$$p_A(\lambda)=\det\left(A-\lambda I\right)=\prod_{i=1}^n(a_{ii}-\lambda)\quad\implies\quad\text{the roots of $p_A(\lambda)$ are $a_{11},\dots,a_{nn}$}$$
+Now, for any $A\in\mathbb{R}^{n\times n}$ and $D\in\mathbb{R}^{m\times m}$ (not necessarily triangular), using nearly the same reasoning via inductive cofactor expansion, the determinants of the following block matrices follow as such:
+$$\det\left(\begin{array}{c|c} A & O_{n\times m} \\ \hline O_{m\times n} & I_m
+\end{array}\right)
+=\det\left(A\right)
+\qquad\text{and}\qquad
+\det\left(\begin{array}{c|c} I_n & O_{n\times m} \\ \hline O_{m\times n} & D \end{array}\right)=\det\left(D\right)
+$$
+Given another arbitrary matrix of the form $B\in\mathbb{R}^{n\times m}$, consider the decomposition of the respective block matrix below that follows from matrix multiplication:
+$$\left[\begin{array}{c|c} A & B \\ \hline O_{m\times n} & D \end{array}\right]
+=
+\left[\begin{array}{c|c} A & O_{n\times m} \\ \hline O_{m\times n} & I_m \end{array}\right]
+\left[\begin{array}{c|c} I_n & B \\ \hline O_{m\times n} & D \end{array}\right]
+$$
+Using the multiplication property of the determinant, the determinant of the above block matrix can be evaluated by computing the following product of sub-determinants:
+\begin{align*}
+\det\left(\begin{array}{c|c} A & B \\ \hline O_{m\times n} & D \end{array}\right)
+&=\underbrace{\det\left(
+\begin{array}{c|c} A & O_{n\times m} \\ \hline O_{m\times n} & I_m \end{array}\right)}_{=\det\left(AI_m\right)}\underbrace{\det\left(\begin{array}{c|c} I_n & B \\ \hline O_{m\times n} & D \end{array}\right)}_{=\det\left(I_nD\right)}=\det\left(A\right)\det\left(D\right)
+\end{align*}
+Given yet another arbitrary matrix of the form $C\in\mathbb{R}^{m\times n}$ (not necessarily a cofactor matrix), due to the symmetry of the determinant under transposition, the following determinants are necessarily equal:    
+$$\det\left(\begin{array}{c|c} A & B \\ \hline O_{m\times n} & D \end{array}\right)=\det\left(\begin{array}{c|c} A & O_{n\times m} \\ \hline C & D \end{array}\right)=\det\left(A\right)\det\left(D\right)$$
+\newpage
+Building off from the last result, assume now that $A\in\mathbb{R}^{n\times n}$ is invertible. In that case, consider expanding the determinant of the block matrix given as such:
+\begin{align*}
+    &\det\left(\begin{array}{c|c} A & B \\ \hline C & D \end{array}\right)=\det\left(A\right)\det\left(\begin{array}{c|c} A & B \\ \hline C & D \end{array}\right)\det\left(A\right)^{-1}=\det\left(A\right)\det\left(\begin{array}{c|c} A & B \\ \hline C & D \end{array}\right)\det\left(A^{-1}\right)
+    \\[4 mm]
+    &=\det\left(A\right)\det\left(\begin{array}{c|c} A & B \\ \hline C & D \end{array}\right)  \det\left(\begin{array}{c|c} A^{-1} & -A^{-1}B \\ \hline O_{m\times n} & I_m \end{array}\right)=\det\left(A\right)\det\left(\left[\begin{array}{c|c} A & B \\ \hline C & D \end{array}\right]\left[\begin{array}{c|c} A^{-1} & -A^{-1}B \\ \hline O_{m\times n} & I_m \end{array}\right]\right)
+    \\[4 mm]
+    &=\det\left(A\right)\det\left(\begin{array}{c|c} I_n & O_{n\times m} \\ \hline CA^{-1}\vphantom{\frac{;^;}{}} & D-CA^{-1}B \end{array}\right)=\det\left(A\right)\det\left(D-CA^{-1}B\right)
+\end{align*}
+\vspace{2 mm}
+$$\implies\det\left(\begin{array}{c|c} A & B \\ \hline C & D \end{array}\right)=\det\left(A\right)\det\left(D-CA^{-1}B\right)\quad\text{whenever}\quad\det\left(A\right)\neq0\phantom{\implies}$$
+\vspace{1.5 mm}\\
+On the other hand, if it is instead assumed that $D\in\mathbb{R}^{m\times m}$ is invertible, then in that case, the above determinant of the block matrix can be expanded as such:
+$$\det\left(\begin{array}{c|c} A & B \\ \hline C & D \end{array}\right)=\det\left(D\right)\det\left(A-BD^{-1}C\right)\quad\text{whenever}\quad\det\left(D\right)\neq0$$
+As a direct consequence of the above results, consider computing the following determinant in two distinct ways as demonstrated below:
+\begin{align*}
+\det\left(\begin{array}{c|c} I_n & B \\ \hline C & I_m \end{array}\right)&=\underbrace{\det\left(I_n\right)}_{=1}\det\left(I_m-CI_n^{-1}B\right)=\det\left(I_m-CB\right)
+\\[4 mm]
+\text{(alternatively)}\quad&=\underbrace{\det\left(I_m\right)}_{=1}\det\left(I_n-BI_m^{-1}C\right)=\det\left(I_n-BC\right)
+\end{align*}
+Therefore, upon (strictly) negating either $B$ or $C$ in the above relation, the following determinant identity (Sylvester's Determinant Theorem) holds in general within the appropriate context:
+$$\det\left(I_n+BC\right)=\det\left(I_m+CB\right)$$
+Yet another determinant identity arises upon demanding the commutative constraint $CD=DC$, which implies $m=n$ (i.e. $I=I_n=I_m$), whilst considering the following polynomial in $\lambda$ as shown below:
+\begin{align*}
+    &\det\left(\begin{array}{c|c} A & B \\ \hline C & D-\lambda I\end{array}\right)=\det\left(D-\lambda I\right)\det\left(A-B(D-\lambda I)^{-1}C\right)
+    \\[4 mm]
+    &=\det\left(A-B(D-\lambda I)^{-1}C\right)\det\left(D-\lambda I\right)=\det\left(\left(A-B(D-\lambda I)^{-1}C\right)\left(D-\lambda I\right)\right)
+    \\[4 mm]
+    &=\det\left(A\left(D-\lambda I\right)-B(D-\lambda I)^{-1}C\left(D-\lambda I\right)\right)=\det\left(AD-A(\lambda I)-B(D-\lambda I)^{-1}\left(D-\lambda I\right)C\right)
+    \\[4 mm]
+    &=\det\left(AD-\lambda AI-BIC\right)=\det\left(AD-BC-\lambda A\right)
+\end{align*}
+Because this is a polynomial equation in $\lambda$, the relationship must remain algebraically consistent at $0^\text{th}$ order (i.e. when $\lambda=0$). Therefore, the following equality of determinants holds:
+$$\det\left(\begin{array}{c|c} A & B \\ \hline C & D\end{array}\right)=\det\left(AD-BC\right)\quad\text{whenever}\quad CD=DC$$
+On the other hand, if instead the matrices $A$ and $B$ commute multiplicatively, which also implies $m=n$, then an analogous determinant formula arises as such by symmetry:
+$$\det\left(\begin{array}{c|c} A & B \\ \hline C & D\end{array}\right)=\det\left(DA-CB\right)\quad\text{whenever}\quad AB=BA$$
+\begin{comment}
+Noting that real numbers commute multiplicatively, this a generalization of the traditional determinant law pertaining to $\mathbb{R}^{2\times 2}$, which can be derived by any prescribed determinant algorithm, and is given below:
+$$\det\begin{pmatrix}
+    a & b\\
+    c & d
+\end{pmatrix}=ad-bc\quad\text{for any}\quad a,b,c,d\in\mathbb{R}$$
+\end{comment}
+\newpage
+We now aim to establish a connection between the determinant and the trace operation. To do so, a detour on the notion of trace will be embarked upon. In this respect, given a dual basis $\beta^*=\left\{ \theta_j\right\}_{j=1}^n$ of the dual space $\mathscr{L}(\bm V,\mathbb{R})$ with the property that $\theta_j(\bm e_i)=\delta_{ij}$, using the tensor product $\otimes$, any linear map $T\in\mathscr{L}(\bm V)$ can be decomposed as follows:
+\begin{align*}
+    T(v)&=T\left(\,\sum_{j=1}^n\left([v]_\beta\right)_j\bm e_j\right)=\sum_{j=1}^n\left([v]_\beta\right)_jT\left(\bm e_j\right)=\sum_{j=1}^n\left([v]_\beta\right)_j\sum_{i=1}^n\left([T]_\beta\right)_{ij}\bm e_i=\sum_{i=1}^n\sum_{j=1}^n\left([T]_\beta\right)_{ij}\left([v]_\beta\right)_j\bm e_i
+    \\[4 mm]
+    &=\sum_{i=1}^n\sum_{j=1}^n\left([T]_\beta\right)_{ij}\theta_j(x)\,\bm e_i=\sum_{i=1}^n\sum_{j=1}^n\left([T]_\beta\right)_{ij}\bm e_i\otimes\theta_j\left(\cdot,v\right)\quad\text{for any}\quad v\in\bm V
+    \\[4 mm]
+    &\implies T=\sum_{i=1}^n\sum_{j=1}^n\left([T]_\beta\right)_{ij}\bm e_i\otimes\theta_j\quad\text{for any such pairing $(\beta,\beta^*)$}
+\end{align*}
+Therefore, given that $\left\{u_i\right\}_{i=1}^n$ and $\left\{v_j\right\}_{j=1}^n$ are bases of $\bm V$, there exists corresponding dual vectors denoted by $\phi_i,\psi_j\in\mathscr{L}(\bm V,\mathbb{R})$ such that any such linear map $T$ can be expressed in terms of those bases over the tensor product as below:
+$$T=\sum_{i=1}^nu_i\otimes\phi_i\qquad\text{and}\qquad T=\sum_{j=1}^nv_j\otimes\psi_j$$
+Crucially, because $\left\{u_i\right\}_{i=1}^n$ is a basis of $\bm V$, there exists $a_{ij}\in\mathbb{R}$ such that $v_j=\sum_{i=1}^na_{ij}u_i$, and so the representation of $T$ over the basis $\left\{v_i\right\}_{i=1}^n$ can be rewritten as such:
+\begin{align*}
+     &\sum_{i=1}^nu_i\otimes\phi_i=T=\sum_{j=1}^n\left(\,\sum_{i=1}^na_{ij}u_i\right)\otimes\psi_j=\sum_{i=1}^nu_i\otimes\sum_{j=1}^na_{ij}\psi_j
+     \\[4 mm]
+     &\implies\sum_{i=1}^nu_i\otimes\left(\phi_i-\sum_{j=1}^na_{ij}\psi_j\right)=0\quad\implies\quad\phi_i-\sum_{j=1}^na_{ij}\psi_j=0\quad\implies\quad\phi_i=\sum_{j=1}^na_{ij}\psi_j
+\end{align*}
+With this relationship between the respective linear functionals out of the way, consider contracting the tensor product representations of $T$ as demonstrated below:
+$$\sum_{j=1}^n\psi_i(v_j)=\sum_{j=1}^n\psi_j\left(\,\sum_{i=1}^na_{ij}u_i\right)=\sum_{j=1}^n\sum_{i=1}^na_{ij}\psi_i(u_i)=\sum_{i=1}^n\left(\,\sum_{j=1}^na_{ij}\psi_i\right)(u_i)=\sum_{i=1}^n\phi_i(u_i)$$
+Observe that regardless of how the linear map is represented (via a basis) over the tensor product, the act of contracting the operator expansion results in an invariant quantity. This invariant is called the trace, and can thus be defined for any such basis $\beta$ as follows:
+$$\mathrm{tr}\left(T\right)\coloneq\sum_{i=1}^n\sum_{j=1}^n\left([T]_\beta\right)_{ij}\theta_j(\bm e_i)=\sum_{i=1}^n\sum_{j=1}^n\left([T]_\beta\right)_{ij}\theta_j(\bm e_i)=\sum_{i=1}^n\sum_{j=1}^n\left([T]_\beta\right)_{ij}\delta_{ij}=\sum_{i=1}^n\left([T]_\beta\right)_{ii}$$
+As a direct consequence of the definition, it can be shown that the trace is a linear operator in it of itself, which is to say $\mathrm{tr}\in\mathscr{L}(\mathscr{L}(\bm V),\mathbb{R})$. To verify this, for any $T,U,\in\mathscr{L}(\bm V)$ and $\lambda\in\mathbb{R}$, observe the identity:
+\begin{align*}
+\mathrm{tr}\left(T+\lambda U\right)&=\sum_{i=1}^n\left([T+\lambda U]_\beta\right)_{ii}=\sum_{i=1}^n\left(\left([T]_\beta\right)_{ii}+\lambda\left([U]_\beta\right)_{ii}\right)
+\\[4 mm]
+&=\sum_{i=1}^n\left([T]_\beta\right)_{ii}+\lambda\sum_{i=1}^n\left([U]_\beta\right)_{ii}=\mathrm{tr}\left(T\right)+\lambda\mathrm{tr}\left(U\right)
+\end{align*}
+\newpage
+Another significant property of the trace is that it is cyclically invariant with respect to operator composition. In particular, for any $T,U\in\mathscr{L}(\bm V)$, there exists $\phi_i,\psi_j\in\mathscr{L}(\bm V,\mathbb{R})$ such that $T=\sum_{i=1}^n\bm e_i\otimes\phi_i$ and $U=\sum_{j=1}^n\bm e_j\otimes\psi_j$, which implies:
+\begin{align*}
+    &(T\circ U)\left(v\right)=\sum_{i=1}^n\bm e_i\otimes\phi_i\left(\cdot,U(v)\right)=\sum_{i=1}^n\phi_i\left(U(v)\right)\bm e_i=\sum_{i=1}^n\phi_i\left(\,\sum_{j=1}^n\bm e_j\otimes\psi_j\left(\cdot,v\right)\right)\bm e_i
+    \\[4 mm]
+    &=\sum_{i=1}^n\phi_i\left(\,\sum_{j=1}^n\psi_j\left(v\right)\bm e_j\right)\bm e_i=\sum_{i=1}^n\sum_{j=1}^n\psi_j\left(v\right)\phi_i\left(\bm e_j\right)\bm e_i=\sum_{i=1}^n\sum_{j=1}^n\phi_i\left(\bm e_j\right)\bm e_i\otimes\psi_j\left(\cdot,v\right)\quad\text{for any}\quad v\in\bm V
+\end{align*}
+\begin{align*}
+    &\implies T\circ U=\sum_{i=1}^n\sum_{j=1}^n\phi_i\left(\bm e_j\right)\bm e_i\otimes\psi_j\quad\overset{\text{(symmetry)}}{\iff}\quad U\circ T=\sum_{j=1}^n\sum_{i=1}^n\psi_j\left(\bm e_i\right)\bm e_j\otimes\phi_i
+    \\[4 mm]
+    &\implies\mathrm{tr}\left(T\circ U\right)=\sum_{i=1}^n\sum_{j=1}^n\phi_i\left(\bm e_j\right)\psi_j\left(\bm e_i\right)=\sum_{j=1}^n\sum_{i=1}^n\psi_j\left(\bm e_i\right)\phi_i\left(\bm e_j\right)=\mathrm{tr}\left(U\circ T\right)
+\end{align*}
+Upon representing the linear maps $T,U$ with respect to the basis $\beta$, the above property of the trace can be re-casted in terms of matrix multiplication as follows: 
+$$\mathrm{tr}\left(T\circ U\right)=\mathrm{tr}\left(U\circ T\right)\quad\implies\quad\sum_{i=1}^n\left([T]_\beta[U]_\beta\right)_{ii}=\underbrace{\sum_{i=1}^n\left([T\circ U]_\beta\right)_{ii}}_{\mathrm{tr}\left(T\circ U\right)}=\underbrace{\sum_{i=1}^n\left([U\circ T]_\beta\right)_{ii}}_{\mathrm{tr}\left(U\circ T\right)}=\sum_{i=1}^n\left([U]_\beta[T]_\beta\right)_{ii}$$
+Yet another property of the trace operator is that it composes with the adjoint operator without altering its output. In particular, upon temporarily assuming $\beta$ to be orthonormal, it could thus be demonstrated:
+$$\mathrm{tr}\left(T^\dagger\right)=\sum_{i=1}^n\left(\left[T^\dagger\right]_\beta\right)_{ii}=\sum_{i=1}^n\left(\left([T]_\beta\right)^\top\right)_{ii}=\sum_{i=1}^n\left([T]_\beta\right)_{ii}=\mathrm{tr}\left(T\right)$$
+With all of this scaffolding for the trace established, it becomes natural to extend the notion of trace from linear maps to matrices of the form $A\in\mathbb{R}^{n\times n}$, which is defined accordingly:
+$$\mathrm{tr}\left(A\right)\coloneq\sum_{i=1}^nA_{ii}\qquad\text{and thus}\qquad\mathrm{tr}\left(T\right)=\mathrm{tr}\left([T]_\beta\right)\quad\text{for any basis $\beta$ of $\bm V$}$$
+As a result, in this context, not only is taking the trace of the transpose equivalent to only taking the trace, but the trace is a linear operator in it of itself (i.e. $\mathrm{tr}\in\mathscr{L}(\mathbb{R}^{n\times n},\mathbb{R})$). Specifically, given any $A,B\in\mathbb{R}^{n\times n}$ and $\lambda\in\mathbb{R}$, this is illustrated as such:
+$$\mathrm{tr}\left(A+\lambda B\right)=\sum_{i=1}^n\left(A+\lambda B\right)_{ii}=\sum_{i=1}\left(A_{ii}+\lambda B_{ii}\right)=\sum_{i=1}^nA_{ii}+\lambda\sum_{i=1}^nB_{ii}=\mathrm{tr}(A)+\lambda\mathrm{tr}\left(B\right)$$
+Now, because there always exists $L_A,L_B\in\mathscr{L}(\bm V)$ such that $[L_A]_\beta=A$ and $[L_B]_\beta=B$, it thereby follows:
+$$\mathrm{tr}\left(AB\right)=\sum_{i=1}^n\left(AB\right)_{ii}=\sum_{i=1}^n\left([L_A]_\beta[L_B]_\beta\right)_{ii}=\sum_{i=1}^n\left([L_B]_\beta[L_A]_\beta\right)_{ii}=\sum_{i=1}^n\left(BA\right)_{ii}=\mathrm{tr}\left(BA\right)$$
+Furthermore, if $A$ and $B$ are similar, then there exists $Q\in\mathbb{R}^{n\times n}$ such that $A=QBQ^{-1}$, which implies similar matrices have equivalent traces as demonstrated below:
+$$\mathrm{tr}\left(A\right)=\mathrm{tr}\left(QBQ^{-1}\right)=\mathrm{tr}\left(Q^{-1}QB\right)=\mathrm{tr}\left(B\right)\quad\text{whenever}\quad A\sim B$$
+\newpage
+Like the determinant, the trace is an intrinsic quantity associated with the linear map at hand, and so it becomes natural to hypothesize that the trace is a function of the respective spectrum of the operator. 
+\vspace{3 mm}\\
+Suppose that $T$, or equivalently $[T]_\beta$ is diagonalizable. Then there exists linearly independent eigenvectors $v_1,\dots,v_n\in\bm V$ with corresponding eigenvalues $\lambda_1,\dots,\lambda_n\in\mathbb{R}$ and dual vectors $\xi_1,\dots,\xi_n\in\mathscr{L}(\bm V,\mathbb{R})$ with the property $\xi_j\left(v_i\right)=\delta_{ij}$ such that:
+$$T\left(v_j\right)=\lambda_jv_j=\sum_{i=1}^n\lambda_i\underbrace{\xi_i\left(v_j\right)}_{\delta_{ij}}v_i\quad\implies\quad T=\sum_{i=1}^n\lambda_iv_i\otimes\xi_i\quad\implies\quad\mathrm{tr}\left(T\right)=\sum_{i=1}^n\lambda_i\underbrace{\xi_i\left(v_i\right)}_{\delta_{ii}}=\sum_{i=1}^n\lambda_i$$
+It almost goes without saying, just as the trace of a linear operator is the sum of its eigenvalues, the trace of a matrix is likewise the sum of its respective eigenvalues. However, in the case that diagonalization fails over $\mathbb{R}$ or even $\mathbb{C}$ (upon extending the field), the principle can still be shown to hold. 
+\vspace{3 mm}\\
+For any $T\in\mathscr{L}(\bm V)$, since $p_T(\lambda)$ splits over $\mathbb{C}$, there necessarily exists an eigenvalue $\lambda_1$ such that $p_T(\lambda_1)=0$, and thus the eigenspace $E_{\lambda_1}(T)\neq\emptyset$. Therefore, we can choose an eigenvector from $E_{\lambda_1}(T)$ and extend it to a basis $\gamma$ of $\bm V$. With the understanding that $H=[T]_{\gamma}$, for some other $H'\in\mathbb{C}^{n\times n}$, we can write:
+$$
+H=
+\left[\begin{array}{c|c} \lambda_1 & * \\ \hline O_{n-1\,1} & H'\end{array}\right]
+\quad\implies\quad p_{H}(\lambda)=\det\left(H-\lambda I_n\right)
+=\left(\lambda_1-\lambda\right)\det\left(H'-\lambda I_{n-1}\right)=\left(\lambda_1-\lambda\right)p_{H'}(\lambda)
+$$
+Since the roots of $p_{H}(\lambda)$ are necessarily the eigenvalues of $T$, which are given by $\lambda_1,\dots,\lambda_n$, it therefore follows that $\lambda_2,\dots,\lambda_n$ are the roots of $p_{H'}(\lambda)$. The trace of the linear map $T$ can also be given by:
+$$\mathrm{tr}\left(T\right)=\mathrm{tr}\left(H\right)=\lambda_1+\mathrm{tr}\left(H'\right)$$
+Because $H'$ itself is square, the preceding procedure can be applied recursively to $H'$, and so on. In particular, $\mathrm{tr}\left(H'\right)$ can be expanded just as $\mathrm{tr}\left(H\right)$ was expanded (above), and so it directly follows from induction that the trace of $T$ can be computed as such:
+$$\mathrm{tr}\left(T\right)=\sum_{j=1}^{k-1}\lambda_j+\mathrm{tr}\left(H^{(k)}\right)\quad\&\quad\mathrm{tr}\left(H^{(n)}\right)=\lambda_n\quad\implies\quad\mathrm{tr}\left(T\right)=\sum_{i=1}^n\lambda_i$$
+Now that it has been proven that the trace of any linear map is always the sum of its eigenvalues, which analogously implies the trace of any square matrix is the sum of its eigenvalues, a clear connection between the determinant and trace can be established.
+\vspace{3 mm}\\
+However, before proceeding, the exponential map ought to be developed. Consider the smooth function $X:\mathbb{R}\to\bm V$. Keep in mind that the image of the map $t\in\mathbb{R}\mapsto[X(t)]_\beta$ can be interpreted as a smooth curve in $\mathbb{R}^n$. In this regard, provided a linear map $T\in\mathscr{L}(\bm V)$, let the velocity of $X$ be $T(X)$, where $X(0)=X_0\in\bm V$, which is to say the function $X$ obeys the following initial value problem:
+$$\dot X=T(X)\qquad\text{such that}\qquad X(0)=X_0$$
+From the theory of differential equations, there exists a unique solution to the above initial value problem, and it is given below via the formal exponential:
+$$X(t)=\exp\left(tT\right)X_0\qquad\text{such that}\qquad\exp:L\in\mathscr{L}(\bm V)\mapsto\mathrm{id}_{\bm V}+\sum_{k=1}^\infty\frac{L^k}{k!}$$
+Alternatively, the differential equation can be casted in $\mathbb{R}^n$ by expressing everything in terms of the basis $\beta$. In particular, $[X]_\beta$ necessarily obeys the analogous initial value problem:
+$$[\dot X]_\beta=[T]_\beta[X]_\beta\qquad\text{such that}\qquad[X]_\beta\left(0\right)=[X_0]_\beta$$
+Just as before, the unique solution to the above initial value problem can be given via the formal exponential, which will now be defined to also accept matrix inputs as prescribed below:
+$$[X]_\beta\left(t\right)=\exp\left(t[T]_\beta\right)[X_0]_\beta\qquad\text{such that}\qquad\exp:A\in\mathbb{R}^{n\times n}\mapsto I+\sum_{k=1}^\infty\frac{A^k}{k!}$$
+\newpage
+Note in particular that for any such $T\in\mathscr{L}(\bm V)$, the exponential respects the matrix representation of $T$ over any such basis $\beta$ as demonstrated below:
+$$[\exp(T)]_\beta=\left[\mathrm{id}_{\bm V}+\sum_{k=1}^\infty\frac{T^k}{k!}\right]_\beta=[\mathrm{id}_{\bm V}]_\beta+\sum_{k=1}^\infty\frac{\left[T^k\right]_\beta}{k!}=I+\sum_{k=1}^\infty\frac{\left([T]_\beta\right)^k}{k!}=\exp\left([T]_\beta\right)$$
+With the additional contextual understanding that $\exp:z\in\mathbb{C}\mapsto e^z$, it is now possible to unravel the spectrum of $\exp\left(T\right)$ by considering the following augmented characteristic polynomial in $\lambda$:
+\begin{align*}
+p_{\exp\left(T\right)}(\exp\left(\lambda\right))&=p_{[\exp\left(T\right)]_\beta}(\exp\left(\lambda\right))=p_{\exp\left([T]_\beta\right)}(\exp\left(\lambda\right))=\det\left(\exp\left([T]_\beta\right)-\exp\left(\lambda\right)I\right)
+\\[4 mm]
+&=\det\left(I+\sum_{k=1}^\infty\frac{\left([T]_\beta\right)^k}{k!}-\left(1+\sum_{k=1}^\infty\frac{\lambda^k}{k!}\right)I\right)=\det\left(\,\sum_{k=1}^\infty\frac{1}{k!}\left(\left([T]_\beta\right)^k-\lambda^kI\right)\right)
+\\[4 mm]
+&=\det\left(\,\sum_{k=1}^\infty\frac{1}{k!}\left([T]_\beta-\lambda I\right)\sum_{j=0}^{k-1}\lambda^{k-1-j}\left([T]_\beta\right)^j\right)=\det\left(\left([T]_\beta-\lambda I\right)\sum_{k=1}^\infty\sum_{j=0}^{k-1}\frac{\lambda^{k-1-j}}{k!}\left([T]_\beta\right)^j\right)
+\\[4 mm]
+&=\underbrace{\det\left([T]_\beta-\lambda I\right)}_{p_T(\lambda)}\det\left(\,\sum_{k=1}^\infty\sum_{j=0}^{k-1}\frac{\lambda^{k-1-j}}{k!}\left([T]_\beta\right)^j\right)\eqcolon p_T(\lambda)\,q_T(\lambda)
+\end{align*}
+Because $p_{\exp\left(T\right)}(\Lambda)$ is a degree $n$ polynomial in $\Lambda$, it has precisely $n$ complex roots counting multiplicities. Moreover, the factorization $p_{\exp\left(T\right)}(\exp\left(\lambda\right))=p_T(\lambda)\,q_T(\lambda)$ demonstrates that whenever $\lambda$ is an eigenvalue of $T$, so that $p_T(\lambda)=0$, one has $p_{\exp\left(T\right)}(\exp\left(\lambda\right))=0$. Thus, if $\lambda_1,\dots,\lambda_n$ are the eigenvalues of $T$ counting multiplicities, then $\exp\left(\lambda_1\right),\dots,\exp\left(\lambda_n\right)$ are eigenvalues of $\exp\left(T\right)$ counting multiplicities. 
+\vspace{3 mm}\\
+Overall, this implies that the eigenvalues of $\exp\left(T\right)$ are precisely the exponentiated eigenvalues of $T$, and are given by the collection of exponentials $\left\{\exp\left(\lambda_i\right)\right\}_{i=1}^n$, which further implies Jacobi's identity:
+$$\det\left(\exp\left(T\right)\right)=\prod_{i=1}^n\exp\left(\lambda_i\right)=\exp\left(\,\sum_{i=1}^n\lambda_i\right)=\exp\left(\mathrm{tr}\left(T\right)\right)$$
+Because the determinant and trace are basis independent, the analogous identity for the matrix representation of $T$ over the basis $\beta$ likewise follows:
+$$\det\left(\exp\left([T]_\beta\right)\right)=\det\left([\exp\left(T\right)]_\beta\right)=\det\left(\exp\left(T\right)\right)=\exp\left(\mathrm{tr}\left(T\right)\right)=\exp\left(\mathrm{tr}\left([T]_\beta\right)\right)$$
+Since the above identity holds for any such basis $\beta$, the above matrix formula generalizes to any  matrix of the form $A\in\mathbb{R}^{n\times n}$ as shown below:
+$$\det\left(\exp\left(A\right)\right)=\exp\left(\mathrm{tr}\left(A\right)\right)$$
+In order to achieve a superior understanding of these relationships (Jacobi's identity), it is beneficial to study the notion of divergence. To be specific, consider an $n$-dimensional parallelepiped whose vertices translate along the flow induced by $T\in\mathscr{L}(\bm V)$. Its (hyper) volume after deforming for a duration $t\in\mathbb{R}$ can be measured by the following (hyper) volume-form:
+$$\exp\left(tT\right)^*\omega=\det\left(\exp\left(tT\right)\right)\omega=\exp\left(\mathrm{tr}\left(tT\right)\right)\omega=\exp\left(\mathrm{tr}\left(T\right)t\right)\omega$$
+It thereby follows that the initial rate at which the (hyper) volume of the $n$-dimensional parallelepiped changes along the flow induced by $T$ can be measured accordingly:
+$$\left.\frac{d}{dt}\right|_{t=0}\exp\left(tT\right)^*\omega=\left.\frac{d}{dt}\right|_{t=0}\exp\left(\mathrm{tr}\left(T\right)t\right)\omega=\mathrm{tr}\left(T\right)\left.\exp\left(\mathrm{tr}\left(T\right)t\right)\right|_{t=0}\omega=\mathrm{tr}\left(T\right)\omega$$
+\newpage
+Therefore, the (hyper) volume-form $\omega$ is an eigenvector with a corresponding eigenvalue $\mathrm{tr}\left(T\right)$ of the linear operator $\left.\frac{d}{dt}\right|_{t=0}\exp\left(tT\right)^*\in\mathscr{L}(\mathscr{L}(\bm V^n,\mathbb{R}))$. Thus, the trace of $T$ can be expressed as follows:
+$$\mathrm{tr}\left(T\right)=\left.\frac{d}{dt}\right|_{t=0}\frac{\exp\left(tT\right)^*\omega\left(v_1,\dots,v_n\right)}{\omega\left(v_1,\dots,v_n\right)}\quad\text{for any linearly independent}\quad v_1,\dots,v_n\in\bm V$$
+Alternatively, due to how the pullback interacts with the (hyper) volume-form, the trace can be expressed directly in terms of the determinant, noting $\exp\left(tT\right)^*=\left(\mathrm{id}_{\bm V}+tT\right)^*+\mathcal{O}(t^2)$, and subsequently the natural logarithm in full agreement with Jacobi's identity as demonstrated below:  
+$$\mathrm{tr}\left(T\right)=\left.\frac{d}{dt}\right|_{t=0}\det\left(\exp\left(tT\right)\right)=\left.\frac{d}{dt}\right|_{t=0}\det\left(\mathrm{id}_{\bm V}+tT\right)=\ln\left(\det\left(\exp\left(T\right)\right)\right)$$
+Conceptually, when the rate at which the (hyper) volume of any $n$-dimensional parallelepiped deforms (relative to the induced flow) is normalized by the (hyper) volume itself, the result only depends on the generator (i.e. the linear map $T$) of the induced flow, and not the initial shape. 
+\vspace{3 mm}\\
+To see how this concept relates to divergence, consider the differentiable vector field $F:\mathbb{R}^n\to\mathbb{R}^n$, and observe that the Jacobian of $F$ at the point $x=\left(x_1,\dots,x_n\right)\in\mathbb{R}^n$ is given by the following matrix:
+$$J_F(x)=\left[\frac{\partial F_i}{\partial x_j}\left(x_1,\dots,x_n\right)\right]_{i,j=1}^n\qquad\text{where}\qquad F_i=\bm E_i\cdot F$$  
+The divergence of $F$ at the point $x$ is (contextually) expressed according to the following formula, which depends on the Jacobian of $F$ as such:
+$$\mathrm{div}\left(F\right)(x)=\sum_{i=1}^n\frac{\partial F_i}{\partial x_i}\left(x_1,\dots,x_n\right)=\mathrm{tr}\left(J_F(x)\right)$$
+From this perspective, as the Jacobian of $F$ at the point $x$ is the first order linearization of $F$ at $x$, the divergence of $F$ at $x$ can be interpreted as the normalized instantaneous rate at which the (hyper) volume of an infinitesimal $n$-dimensional parallelepiped changes when deforming locally around the point $x$.
+\vspace{3 mm}\\
+Moreover, as any matrix $A\in\mathbb{R}^{n\times n}$ induces a left multiplication map $L_A:x\in\mathbb{R}^n\mapsto Ax$, which has a corresponding Jacobian
+$J_{L_A}(x)=A$, it follows that $\mathrm{div}\left(L_A\right)(x)=\mathrm{tr}\left(J_{L_A}(x)\right)=\mathrm{tr}\left(A\right)$, and so the trace of any such matrix is the (global) divergence of the induced vector field (i.e. left multiplication map).
+\begin{comment}
+Also note that even after a change of coordinates, which transforms $J_F(x)$ into a similar matrix, because the trace is basis independent, the divergence remains invariant. This is due to the fact that divergence is fundamentally a local geometric quantity associated with the vector field. 
+\end{comment}
+\vspace{3 mm}\\
+With Jacobi's identity now fully developed, it can be generalized. In particular, consider the differentiable matrix function $A:\mathbb{R}\to\mathbb{R}^{n\times n}$ such that $\det\left(A\right)\ne0$. By carefully applying the Mean Value Theorem, the matrix  $A(t+h)$ can be locally expanded via the exponential as such: 
+\begin{align*}
+    A(t+h)&=A(t)\left(I+hA(t)^{-1}\frac{A(t+h)-A(t)}{h}\right)=A(t)\left(I+hA(t)^{-1}\left(\dot A(t)+\mathcal{O}(h)\right)\right)
+    \\[4 mm]
+    &=A(t)\left(I+hA(t)^{-1}\dot A(t)+\mathcal{O}\left(h^2\right)\right)=A(t)\exp\left(hA(t)^{-1}\dot A(t)+\mathcal{O}\left(h^2\right)\right)
+\end{align*}
+Now that the above local matrix expansion has been established, upon taking the determinant, Jacobi's identity can be applied, which results in the following local expansion formula of the matrix determinant:  
+\begin{align*}
+&\det\left(A(t+h)\right)=\det\left(A(t)\right)\det\left(\exp\left(hA(t)^{-1}\dot A(t)+\mathcal{O}\left(h^2\right)\right)\right)
+\\[4 mm]
+&=\det\left(A(t)\right)\exp\left(\mathrm{tr}\left(hA(t)^{-1}\dot A(t)+\mathcal{O}\left(h^2\right)\right)\right)=\det\left(A(t)\right)\exp\left(\mathrm{tr}\left(A(t)^{-1}\dot A(t)\right)h+\mathcal{O}\left(h^2\right)\right)
+\\[4 mm]
+&=\det\left(A(t)\right)\left(1+\mathrm{tr}\left(A(t)^{-1}\dot A(t)\right)h+\mathcal{O}\left(h^2\right)\right)=\det\left(A(t)\right)+\det\left(A(t)\right)\mathrm{tr}\left(A(t)^{-1}\dot A(t)\right)h+\mathcal{O}\left(h^2\right)
+\\[4 mm]
+&\implies\frac{\det\left(A(t+h)\right)-\det\left(A(t)\right)}{h}=\det\left(A(t)\right)\mathrm{tr}\left(A(t)^{-1}\dot A(t)\right)+\mathcal{O}(h)
+\end{align*}
+\newpage
+It directly follows from taking the limit as $h$ tends to zero that the derivative of the matrix determinant can be computed as shown below via Jacobi's formula:
+$$\frac{d}{dt}\det\left(A(t)\right)=\lim_{h\to0}\frac{\det\left(A(t+h)\right)-\det\left(A(t)\right)}{h}=\det\left(A(t)\right)\mathrm{tr}\left(A(t)^{-1}\dot A(t)\right)$$
+We can now construct the dynamic linear map given by the differentiable function $T:t\in\mathbb{R}\mapsto T_t\in\mathscr{L}(\bm V)$, where it is imposed that $\det\left(T_t\right)\neq0$ for all $t\in\mathbb{R}$. This construction induces the differentiable function $[T]_\beta:t\in\mathbb{R}\mapsto[T_t]_\beta\in\mathbb{R}$, and thus Jacobi's formula can be extended to linear maps as such:
+\begin{align*}
+    \frac{d}{dt}\det\left(T_t\right)&=\frac{d}{dt}\det\left([T_t]_\beta\right)=\det\left([T_t]_\beta\right)\mathrm{tr}\left(\left([T_t]_\beta\right)^{-1}\frac{d}{dt}\,[T_t]_\beta\right)=\det\left(T_t\right)\mathrm{tr}\left(\left[T_t^{-1}\right]_\beta[\dot T_t]_\beta\right)
+    \\[4 mm]
+    &=\det\left(T_t\right)\mathrm{tr}\left(\left[T_t^{-1}\circ\dot T_t\right]_\beta\right)=\det\left(T_t\right)\mathrm{tr}\left(T_t^{-1}\circ\dot T_t\right)
+\end{align*}
+From an equivalent perspective, Jacobi's formula can be re-casted in terms of the logarithmic derivative of the determinant. In particular, it follows from the above context that one can write:
+$$\frac{d}{dt}\ln\left(\det\left(A(t)\right)\right)=\mathrm{tr}\left(A(t)^{-1}\dot A(t)\right)\qquad\text{and}\qquad\frac{d}{dt}\ln\left(\det\left(T_t\right)\right)=\mathrm{tr}\left(T_t^{-1}\circ\dot T_t\right)$$
+Recall that Jacobi's formula as currently established implicitly assumes the respective determinant to be non-zero. This motivates an effort to generalize Jacobi's formula using the adjugate. In particular, consider applying the total differential $d$ across the identity $\det\left(A\right)=\left(\mathrm{adj}\left(A\right)A\right)_{kk}$ with respect to the elements of the differentiable function $A:\mathbb{R}\to\mathbb{R}^{n\times n}$ (i.e. $A_{ij}:\mathbb{R}\to\mathbb{R}^{n\times n}$) via the chain rule as follows:
+\begin{align*}
+    d\det\left(A\right)&=d\left(\mathrm{adj}\left(A\right)A\right)_{kk}=d\sum_{j=1}^n\left(\mathrm{adj}\left(A\right)\right)_{kj}A_{jk}=d\sum_{j=1}^n\left(\mathrm{adj}\left(A\right)^\top\right)_{jk}A_{jk}=d\sum_{j=1}^n\det\left(\hat A_{jk}\right)A_{jk}
+    \\[4 mm]
+    &=\sum_{j=1}^nd\left(\det\left(\hat A_{jk}\right)A_{jk}\right)=\sum_{j=1}^n\sum_{i,k=1}^n\frac{\partial}{\partial A_{ik}}\left(\det\left(\hat A_{jk}\right)A_{jk}\right)dA_{ik}
+    \\[4 mm]
+    &=\sum_{j=1}^n\sum_{i,k=1}^n\left(\frac{\partial \det\left(\hat A_{jk}\right)}{\partial A_{ik}}A_{jk}+\det\left(\hat A_{jk}\right)\frac{\partial A_{jk}}{\partial A_{ik}}\right)dA_{ik}=\sum_{j=1}^n\sum_{i,k=1}^n\left(0\cdot A_{jk}+\det\left(\hat A_{jk}\right)\delta_{ij}\right)dA_{ik}
+    \\[4 mm]
+    &=\sum_{j=1}^n\sum_{i,k=1}^n\left(\mathrm{adj}\left(A\right)^\top\right)_{jk}\delta_{ij}dA_{ik}=\sum_{j=1}^n\sum_{k=1}^n\left(\mathrm{adj}\left(A\right)^\top\right)_{jk}dA_{jk}=\sum_{k=1}^n\sum_{j=1}^n\left(\mathrm{adj}\left(A\right)\right)_{kj}dA_{jk}
+    \\[4 mm]
+    &=\sum_{k=1}^n\left(\mathrm{adj}\left(A\right)dA\right)_{kk}=\mathrm{tr}\left(\mathrm{adj}\left(A\right)dA\right)\quad\implies\quad\frac{d}{dt}\det\left(A(t)\right)=\mathrm{tr}\left(\mathrm{adj}\left(A(t)\right)\dot A(t)\right)
+\end{align*}
+Just as before, this generalization of Jacobi's formula can be (contextually) extended to linear maps via an analogous process as demonstrated below:
+\begin{align*}
+    \frac{d}{dt}\det\left(T_t\right)&=\frac{d}{dt}\det\left([T_t]_\beta\right)=\mathrm{tr}\left(\mathrm{adj}\left([T_t]_\beta\right)\frac{d}{dt}\,[T_t]_\beta\right)=\mathrm{tr}\left([\mathrm{adj}\left(T_t\right)]_\beta[\dot T_t]_\beta\right)=\mathrm{tr}\left([\mathrm{adj}\left(T_t\right)\circ\dot T_t]_\beta\right)
+    \\[4 mm]
+    &=\mathrm{tr}\left(\mathrm{adj}\left(T_t\right)\circ\dot T_t\right)\qquad\text{or via differentials}\qquad d\det\left(T\right)=\mathrm{tr}\left(\mathrm{adj}\left(T\right)\circ dT\right)
+\end{align*}
+As a side note, now that differentiation of the determinant is an accessible calculation, the coefficients of the characteristic polynomial can be determined directly using Taylor's theorem:
+$$p_T(\lambda)=\sum_{k=0}^n\frac{\lambda^k}{k!}\left.\frac{d^k}{d\lambda^k}\right|_{\lambda=0}\det\left(T-\lambda\mathrm{id}_{\bm V}\right)=\det\left(T\right)+\left(-1\right)^{n-1}\mathrm{tr}\left(\mathrm{adj}\left(T\right)\right)\lambda+\cdots+\left(-1\right)^n\lambda^n$$
+\newpage
+At this point, the determinant has been fully developed within the scope of linear algebra. With that said, within the realm of calculus and differential geometry, there is much to be explored. Prerequisites moving forward involve vector calculus with respect to manifolds.
+\vspace{3 mm}\\
+An immediate application of the established scaffolding is the ability to generalize the notion of (hyper) volume to curvilinear shapes. In particular, given an $n$-dimensional Riemannian manifold $(M,g)$, with the understanding that $\beta=\left\{\bm e_i\right\}_{i=1}^n$ is a coordinate frame of $TM$, the metric tensor is a symmetric bilinear-form defined by the inner product as given by $g=\langle\cdot,\cdot\rangle$, where $g_{ij}=\langle\bm e_i,\bm e_j\rangle$.
+\vspace{3 mm}\\
+For convenience, given that $\bm\pi:T_pM\to\{p\}$, let $u,v\in T_*M$ mean $\bm\pi(u)=\bm\pi(v)$ by definition. Noting that the metric tensor induces an $n\times n$ matrix whose $ij$ component is $g_{ij}$, we can subsequently define the Gram matrix denoted by $G:(TM)^n\to\mathbb{R}^{n\times n}$ as specified below:
+$$G:v_1,\dots,v_n\in T_*M\mapsto[\langle v_i,v_j\rangle]_{i,j=1}^n\quad\implies\quad G_{ij}\left(v_1,\dots,v_n\right)=\langle v_i,v_j\rangle=\sum_{k=1}^n\sum_{\ell=1}^n g_{k\ell}\left([v_i]_\beta\right)_k\left([v_j]_\beta\right)_\ell$$
+Crucially, because the metric tensor is positive definite (i.e. $\langle v,v\rangle>0$ iff $v\neq0$), it follows that the image of $G$ must be as well. To be specific, for any $v_1,\dots,v_n\in T_*M$ and $x=\sum_{i=1}^nx_i\bm E_i\in\mathbb{R}^{n\times1}$, one always has: 
+$$x^\top G\left(v_1,\dots,v_n\right)x=\sum_{i=1}^n\sum_{j=1}^nx_iG_{ij}\left(v_1,\dots,v_n\right)x_j=\sum_{i=1}^n\sum_{j=1}^nx_i\left\langle v_i,v_j\right\rangle x_j=\left\langle\sum_{i=1}^nx_iv_i,\sum_{j=1}^nx_jv_j\right\rangle\geq0$$
+Consequently, the eigenvalues of $G$ are non-negative, and so $\det\left(G\right)\geq0$ since the determinant is the product of the eigenvalues. An important note to make is that for any given point $p\in M$, a basis of $T_pM$, denoted by $\alpha=\left\{\hat{\bm n}_i\right\}_{i=1}^n$, can always be chosen such that $\langle\hat{\bm n}_i,\hat{\bm n}_j\rangle=\delta_{ij}$ (i.e. $\alpha$ is orthonormal).  
+\vspace{3 mm}\\
+Now, consider the $n$-dimensional parallelepiped generated by the tangent vectors $u_1,\dots,u_n\in T_pM$ such that $u_i=U\left(\hat{\bm n}_i\right)$ for some $U\in\mathscr{L}(T_pM)$. The corresponding signed (hyper) volume at the point $p$ is thus given by $\omega\left(u_1,\dots,u_n\right)=U^*\omega\left(\hat{\bm n}_1,\dots,\hat{\bm n}_n\right)=\det\left(U\right)$, and so with that in mind, observe the following:
+\begin{align*}
+\langle u_i,u_j\rangle&=\langle U\left(\hat{\bm n}_i\right),U\left(\hat{\bm n}_j\right)\rangle=\left\langle\hat{\bm n}_i,\left(U^\dagger\circ U\right)\left(\hat{\bm n}_j\right)\right\rangle=\left\langle\hat{\bm n}_i,\sum_{k=1}^n\left(\left[U^\dagger\circ U\right]_{\alpha}\right)_{kj}\hat{\bm n}_k\right\rangle
+\\[4 mm]
+&=\sum_{k=1}^n\left(\left[U^\dagger\circ U\right]_{\alpha}\right)_{kj}\langle\hat{\bm n}_i,\hat{\bm n}_k\rangle=\sum_{k=1}^n\left(\left[U^\dagger\circ U\right]_{\alpha}\right)_{kj}\delta_{ik}=\left(\left[U^\dagger\circ U\right]_{\alpha}\right)_{ij}
+\end{align*}
+\begin{align*}
+&\implies G\left(u_1,\dots,u_n\right)=[\langle u_i,u_j\rangle]_{i,j=1}^n=\left[U^\dagger\circ U\right]_{\alpha}
+\\[4 mm]
+&\implies \det\left(G\left(u_1,\dots,u_n\right)\right)=\det\left(\left[U^\dagger\circ U\right]_{\alpha}\right)=\det\left(U^\dagger\circ U\right)=\det\left(U^\dagger\right)\det\left(U\right)=\det\left(U\right)^2
+\\[4 mm]
+&\implies\det\left(U\right)=\pm\sqrt{\det\left(G\left(u_1,\dots,u_n\right)\right)}\quad\implies\quad\left|\omega\left(u_1,\dots,u_n\right)\right|=\sqrt{\det\left(G\left(u_1,\dots,u_n\right)\right)}
+\end{align*}
+In this light, because the above identity holds for any such tangent vectors $u_1,\dots,u_n\in T_pM$, the respective relation could be re-casted in terms of the unsigned (hyper) volume functional defined below:
+$$\mathrm{Vol}:v_1,\dots,v_n\in T_*M\mapsto\left|\omega\left(v_1,\dots,v_n\right)\right|\quad\implies\quad\mathrm{Vol}=\sqrt{\det\left(G\right)}$$
+With this new definition at hand, for any $T\in\mathscr{L}(T_*M)$, it follows that the unsigned (hyper) volume functional composes with any such linear map $T$ as demonstrated here:
+\begin{align*}
+\mathrm{Vol}\left(T(v_1),\dots,T(v_n)\right)&=\left|\omega\left(T(v_1),\dots,T(v_n)\right)\right|=\left|T^*\omega\left(v_1,\dots,v_n\right)\right|=\left|\det\left(T\right)\omega\left(v_1,\dots,v_n\right)\right|
+\\[4 mm]
+&=\left|\det\left(T\right)\right|\left|\omega\left(v_1,\dots,v_n\right)\right|=\left|\det\left(T\right)\right|\mathrm{Vol}\left(v_1,\dots,v_n\right)\quad\text{for any}\quad v_1,\dots,v_n\in T_*M
+\end{align*}
+As an alternative result, for any such tangent vectors $v_1,\dots,v_n\in T_*M$, the determinant of the Gram matrix must transform accordingly in order to preserve the scaling feature derived just previously:
+\begin{align*}
+&\sqrt{\det\left(G\left(T(v_1),\dots,T(v_n)\right)\right)}=\mathrm{Vol}\left(T(v_1),\dots,T(v_n)\right)=\left|\det\left(T\right)\right|\mathrm{Vol}\left(v_1,\dots,v_n\right)
+\\[4 mm]
+&=\left|\det\left(T\right)\right|\sqrt{\det\left(G\left(v_1,\dots,v_n\right)\right)}\quad\implies\quad\det\left(G\left(T(v_1),\dots,T(v_n)\right)\right)=\det\left(T\right)^2\det\left(G\left(v_1,\dots,v_n\right)\right)
+\end{align*}
+Now, let $\Omega\subset M$ be a connected (hyper) volumetric region of the manifold equipped with an atlas given by $\left\{(\mathcal{U}_i,\varphi_i)\right\}_{i=1}^N$, where $\varphi_i:\Omega_i\subseteq\Omega\to\mathcal{U}_i\subset\mathbb{R}^n$. Furthermore, each coordinate domain $\mathcal{U}_i$ can be further broken down into smaller constituents $\mathcal{U}_{ij}$. To summarize, $\Omega$ and each $\mathcal{U}_i$ can be decomposed as follows:
+$$\Omega=\bigcup_{i=1}^N\varphi^{-1}_i\left(\mathcal{U}_i\right)\qquad\text{and}\qquad\mathcal{U}_i=\bigcup_{j=1}^{m_i}\mathcal{U}_{ij}$$
+Via the pushforward $d\varphi^{-1}_i\in\mathscr{L}(\mathbb{R}^n,T\Omega_i)$, given any reference point $p\in\Omega_i$, vectors in $\mathbb{R}^n$ (i.e. $T_{\varphi(p)}\mathbb{R}^n$) can be mapped to the tangent space $T_p\Omega_i$. Upon declaring that $\mathcal{B}=\left\{\bm E_i\right\}_{i=1}^n$ is the standard ordered basis of $\mathbb{R}^n$, we define the coordinate frame $\beta_i=\{\bm e^i_k\}_{k=1}^n$ of $T\Omega_i$ by $(d\varphi^{-1}_i)_{\varphi_i(p)}:\bm E_k\mapsto \bm e^i_k(p)$, for any $p\in\Omega_i$. 
+\vspace{3 mm}\\
+With this at hand, note that there exists $\Delta x_{ijk}\geq0$ such that $\mathrm{proj}_{\bm E_k}(\mathcal{U}_{ij})=\Delta x_{ijk}\bm E_k$. In other words, the extent of each sub-coordinate domain $\mathcal{U}_{ij}$ can be projected along each respective coordinate axis. From an equivalent perspective, using the standard inner product of $\mathbb{R}^n$ (i.e. the dot product), we can write these domain extents as $\Delta x_{ijk}=\bm E_k\cdot\mathrm{proj}_{\bm E_k}(\mathcal{U}_{ij})$. Therefore, by the Mean Value Theorem, the (hyper) volume of $\mathcal{U}_{ij}$ with respect to the dot product is defined and bounded accordingly:
+$$\mathrm{Vol}\left(\mathcal{U}_{ij}\right)\coloneq\int_{\mathcal{U}_{ij}}d^nx=\Delta x_{ij1}\cdots\Delta x_{ijn}+o\left(\Delta x_{ij1}\cdots\Delta x_{ijn}\right)$$
+The vectors that span this (hyper) volume upper limit are of course $\Delta x_{ij1}\bm E_1,\dots,\Delta x_{ijn}\bm E_n$. In this regard, using the metric tensor in conjunction with the pushforward, given a reference point in the coordinate chart $\bar x_{ij}=\mathrm{mean}(\mathcal{U}_{ij})$, the corresponding volume of $\varphi_i^{-1}(\mathcal{U}_{ij})$ is defined and bounded as below:
+\begin{align*}
+\mathrm{Vol}\left(\varphi_i^{-1}\left(\mathcal{U}_{ij}\right)\right)&\coloneq\int_{\mathcal{U}_{ij}}\mathrm{Vol}\left(d\varphi^{-1}_i\left(dx_1\bm E_1\right),\dots,d\varphi^{-1}_i\left(dx_n\bm E_n\right)\right)\coloneq\int_{\mathcal{U}_{ij}}\mathrm{Vol}\left(d\varphi^{-1}_i\left(\bm E_1\right),\dots,d\varphi^{-1}_i\left(\bm E_n\right)\right)d^nx
+\\[4 mm]
+&=\mathrm{Vol}\left(\left(d\varphi^{-1}_i\right)_{\bar x_{ij}}\left(\bm E_1\right),\dots,\left(d\varphi^{-1}_i\right)_{\bar x_{ij}}\left(\bm E_n\right)\right)\mathrm{Vol}\left(\mathcal{U}_{ij}\right)+o\left(\mathrm{Vol}\left(\mathcal{U}_{ij}\right)\right)
+\\[4 mm]
+&=\mathrm{Vol}\left(\bm e^i_1\circ\varphi^{-1}\left(\bar x_{ij}\right),\dots,\bm e^i_n\circ\varphi^{-1}\left(\bar x_{ij}\right)\right)\mathrm{Vol}\left(\mathcal{U}_{ij}\right)+o\left(\mathrm{Vol}\left(\mathcal{U}_{ij}\right)\right)
+\\[4 mm]
+&=\sqrt{\det\left(G\left(\bm e^i_1,\dots,\bm e^i_n\right)\right)\circ\varphi^{-1}\left(\bar x_{ij}\right)}\,\Delta x_{ij1}\cdots\Delta x_{ijn}+o\left(\Delta x_{ij1}\cdots\Delta x_{ijn}\right)
+\end{align*}
+At a heuristic level, by partitioning $\mathcal{U}_i$ into smaller pieces without bound (i.e. $m_i\to\infty$), because $\Delta x_{ijk}$ tends to zero, so do the higher order terms $o(\Delta x_{ij1}\cdots\Delta x_{ijn})$, and thus, if the limit exists, with the understanding that $\varphi_i^*\det(g)\coloneq\det(G(\bm e^i_1,\dots,\bm e^i_n))$, the (hyper) volume of $\varphi^{-1}_i(\mathcal{U}_i)$ is given as such:
+\begin{align*}
+\mathrm{Vol}\left(\varphi^{-1}_i\left(\mathcal{U}_i\right)\right)&=\lim_{m_i\to\infty}\sum_{j=1}^{m_i}\mathrm{Vol}\left(\varphi^{-1}_i\left(\mathcal{U}_{ij}\right)\right)=\lim_{m_i\to\infty}\sum_{j=1}^{m_i}\sqrt{\det\left(G\left(\bm e^i_1,\dots,\bm e^i_n\right)\right)\circ\varphi^{-1}_i\left(\bar x_{ij}\right)}\,\Delta x_{ij1}\cdots\Delta x_{ijn}
+\\[4 mm]
+&=\int_{\mathcal{U}_i}\sqrt{\det\left(G\left(\bm e^i_1,\dots,\bm e^i_n\right)\right)\circ\varphi^{-1}_i(x)}\,d^nx=\int_{\mathcal{U}_i}\sqrt{\varphi_i^*\det\left(g\right)\circ\varphi^{-1}_i(x)
+}\,d^nx
+\end{align*}
+Lastly, the total (hyper) volume of the (hyper) volumetric region $\Omega$ is thereby the sum of the partitioned contributions as demonstrated below:
+$$\mathrm{Vol}\left(\Omega\right)=\sum_{i=1}^N\mathrm{Vol}\left(\varphi^{-1}_i\left(\mathcal{U}_i\right)\right)=\sum_{i=1}^N\int_{\mathcal{U}_i}\sqrt{\varphi_i^*\det\left(g\right)\circ\varphi^{-1}_i(x)
+}\,d^nx$$
+\newpage
+Now, upon forgoing the previous context, let $\mathcal D,\mathcal U\subset\mathbb{R}^n$ be coordinate domains related by the transition map diffeomorphism $F:\mathcal U\to\mathcal D$. Tile $\mathbb{R}^n$ by a uniform grid of coordinate boxes of volume $\mathrm{Vol}(\mathcal U)/N$ with side lengths $\Delta u$, and let $\mathcal U_1,\dots,\mathcal U_N$ be those boxes lying entirely within $\mathcal U$, so that each is a genuine box:
+$$
+\mathrm{Vol}\left(\mathcal U_i\right)=\mathrm{Vol}\left(\mathcal U\right)/N\qquad\text{and}\qquad\mathrm{proj}_{\bm E_j}\left(\mathcal U_i\right)=\Delta u\bm E_j\qquad\text{where}\qquad\Delta u=\sqrt[n]{\mathrm{Vol}\left(\mathcal U\right)/N}
+$$
+Upon noting that $||u-\bar u_i||=\mathcal{O}(\Delta u)=\mathcal{O}(N^{-1/n})$ for any given $u,\bar u_i\in\mathcal{U}_i$, the image of $\mathcal U_i$ under $F$ can be expanded (set-wise) to first order via Taylor's Theorem with an appropriate remainder:
+$$
+F(\mathcal U_i)=F(\bar u_i)+J_F\left(\bar u_i\right)\left(\mathcal U_i-\bar u_i\right)+r(\mathcal U_i,\bar u_i)
+\qquad\text{where}\qquad
+\|r(\mathcal U_i,\bar u_i)\|=\mathcal O\left(\max_{u\in\mathcal U_i}\|u-\bar u_i\|^2\right)=\mathcal O\left(N^{-2/n}\right)
+$$
+Since $\|r(\mathcal U_i,\bar u_i)\|=\mathcal O\left(N^{-2/n}\right)$, the translated region $F(\mathcal U_i)-F(\bar u_i)$ is contained in $J_F(\bar u_i)$ applied to the box with each side expanded from $\Delta u$ to $\Delta u+|\mathcal O(N^{-2/n})|$, which is denoted by $\mathcal{U}_i\oplus\mathcal{O}(N^{-2/n})$. Analogously, the respective box with its sides shrunk from $\Delta u$ to $\Delta u-|\mathcal{O}(N^{-2/n})|$ is denoted by $\mathcal{U}_i\ominus\mathcal{O}(N^{-2/n})$.
+\vspace{3 mm}\\
+In the opposite direction, since $F$ is a diffeomorphism, by the chain rule, $J_{F^{-1}}(F(\bar u_i))=J_F(\bar u_i)^{-1}$, which implies, for any $x\in F(\bar u_i)+J_F(\bar u_i)\big(\mathcal U_i\oplus\mathcal{O}(N^{-2/n})\big)$, Taylor's Theorem applied to $F^{-1}$ at $F(\bar u_i)$ gives:
+$$
+F^{-1}(x)=\bar u_i+J_F(\bar u_i)^{-1}\big(x-F(\bar u_i)\big)+s(x,\bar u_i)\qquad\text{where}\qquad\|s(x,\bar u_i)\|=\mathcal O\left(N^{-2/n}\right)
+$$
+Since $J_F(\bar u_i)^{-1}$ induces a fixed linear (left multiplication) map, for any $x\in F(\bar u_i)+J_F(\bar u_i)(\mathcal U_i\ominus\mathcal{O}(N^{-2/n}))$, the point $\bar u_i+J_F(\bar u_i)^{-1}(x-F(\bar u_i))$ sits at least $\mathcal O(N^{-2/n})$ inside $\mathcal U_i$, and so the perturbation $s(x,\bar u_i)$ cannot push $F^{-1}(x)$ outside $\mathcal U_i$, which implies $x\in F(\mathcal U_i)$. Therefore, the region $F(\mathcal U_i)$ contains $J_F(\bar u_i)$ applied to $\mathcal U_i\ominus\mathcal{O}(N^{-2/n})$. Overall, the volume generated by $F(\mathcal{U}_i)$ can be bounded as such:
+\begin{align*}
+&\mathrm{Vol}\left(F(\mathcal U_i)\right)=\mathrm{Vol}\left(J_F(\bar u_i)\left(\left(\Delta u\pm\left|\mathcal{O}\left(N^{-2/n}\right)\right|\right)\bm E_1\right),\dots,J_F(\bar u_i)\left(\left(\Delta u\pm\left|\mathcal{O}\left(N^{-2/n}\right)\right|\right)\bm E_n\right)\right)
+\\[4 mm]
+&=\left|\det\left(J_F(\bar u_i)\right)\right|\left(\Delta u\pm\left|\mathcal{O}\left(N^{-2/n}\right)\right|\right)^n\underbrace{\mathrm{Vol}\left(\bm E_1,\dots,\bm E_n\right)}_{=1}=\left|\det\left(J_F(\bar u_i)\right)\right|\left(\sqrt[n]{\mathrm{Vol}\left(\mathcal U\right)/N}+\mathcal{O}\left(N^{-2/n}\right)\right)^n
+\\[4mm]
+&=\left|\det\left(J_F(\bar u_i)\right)\right|\left(\mathrm{Vol}(\mathcal U)/N+\mathcal O\left(N^{-(n+1)/n}\right)\right)=\left|\det\left(J_F\left(\bar u_i\right)\right)\right|\mathrm{Vol}\left(\mathcal U_i\right)+\mathcal O\left(N^{-(n+1)/n}\right)
+\end{align*}
+From there, given any integrable function $f:\mathcal D\to\mathbb R$, using the transition map $F$ in conjunction with the Jacobian determinant $\det\left(J_F\right)$, the function $f$ can be integrated as follows:
+\begin{align*}
+    \int_\mathcal D f\left(x\right)d^nx&=\lim_{N\to\infty}\sum_{i=1}^Nf\left(F(\bar u_i)\right)\mathrm{Vol}\left(F(\mathcal U_i)\right)
+    \\[4mm]
+    &=\lim_{N\to\infty}\sum_{i=1}^Nf\left(F(\bar u_i)\right)\left(\left|\det\left(J_F\left(\bar u_i\right)\right)\right|\mathrm{Vol}\left(\mathcal U_i\right)+\mathcal O\left(N^{-(n+1)/n}\right)\right)
+    \\[4mm]
+    &=\lim_{N\to\infty}\sum_{i=1}^Nf\left(F(\bar u_i)\right)\left|\det\left(J_F\left(\bar u_i\right)\right)\right|\mathrm{Vol}\left(\mathcal U_i\right)+\lim_{N\to\infty}\sum_{i=1}^N\mathcal O\left(N^{-(n+1)/n}\right)
+    \\[4mm]
+    &=\int_\mathcal U f\left(F(u)\right)\left|\det\left(J_F\left(u\right)\right)\right|d^nu+\cancel{\lim_{N\to\infty}\mathcal O\left(N^{-1/n}\right)}
+\end{align*}
+Keeping in mind that $\mathcal U=F^{-1}(\mathcal D)$, via the pullback $F^*:f\mapsto f\circ F$, the following change of variables procedure can thereby be executed as a means of computing the above $n$-dimensional integral:
+$$
+\boxed{\;\int_{\mathcal D}f\left(x\right)d^nx=\int_{F^{-1}(\mathcal D)}F^*f\left(u\right)\left|\det\left(J_F\left(u\right)\right)\right|d^nu\;}
+$$
+\begin{comment}
+One key insight to make is that the choice of coordinates to describe the intrinsic (hyper) volumetric region $\Omega$ is completely arbitrary. In this respect, whilst simplifying matters, suppose $\{(\mathcal{U},\varphi)\}$ and $\{(\mathcal R,\psi)\}$ are both atlases of $\Omega$ with corresponding frames $\beta=\left\{\bm e_i\right\}_{i=1}^n$ and $\gamma=\left\{\bm\varepsilon_i\right\}_{i=1}^n$ of the tangent bundle $T\Omega$. The (hyper) volume of the (hyper) volumetric region $\Omega$ can thereby be expressed in terms of both charts:
+$$\mathrm{Vol}\left(\Omega\right)=\int_{\mathcal{U}}\sqrt{\det\nolimits_\varphi(g)}\,d^nx=\int_{\mathcal R}\sqrt{\det\nolimits_\psi(g)}\,d^ny$$
+In order to further relate these two integral representations of $\mathrm{Vol}\left(\Omega\right)$, first take note of the transition map $\psi\circ\varphi^{-1}:\mathcal{U}\to\mathcal R$, which relates the coordinate domains $\mathcal{U}$ and $\mathcal R$ with an invertible map. Using the pushforward, for any $p\in\Omega$, the basis vectors of $T_p\Omega$ can be defined accordingly:
+$$(d\varphi^{-1})_{\varphi(p)}:\bm E_i\mapsto\bm e_i(p)\qquad\text{and}\qquad(d\psi^{-1})_{\psi(p)}:\bm E_i\mapsto\bm\varepsilon_i(p)$$
+Contextually, noting that $(d\psi)^{-1}=d\psi^{-1}$, observe how cyclic composition of these pushforwards produces basis transition maps over $T_*\Omega$ and $\mathbb{R}^n$. For example,  $d\left(\varphi^{-1}\circ\psi\right)=d\varphi^{-1}d\psi$ and $d\left(\psi\circ\varphi^{-1}\right)=d\psi\,d\varphi^{-1}$. Thus, the following Jacobian (matrix) representations can be constructed:
+$$J_\varphi^\psi(p)=\left[d\left(\psi\circ\varphi^{-1}\right)_{\varphi(p)}\right]_\mathcal{B}\qquad\text{and}\qquad J^\varphi_\psi(p)=\left[d\left(\varphi\circ\psi^{-1}\right)_{\varphi(p)}\right]_\mathcal{B}\qquad\text{noting}\qquad\left(J_\varphi^\psi(p)\right)^{-1}=J_\psi^\varphi(p)$$
+Due to the cyclic operator determinant property, the Jacobian determinant can thereby be expressed as such: 
+\begin{align*}
+    \det\left(J_\varphi^\psi(p)\right)&=\det\left(\left[d(\psi\circ\varphi^{-1})_{\varphi(p)}\right]_\mathcal{B}\right)=\det\left(d(\psi\circ\varphi^{-1})_{\varphi(p)}\right)=\det((d\psi)_p\left(d\varphi^{-1})_{\varphi(p)}\right)
+    \\[4 mm]
+    &=\det\left((d\varphi^{-1})_{\varphi(p)}(d\psi)_p\right)=\det\left(d(\varphi^{-1}\circ\psi)_p\right)
+\end{align*}
+Therefore, from the transformation law pertaining to the determinant of the Gram matrix derived previously, an analogous coordinate transformation law could be established:
+\begin{align*}
+    \sqrt{\det\nolimits_\varphi(g)}&=\sqrt{\det\left(G\left(\bm e_1\circ\varphi^{-1},\dots,\bm e_n\circ\varphi^{-1}\right)\right)}
+    \\[4 mm]
+    &=\sqrt{\det\left(G\left(d\left(\varphi^{-1}\circ\psi\right)_{\varphi^{-1}}\left(\bm\varepsilon_1\circ\varphi^{-1}\right),\dots,d\left(\varphi^{-1}\circ\psi\right)_{\varphi^{-1}}\left(\bm\varepsilon_n\circ\varphi^{-1}\right)\right)\right)}
+    \\[4 mm]
+    &=\left|\det\left(d\left(\varphi^{-1}\circ\psi\right)_{\varphi^{-1}}\right)\right|\sqrt{\det\left(G\left(\bm\varepsilon_1\circ\varphi^{-1},\dots,\bm\varepsilon_n\circ\varphi^{-1}\right)\right)}
+    \\[4 mm]
+    &=\left.\left|\det\left(d\left(\varphi^{-1}\circ\psi\right)_{\psi^{-1}}\right)\right|\right|_{\psi\circ\varphi^{-1}}\left.\sqrt{\det\left(G\left(\bm\varepsilon_1\circ\psi^{-1},\dots,\bm\varepsilon_n\circ\psi^{-1}\right)\right)}\right|_{\psi\circ\varphi^{-1}}
+    \\[4 mm]
+    &=\left.\left|\det\left(J_\varphi^\psi\circ\psi^{-1}\right)\right|\right|_{\psi\circ\varphi^{-1}}\left.\sqrt{\det\nolimits_\psi(g)}\right|_{\psi\circ\varphi^{-1}}=\left.\left(\left|\det\left(J_\varphi^\psi\circ\psi^{-1}\right)\right|\sqrt{\det\nolimits_\psi(g)}\right)\right|_{\psi\circ\varphi^{-1}}
+\end{align*}
+Thus, for some (measure) density denoted by $\left|\partial x/\partial y\right|$, the integral representation of $\mathrm{Vol}\left(\Omega\right)$ with respect to the chart $(\mathcal{U},\varphi)$ can be rewritten as such, and then compared to the representation relative to $(\mathcal R,\psi)$:
+\begin{align*}
+    &\int_{\mathcal{U}}\sqrt{\det\nolimits_\varphi(g)}\,d^nx=\int_\mathcal{U}\left.\left(\left|\det\left(J_\varphi^\psi\circ\psi^{-1}\right)\right|\sqrt{\det\nolimits_\psi(g)}\right)\right|_{\psi\circ\varphi^{-1}}d^nx=\int_\mathcal R\left|\det\left(J_\varphi^\psi\circ\psi^{-1}\right)\right|\sqrt{\det\nolimits_\psi(g)}\left|\frac{\partial x}{\partial y}\right|d^n y
+    \\[4 mm]
+    &=\int_{\mathcal R}\sqrt{\det\nolimits_\psi(g)}\,d^ny\quad\implies\quad\left|\frac{\partial x}{\partial y}\right|= \left|\det\left(J_\varphi^\psi\circ\psi^{-1}\right)\right|^{-1}=\left|\det\left(\left(J_\varphi^\psi\right)^{-1}\circ\psi^{-1}\right)\right|=\left|\det\left(J^\varphi_\psi\circ\psi^{-1}\right)\right|
+\end{align*}
+Heuristically, the differential $d^nx=\left|\partial x/\partial y\right|d^ny$. Therefore, given any integrable function $f:\mathcal{U}\to\mathbb{R}$ of the specific form $\sqrt{\det\nolimits_\varphi(g)}$, for any such metric $g$, the following change of variables procedure can be executed: 
+$$\int_\mathcal{U}f(x)\,d^nx=\int_\mathcal Rf\left(\varphi\circ\psi^{-1}(y)\right)\left|\frac{\partial x}{\partial y}\right|d^ny\qquad\text{such that}\qquad\left|\frac{\partial x}{\partial y}\right|=\left|\det\left(J_\psi^\varphi\circ\psi^{-1}(y)\right)\right|$$
+\end{comment}
+\end{document}
+
