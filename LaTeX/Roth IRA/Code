@@ -1,0 +1,173 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{xfrac}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\section*{Roth IRA Model (Pre-Taxed)}
+
+\subsection*{Definitions}
+\begin{minipage}[t]{0.5\textwidth}
+\begin{itemize}
+  \item $\Delta t$: compound time increment (in years)
+  \item $n=1/\Delta t$: compound frequency (per year)
+  \item $r$: nominal interest rate (in \% per year)
+  \item $i$: effective inflation rate (in \% per year)
+  \item $R$: real interest rate (in \% per year) 
+\end{itemize}
+\end{minipage}
+\begin{minipage}[t]{0.5\textwidth}
+\begin{itemize}
+  \item $S$: total real investment/savings (in \$)
+  \item $S_N$: total nominal investment/savings (in \$)
+  \item $P$: principal investment (in \$)
+  \item $C$: real contribution rate (in \$ per year)
+  \item $C_N$: nominal contribution rate (in \$ per year)
+ 
+\end{itemize}
+\end{minipage}
+
+
+\subsection*{The Fisher Equation}
+The real interest rate $R$ is related to $r$ and $i$ as such:
+
+\begin{equation}\label{eq:discrete}
+\large
+1+R\Delta t=\frac{1+r\Delta t}{1+i\Delta t} \implies R=\frac{r-i}{1+i/n}
+\end{equation}
+
+
+\subsection*{Nominal Evolution}
+Over each time increment $\Delta t$, the nominal investment changes according to:
+
+\begin{equation}\label{eq:discrete}
+\large
+n\Delta S_N=rS_N+C_N \implies S_N(t+\Delta t)=\left(1+\sfrac{r}{n}\right)S_N(t)+C_N/n
+\end{equation}
+
+where
+\begin{itemize}
+ \item $n\Delta S_N$ is the rate at which $S_N$ changes over the period $\Delta t$
+  \item $rS_N$ is the nominal interest gain per $\Delta t$
+\end{itemize}
+
+
+\subsection*{Real Evolution}
+Over each time increment $\Delta t$, the real investment changes according to:
+
+\begin{equation}\label{eq:discrete}
+\large
+n\Delta S=RS+C \implies S(t+\Delta t)=\left(1+\sfrac{R}{n}\right)S(t)+C/n
+\end{equation}
+
+where
+\begin{itemize}
+ \item $n\Delta S$ is the rate at which $S$ changes over the period $\Delta t$
+  \item $RS$ is the real interest gain per $\Delta t$
+\end{itemize}
+
+
+\subsection*{The Real Investment}
+The total real investment is the related to the total nominal investment by the inflationary factor as such:
+
+\begin{equation}\label{eq:discrete}
+\large
+S(t) = \frac{S_N(t)}{\prod_{k=0}^{\lfloor nt \rfloor-1}\left(1+i(\sfrac{k}{n})/n\right)}
+\end{equation}
+
+
+\subsection*{The Real Contribution}
+By combining equations $(1)$, $(2)$, $(3)$, and $(4)$, it may be deduced that the real contribution rate is related to the nominal contribution rate by the inflationary factor as such:
+
+\begin{equation}\label{eq:discrete}
+\large
+C(t) = \frac{C_N(t)}{\prod_{k=0}^{\lfloor nt \rfloor}\left(1+i(\sfrac{k}{n})/n\right)}
+\end{equation}
+
+
+\subsection*{The Real Return on Investment}
+The real return on investment $\mathtt{RROI}$ will quantify the real investment growth as such:
+
+\begin{equation}\label{eq:discrete}
+\large
+\mathtt{RROI}(t) = \frac{S(t)}{P+\sum_{k=0}^{\lfloor nt \rfloor-1}C(\sfrac{k}{n})/n}-1
+\end{equation}
+
+\subsection*{The Nominal Return on Investment}
+The nominal real return on investment $\mathtt{NROI}$ will quantify the nominal investment growth as such:
+
+\begin{equation}\label{eq:discrete}
+\large
+\mathtt{NROI}(t) = \frac{S_N(t)}{P+\sum_{k=0}^{\lfloor nt \rfloor-1}C_N(\sfrac{k}{n})/n}-1
+\end{equation}
+
+
+\subsection*{Idealized Inflation}
+By modeling the inflation rate as constant the real investment and contribution rate simplify as follows:
+
+\begin{equation}\label{eq:discrete}
+\large
+S(t) = \frac{S_N(t)}{\left(1+\sfrac{i}{n}\right)^{nt}}
+\qquad \text{and} \qquad
+C(t) = \frac{C_N(t)}{\left(1+\sfrac{i}{n}\right)^{nt+1}} 
+\end{equation}
+
+\subsection*{Idealized Fixed Nominal Contribution Rate Solution}
+By solving equations $(2)$ and $(3)$, taking the nominal interest, inflation, and nominal contribution rates to be fixed, given the principal $P$, it follows that:
+
+\begin{subequations}\label{eq:discrete}
+\begin{large}
+\begin{gather}
+S(t) = \left(P + \frac{C_N}{r} \right)
+\left(1 + \frac{R}{n} \right)^{nt}
+- \frac{C_N}{r}\left(1 + \frac{i}{n} \right)^{-nt}
+\label{eq:discrete:a} \\[1em]  
+S_N(t) = \left(P + \frac{C_N}{r} \right)
+\left(1 + \frac{r}{n} \right)^{nt}
+- \frac{C_N}{r}
+\label{eq:discrete:b}
+\end{gather}
+\end{large}
+\end{subequations}
+
+
+\subsection*{Idealized Fixed Nominal RROI \& NROI}
+Applying the idealized fixed nominal contribution rate solution to the $\mathtt{RROI}$ and $\mathtt{NROI}$ formulas yields:
+
+\begin{subequations}\label{eq:discrete}
+\begin{large}
+\begin{gather}
+\mathtt{RROI}(t) = \frac{\left(P + \frac{C_N}{r} \right)
+\left(1 + \frac{r}{n} \right)^{nt}
+- \frac{C_N}{r}}{\left(P + \frac{C_N}{i} \right)
+\left(1 + \frac{i}{n} \right)^{nt}
+- \frac{C_N}{i}}-1
+\label{eq:discrete:a} \\[1em]  
+\mathtt{NROI}(t) = \frac{\left(P + \frac{C_N}{r} \right)
+\left(1 + \frac{r}{n} \right)^{nt}
+- \frac{C_N}{r}}{P+C_Nt}-1
+\label{eq:discrete:b}
+\end{gather}
+\end{large}
+\end{subequations}
+
+
+\subsection*{Generalized Solution}
+Without fixing any of the parameters, the solution may be generalized as follows:
+
+\begin{center}
+\begin{footnotesize}
+Take note of the correspondence $(S,C,i)\leftrightarrow(S_N,C_N,0)$
+\end{footnotesize}
+\end{center}
+
+\begin{equation}\label{eq:discrete}
+\large
+S(t) = P\prod_{k=0}^{\lfloor nt \rfloor-1}\frac{n+r(\sfrac{k}{n})}{n+i(\sfrac{k}{n})}+\frac{1}{n}\sum_{k=0}^{\lfloor nt \rfloor-1}C(\sfrac{k}{n})\prod_{m=k+1}^{\lfloor nt \rfloor-1}\frac{n+r(\sfrac{m}{n})}{n+i(\sfrac{m}{n})}
+\end{equation}
+
+
+\end{document}
