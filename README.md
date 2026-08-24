@@ -1,1 +1,1 @@
-This is just a compilation of a handful of the LaTeX writeups I've created over the past several years. Most of the writeups are technical explorations of advanced math and physics topics that I've engaged in. 
+This is just a compilation of a handful of the LaTeX writeups I've created over the past several years. Most of the writeups are technical explorations of advanced math and physics topics that I've engaged in via independent studies. 
