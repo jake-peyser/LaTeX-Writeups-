@@ -1,1 +1,1165 @@
+\documentclass{article}
+\usepackage{comment,amsmath,amssymb,bm,mathtools,cancel,parskip,fancyhdr,mathrsfs}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc,patterns.meta}
+\usepackage[margin=1in]{geometry}
+\geometry{margin=1in}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\usepackage{xcolor}
+\usepackage{listings}
+\definecolor{mygreen}{RGB}{28,172,0}
+\definecolor{mylilas}{RGB}{170,55,241}
 
+\lstset{
+    language=Matlab,
+    breaklines=true,
+    morekeywords={matlab2tikz},
+    keywordstyle=\color{blue},
+    morekeywords=[2]{1},
+    keywordstyle=[2]{\color{black}},
+    identifierstyle=\color{black},
+    stringstyle=\color{mylilas},
+    commentstyle=\color{mygreen},
+    showstringspaces=false,
+    numbers=left,
+    numberstyle={\tiny\color{black}},
+    numbersep=9pt,
+    emph=[1]{for,end,break},
+    emphstyle=[1]\color{red}
+}
+
+\begin{document}
+\begin{center}
+\textbf{\LARGE{Notes on Optimal Control Theory}}
+\vspace{3 mm}\\
+By: Jake Peyser
+\vspace{1.5 mm}\\
+6/4/2026
+\end{center}
+
+\section*{Setup \&  Dynamics}
+
+Suppose that $\bm X:\mathbb{R}\to\mathbb{R}^N$ denotes the state of a system, and let $q_i:\mathbb{R}\to\mathbb{R}$ be the corresponding $i^{\text{th}}$ degree of freedom. The $i^{\text{th}}$ sub-state of the system is thus given by the pairing $x_i=(q_i,\dot q_i)$. Provided that there are $n$ such degrees of freedom, which implies $N=2n$, without loss of generality, we may write:
+\[
+\bm X=
+    [x_1,\dots,x_n]^T
+     =  
+    \left[
+    [q_1,\dot q_1],\dots,[q_n,\dot q_n]\vphantom{\frac{.}{.}}
+    \right]^T
+\qquad\text{and}\qquad
+\bm{\dot X}=
+[\dot x_1,\dots,\dot x_n]^T
+=
+\left[
+    [\dot q_1,\ddot q_1],\dots,[\dot q_n,\ddot q_n]\vphantom{\frac{.}{.}}
+    \right]^T
+\]
+Suppose that a controller can be implemented in order to influence the dynamics of the system. In this regard, let $\bm u:\mathbb{R}\to\mathbb{R}^m$ denote the control variable from the collection of admissible controls $\mathcal{U}$ such that the $i^\text{th}$ controller input is given by $u_i:\mathbb{R}\to\mathbb{R}$. As there are $m$ such inputs, we may likewise write:
+\[
+\bm u=[u_1,\dots,u_m]^T
+\]
+
+For any deterministic system, its dynamics can be encoded by a function of the form $f:\mathbb{R}\times\mathbb{R}^N\times\mathbb{R}^m\to\mathbb{R}^N$ (Lipschitz continuous). In particular, at the time $t$, the state of the system evolves according to the following initial value problem (IVP) in state-space form:
+\[
+\bm{\dot X}(t)=f(t,\bm X(t),\bm u(t))
+\qquad\text{s.t.}\qquad
+\bm X(t_0)=\bm X_0
+\]
+This system can be visualized via the diagram below. There, at the time $t$, the (initialized) state variable $\bm X(t)$ and the control variable $\bm u(t)$ are fed into the function $f(t,x,u)$ from which the state velocity $\bm{\dot X}(t)$ is outputted. The output is then integrated, which subsequently updates the current state for feedback $\otimes$.
+\begin{figure}[h!]
+		\centering
+\begin{tikzpicture}[auto, node distance=2cm, >=latex',
+    block/.style={draw, rectangle, minimum width=2cm, minimum height=1cm, align=center}]
+    
+% Nodes
+\node (x) {$\bm X(t)$};
+\node[block,right=2cm of x] (f) {$f(t,x,u)$};
+\node[right=2cm of f] (xdot) {$\bm{\dot X}(t)$};
+\node[block, right=2cm of xdot] (int) {$\displaystyle\int dt$};
+\node[right=1cm of int] (xout) {$\otimes$};
+\node[below=1.25cm of f] (u) {$\bm u(t)$};
+
+% Connections                 
+\draw[->] (x) -- (f);                              
+\draw[->] (f) -- (xdot);
+\draw[->] (xdot) -- (int);
+\draw[->] (u) -- (f);
+
+% Feedback loop 
+\draw[->] (int) -- (xout) |- ([yshift=-1
+cm]xdot.south) -| (x);
+\end{tikzpicture}
+		\caption{Control System Diagram}
+	\end{figure}\noindent
+    
+At this point, not only is there no context for where the control variable $\bm{u}$ may originate, but it is not even clear if control could be pragmatically implemented in order to be of any utility. It is the overall goal of these notes to fill these conceptual gaps in an effort to demonstrate the power of optimal control theory.
+
+\section*{Controllability}
+Given any system of the form above, it is deemed to be controllable within the time interval $[t_0,t_1)$ if at any time $t\in[t_0,t_1)$ corresponding to the state $\bm{X}(t)\in\mathbb{R}^N$, and for any target state $\bm X_T\in\mathbb{R}^N$, there exists a finite duration $\delta t\in(0,t_1-t)$ with an admissible control $\bm u:[t,t+\delta t)\to\mathbb{R}^m$ such that $\bm X(t+\delta t)=\bm X_T$.
+\vspace{3 mm}\\
+Assuming that the controller inputs are uncoupled, there exists functions of the form $g_i:\mathbb{R}\times\mathbb{R}^N\to\mathbb{R}^N$, for $i\in\{0,\dots,m\}$, such that the dynamics of the system can be decomposed into the following form:
+\[
+f(t,x,u)=f_0(t,x)+\sum_{i=1}^mu_ig_i(t,x)
+\]
+
+\newpage
+
+If for every valid state pair $(t,x)\in\mathbb{R}\times\mathbb{R}^N$ one has that $\mathrm{span}\{g_i(t,x)\}_{i=1}^m=\mathbb{R}^N$,
+then state space is locally accessible because the admissible controls may direct the state velocity in any state direction in $\mathbb{R}^N$. 
+\vspace{3 mm}\\
+Unfortunately, this condition is very strong, and most systems cannot admit to it. However, this condition can be significantly relaxed. Even if the state velocity does not immediately span $\mathbb{R}^N$, additional reachable directions may be synthesized via tuned successive control actuation. 
+\vspace{3 mm}\\
+These emergent directions are characterized by the Lie bracket (i.e. the commutator), which is denoted by $[\cdot,\cdot]:C^1(\mathbb{R}^N,\mathbb{R}^N)\times C^1(\mathbb{R}^N,\mathbb{R}^N)\to C^1(\mathbb{R}^N,\mathbb{R}^N)$. In particular, the Lie bracket is defined via the following operation between any two (valid) vector fields $\bm Y$ and $\bm Z$ as below: 
+\vspace{2 mm}
+\[
+[\bm Y,\bm Z]\coloneq\frac{\partial\bm Z}{\partial x}\bm Y-\frac{\partial\bm Y}{\partial x}\bm Z
+\]\\
+The Lie bracket $[\bm Y, \bm Z]$ quantifies the failure of the flows along $\bm Y$ and $\bm Z$ to commute. Specifically, it measures the first order displacement resulting from following the flow of $\bm Y$ then $\bm Z$, versus the reverse order.
+\vspace{3 mm}\\
+In this regard, consider the collection of vector fields that contains the dynamic functions that are coupled with the controller variable (i.e. $g_i$) in conjunction with all the novel Lie bracket combinations (under closure) between those functions and the inherent dynamical drift  of the system (i.e. $f_0$):
+\[
+\mathcal{G}=\bigcup_{k=1}^\infty\mathcal{G}_k
+\qquad\text{with}\qquad
+\mathcal{G}_{k+1}=\mathcal{G}_k\,\cup\,\left\{[f_0,\nu]:\nu\in\mathcal{G}_k\right\}\,\cup\,\left\{[\mu,\nu]:\mu\in\mathcal{G}_1,\nu\in\mathcal{G}_k\right\}
+\qquad\text{s.t.}\qquad
+\mathcal{G}_1=\{g_i\}_{i=1}^m
+\]
+The collection $\mathcal{G}$ is the effective generating set for all the possible state-velocity directions that can be produced by successive controller actuation. Now, Suppose that for every valid state pair $(t,x)\in\mathbb{R}\times\mathbb{R}^N$ throughout state (pair) space, one has the following condition satisfied:
+\[
+\boxed{\;\mathrm{span}(\mathcal{G}(t,x))=\mathbb{R}^N\vphantom{\frac{a}{a}}\;} 
+\]
+Consequently, the system has the ability to reach any local state via control implementation, which yields local accessibility over state space. Furthermore, if solutions exist for all admissible controls, then reachable states are well-defined globally. 
+\vspace{3 mm}\\
+Lastly, given any two states $\bm{X}_\alpha$ and $\bm{X}_\beta$, if $\bm{X}_\beta$ being reachable from $\bm{X}_\alpha$ implies that $\bm{X}_\alpha$ is a reachable from $\bm{X}_\beta$, then the system is reachable-set symmetric. Local accessibility in conjunction with reachable-set symmetry remarkably implies controllability over state-space within the context of these notes.  
+
+\section*{Linear Time Invariant Systems}
+Given a system, it is considered to be linear time invariant (LTI) if $\partial_tf(t,x,u)=0$, which is to say the dynamics have no explicit temporal dependence, and $f(t,x,u)$ is linear in $x$ and $u$. Equivalently, this can be casted in context as such:
+\[
+f(t,x,u)=Ax+Bu\qquad\text{s.t.}\qquad A\in\mathbb{R}^{N\times N}\qquad\text{and}\qquad B\in\mathbb{R}^{N\times m}
+\]
+From the theory of differential equations, every such system admits a unique global solution on the time interval $[t_0,t_1)$ given that the following criterion  pertaining to the controller is satisfied:
+\[
+\int_{t_0}^{t_1}||\bm{u}(t)||\,dt<\infty
+\qquad\text{where}\qquad
+||\bm u||=\sqrt{\bm u^T\bm u}
+\]
+Under this condition, via the formal exponential function $e^{(\cdot)}:M\in\mathbb{R}^{N\times N}\mapsto\sum_{k=0}^\infty\frac{M^k}{k!}$, upon taking the initial condition into consideration, the general solution at every time $t\in[t_0,t_1)$ can be written as such:
+\[\boxed{\;
+\bm X(t)=e^{A(t-t_0)}\bm X_0+\int_{t_0}^t e^{A(t-\tau)}B\bm u(\tau)\,d\tau\vphantom{\frac{\frac{I}{I}}{\frac{I}{I}}}
+\;}\]
+
+\newpage
+
+\section*{Kalman Controllability Criterion }
+Here, the criterion  for an LTI system being controllable will be determined. Firstly, we observe that the dynamics of any such LTI system of the form $f(t,x,u)=Ax+Bu$ can be rewritten as follows:
+\[
+f(t,x,u)=Ax+\sum_{i=1}^mu_i\bm b_i
+\qquad\text{where}\qquad
+B=[\bm b_1\cdots\bm b_m]
+\qquad\text{i.e.}\qquad
+\bm b_i\in\mathbb{R}^N
+\]
+This is all to say that there exists a corresponding set $f_0\cup\{g_i\}_{i=1}^m$ from the previous context for every LTI system as shown explicitly below:
+\[
+f_0(t,x)=Ax\qquad\text{and}\qquad g_i(t,x)=\bm b_i\qquad\text{for}\qquad i\in\{1,\dots,m\}
+\]
+Because $\bm b_i\in\mathbb{R}^N$, it directly follows that $[g_i,g_j]=0$. Therefore, when constructing $\mathcal{G}$, we need only consider the collection $\{\bm b_i\}_{i=1}^m$ and the Lie brackets pertaining to $f_0$ that do not vanish. As a base case, observe:
+\[
+[f_0,g_j]=\frac{\partial g_j}{\partial x}f_0-\frac{\partial f_0}{\partial x}g_j=\cancel{\frac{\partial\bm b_j}{\partial x}Ax}-\frac{\partial}{\partial x}(Ax)\bm b_j=-A\bm b_j\qquad\text{for}\qquad j\in\{1,\dots,m\}
+\]
+It follows directly from induction that any arbitrary Lie bracket composition involving $f_0$ of the following form can be determined accordingly:
+\[
+\underbrace{[f_0,[f_0,\dots,[f_0,g_j]]]}_\text{$k$ brackets}=(-1)^kA^k\bm b_j
+\quad\implies\quad
+[g_i,\underbrace{[f_0,[f_0,\dots,[f_0,g_j]]]}_\text{$k$ brackets}]=[\bm b_i,(-1)^kA^k\bm b_j]=0
+\]
+All other higher order bracket compositions thus vanish. Therefore, the only vectors that contribute to the set $\mathcal{G}$ are the elements of $\{\bm b_i\}_{i=1}^m$ by default, $\{(-1)^kA^k\bm b_j:j\in\{1,\dots,m\},k\in\mathbb{N}\}$ as above, and $\{0\}$ due to all the vanishing terms. This is to say:
+\[
+\mathcal{G}=\{\bm b_i\}_{i=1}^m\,\cup\,\{(-1)^kA^k\bm b_j:j\in\{1,\dots,m\},k\in\mathbb{N}\}\,\cup\,\{0\}
+\]
+We can now determine to what degree $\mathcal{G}$ generates $\mathbb{R}^N$ by taking its span, and simplifying its elements. Firstly, observe $0\in\mathcal{G}$ does not contribute to $\mathrm{span}(\mathcal{G})$ as, by definition, it is already implicit:
+\[
+\mathrm{span}(\mathcal{G})=\mathrm{span}\left(\left\{A^kb_j:j\in\{1,\dots,m\},k\in\mathbb{N}_0\right\}\right)
+\]
+Moreover, by the Cayley Hamilton Theorem, because $A\in\mathbb{R}^{N\times N}$, for all $k\geq N$, one has that $A^k\bm b_j$ is within the span of $\{A^k\bm b_j:j\in\{1,\dots,m\},k\in\{0,\dots,N-1\}\}$, and so we can further reduce the quantity of elements needed to construct the set generated by $\mathcal{G}$:
+\[
+\mathrm{span}(\mathcal{G})
+=\mathrm{span}\left(\left\{A^k\bm b_j:j\in\{1,\dots,m\},k\in\{0,\dots,N-1\}\right\}\right)
+=\mathrm{Col}
+\begin{bmatrix}
+B & AB & A^2B & \cdots & A^{N-1}B
+\end{bmatrix}
+\]
+With all said, by definition of rank (of a matrix), the constraint $\mathrm{span}(\mathcal{G})=\mathbb{R}^N$ can be reduced to the more manageable condition, which is known as the Kalman Controllability Criterion (KCC):
+\[
+\mathrm{rank}
+\begin{bmatrix}
+\;B & AB & A^2B & \cdots & A^{N-1}B\,\;
+\end{bmatrix}
+=N
+\]
+This is to say, if the KCC is satisfied, the system is locally accessible over state space. Now, because the system is LTI, not only is it guaranteed to have a well-defined global solution (for bounded control inputs), but it is also reachable-set symmetric:
+\[
+\bm X_\beta = e^{A(t_\beta-t_\alpha)}\bm X_\alpha + \int_{t_\alpha}^{t_\beta} e^{A(t_\beta-\tau)}B\bm u(\tau)\,d\tau 
+\quad\implies\quad
+\bm X_\alpha = e^{-A(t_\beta-t_\alpha)}\bm X_\beta - \int_{t_\alpha}^{t_\beta} e^{-A(\tau-t_\alpha)}B\,\bm u(t_\beta+t_\alpha-\tau)\,d\tau
+\]
+It thereby follows that the KCC is both necessary and sufficient for LTI controllability over state-space:
+\[
+\boxed{\;\;
+\mathrm{rank}
+\begin{bmatrix}
+\;B & AB & A^2B & \cdots & A^{N-1}B\;
+\end{bmatrix}
+=N
+\quad\iff\quad
+\text{Controllability}\vphantom{\frac{1}{1}}
+\:\;}
+\]
+
+\newpage
+
+\section*{Optimization Metric}
+For every controllable system, an associated optimization problem can be posed in which the controller is to be tuned in order to minimize an objective cost. In this regard, we consider a cost functional $J$, which is defined over the time interval $[t_0,t_1)$, of the following form:
+\[
+J[\bm X,\bm u]=\Phi(\bm X(t_1))+\int_{t_0}^{t_1}\mathcal{L}(t,\bm X(t),\bm u(t))\,dt
+\]
+Here, $\Phi(\bm X(t_1))$ is the terminal cost and $\mathcal{L}$ is the running cost density. Now, although the state variable $\bm X$ is determined by the control variable $\bm u$ via the dynamical constraint, we nonetheless treat $\bm X$ and $\bm u$ as independent variables in order to streamline the analysis.
+\vspace{3 mm}\\
+In order to tune the controller $\bm{u}$, we envision a black box mechanism that receives the current state-variable data $\bm{X}(t)$ and control variable state $\bm{u}(t)$ from feedback $\otimes$. Then, based off the structure of the cost functional $J$, the mechanism determines the optimal control update, and updates $\bm{u}(t)$ accordingly:   
+\begin{figure}[h!]
+		\centering
+\begin{tikzpicture}[auto, node distance=2cm, >=latex',
+    block/.style={draw, rectangle, minimum width=2cm, minimum height=1cm, align=center}]
+    
+% Nodes
+\node (x) {$\bm X(t)$};
+\node[block,right=2cm of x] (f) {$f(t,x,u)$};
+\node[right=2cm of f] (xdot) {$\bm{\dot X}(t)$};
+\node[block, right=2cm of xdot] (int) {$\displaystyle\int dt$};
+\node[right=1cm of int] (xout) {$\otimes$};
+\node[above=1cm of f] (u) {$\bm u(t)$};
+\node[block, above=1cm of x] (bb) {Black Box};
+\node[right=1cm of u] (uout) {$\otimes$};
+\node[left=1cm of bb] (p) {};
+
+% Connections                 
+\draw[->] (x) -- (f);                              
+\draw[->] (f) -- (xdot);
+\draw[->] (xdot) -- (int);
+\draw[->] (u) -- (f);
+\draw[->] (x) -- (bb);
+\draw[->] (bb) -- (u);
+
+% Feedback loops
+\draw[->] (int) -- (xout) |- ([yshift=-1
+cm]xdot.south) -| (x);
+\draw[->] (u) -- (uout) |- ([yshift=0.75cm]u.north) -| (p.center) -- (bb);
+\end{tikzpicture}
+	\caption{Control System Diagram with Black Box}
+	\end{figure}\noindent
+    
+The primary obstacle is determining the exact mechanism hidden inside the black box. Because the cost functional $J$ is a functional with respect to the state variable $\bm{X}$ and the control variable $\bm{u}$, it can be optimized with respect to $\bm{u}$ when subject to the dynamical constraint using the calculus of variations.
+
+\section*{Dynamical Constraint Implementation}
+In order to establish the optimized dynamics between the system's components, an intermediate state variable ought to be implemented. In particular, let the costate be denoted by $\bm{\lambda}:\mathbb{R}\to\mathbb{R}^N$, and we can use it to construct the augmented cost functional $\tilde J$ by treating it as a Lagrange multiplier. Specifically, it can be implemented as such in order to restrict the system to its dynamical constraint to be extremized over:
+\begin{align*}
+\tilde J[\bm X,\bm u,\bm\lambda]&=J[\bm X,\bm u]-\int_{t_0}^{t_1}\bm{\lambda}(t)^T\left(\bm{\dot X}(t)-f(t,\bm X(t),\bm u(t))\right)dt
+\\[4 mm]
+&=\Phi(\bm X(t_1))+\int_{t_0}^{t_1}\left[\mathcal{L}(t,\bm X(t),\bm u(t))-\bm{\lambda}(t)^T\left(\bm{\dot X}(t)-f(t,\bm X(t),\bm u(t))\right)\right]dt
+\end{align*}
+With the augmented functional in place, a characteristic objective function of the system's configuration, given by the Hamiltonian will be defined by:
+\[
+\mathcal{H}(t,x,u,\lambda)\coloneq\mathcal{L}(t,x,u)+\lambda^Tf(t,x,u)
+\]
+This allows us to recast the integrand of the augmented cost functional in terms of a function of the system's configuration $\mathcal{H}(t,x,u,\lambda)$ and the state's (coupled) configuration trend $\lambda^T\dot x$ as given below:
+\[
+\tilde J[\bm X,\bm u,\bm{\lambda}]=\Phi(\bm X(t_1))+\int_{t_0}^{t_1}\left[\mathcal{H}(t,\bm X(t),\bm u(t),\bm{\lambda}(t))-\bm{\lambda}(t)^T\bm{\dot X}(t)\right]dt
+\]
+
+\newpage
+
+\section*{The Optimality Conditions}
+We now take the variation of the cost functional $\tilde J$ with respect to each of its arguments. This will enable us to determine the extremal functions that optimize the cost. For convenience, let $\bm S(t)$ denote the system configuration $(t,\bm X(t),\bm u(t),\bm{\lambda}(t))$. It follows from linearity, the chain rule, and integration by parts:
+\begin{align*}
+&\delta\tilde J[\bm X,\bm u,\bm{\lambda}]=\delta \Phi(\bm X(t_1))+\int_{t_0}^{t_1}\delta\left[\mathcal{H}(t,\bm X(t),\bm u(t),\bm{\lambda}(t))-\bm{\lambda}(t)^T\bm{\dot X}(t)\right]dt
+\\[4 mm]
+&=\left.\frac{\partial\Phi}{\partial x}\right|_{\bm X(t_1)}\delta\bm X(t_1)+\int_{t_0}^{t_1}\left[\left.\frac{\partial\mathcal{H}}{\partial x}\right|_{\bm S}\delta\bm X+\left.\frac{\partial\mathcal{H}}{\partial u}\right|_{\bm S}\delta\bm u+\left.\frac{\partial\mathcal{H}}{\partial\lambda}\right|_{\bm S}\delta\bm{\lambda}-\delta\bm{\lambda}^T\bm{\dot X}-\bm{\lambda}^T\delta\bm{\dot X}\right](t)\,dt
+\\[4 mm]
+&=\left.\frac{\partial\Phi}{\partial x}\right|_{\bm X(t_1)}\delta\bm X(t_1)-\left.\bm{\lambda}^T\delta\bm X\right|_{\cancel{t_0}}^{t_1}\;+\int_{t_0}^{t_1}\left[\left.\frac{\partial\mathcal{H}}{\partial x}\right|_{\bm S}\delta\bm X+\left.\frac{\partial\mathcal{H}}{\partial u}\right|_{\bm S}\delta\bm u+\left.\frac{\partial\mathcal{H}}{\partial\lambda}\right|_{\bm S}\delta\bm{\lambda}-\bm{\dot X}^T\delta\bm{\lambda}-\bm{\dot\lambda}^T\delta\bm X\right](t)\,dt
+\\[4 mm]
+&=\left(\left.\frac{\partial\Phi}{\partial x}\right|_{\bm X(t_1)}-\bm{\lambda}^T(t_1)\right)\delta\bm X(t_1)+\int_{t_0}^{t_1}\left[\left(\left.\frac{\partial\mathcal{H}}{\partial x}\right|_{\bm S}+\bm{\dot\lambda}^T\right)\delta\bm X+\left.\frac{\partial\mathcal{H}}{\partial u}\right|_{\bm S}\delta\bm u+\left(\left.\frac{\partial\mathcal{H}}{\partial\lambda}\right|_{\bm S}-\bm{\dot X}^T\right)\delta\bm{\lambda}\right](t)\,dt
+\end{align*}
+If we then make the variation in $\tilde J$ stationary by setting $\delta\tilde J=0$, because the collection $\left\{\delta\bm X,\delta\bm u,\delta\bm{\lambda}\right\}$ is linearly independent by necessity and $\delta\bm X(t_1)$ is arbitrary, whereas $\delta\bm X(t_0)=0$, the following conditions must hold simultaneously at the optimal configuration $\bm S(t)=(t,\bm X(t),\bm u(t),\bm{\lambda}(t))$ for all $t\in[t_0,t_1)$:
+\[
+(\bm{\lambda})^T(t_1)=\left.\frac{\partial\Phi}{\partial x}\right|_{\bm X(t_1)}
+\qquad\&\qquad
+(\bm{\dot\lambda})^T=-\left.\frac{\partial\mathcal{H}}{\partial x}\right|_{\bm S}
+\qquad\&\qquad
+\left.\frac{\partial\mathcal{H}}{\partial u}\right|_{\bm S}=0
+\qquad\&\qquad
+(\bm{\dot X})^T=\left.\frac{\partial\mathcal{H}}{\partial\lambda}\right|_{\bm S}
+\]
+Upon explicitly working out the partial derivatives of the Hamiltonian, the conditions in conjunction with the original initial condition reduce to the coupled system of differential equations as follows:
+\[
+\begin{cases}
+(\bm{\dot\lambda})^T(t)=-\dfrac{\partial\mathcal{L}}{\partial x}(t,\bm X(t),\bm u(t))-(\bm{\lambda})^T(t)\,\dfrac{\partial f}{\partial x}(t,\bm X(t),\bm u(t))\qquad\text{s.t.}\qquad (\bm{\lambda})^T(t_1)=\dfrac{\partial\Phi}{\partial x}(\bm X(t_1))
+\\\\
+\dfrac{\partial\mathcal{L}}{\partial u}(t,\bm X(t),\bm u(t))+(\bm{\lambda})^T(t)\,\dfrac{\partial f}{\partial u}(t,\bm X(t),\bm u(t))=0
+\\\\
+(\bm{\dot X})^T(t)=f^T(t,\bm X(t),\bm u(t))\qquad\text{s.t.}\qquad\bm X(t_0)=\bm X_0
+\end{cases}
+\]
+With the understanding that the bold font and the (implied) function argument inputs will be dropped appropriately for convenience, these equations, which are referred to as the optimality conditions, can be further structurally manipulated as such:
+\[
+\begin{cases}
+\dot\lambda+\left(\dfrac{\partial f}{\partial x}\right)^T\lambda+\left(\dfrac{\partial\mathcal{L}}{\partial x}\right)^T=0\qquad\text{s.t.}\qquad\lambda(t_1)=\left(\dfrac{\partial\Phi}{\partial x}\right)^T(x(t_1))
+\\\\
+\left(\dfrac{\partial f}{\partial u}\right)^T\lambda+\left(\dfrac{\partial\mathcal{L}}{\partial u}\right)^T=0
+\\\\
+\dot x=f(t,x,u)\qquad\text{s.t.}\qquad x(t_0)=x_0
+\end{cases}
+\]
+To briefly comment on the infinite horizon problem, in which $t_1\to\infty$ and $\Phi\equiv0$, as $\delta x(t_1)$ is no longer a fixed independent variable, the terminal condition on $\lambda$ is necessarily replaced by the transversal condition:
+\[
+\lim\limits_{t\to\infty}\lambda^T(t)\,\delta x(t)=0
+\]
+These coupled equations constitute the first-order necessary optimality conditions for the control problem. Unfortunately, there is no closed form analytic solution in the general case of non-linear dynamics. However, restricting the analysis to LTI systems indeed simplifies matters significantly.
+
+\newpage
+
+\section*{Inside the Black Box}
+At this point, the inside of the black box outlined before in figure 2 can be examined. The black box itself has two inputs, one costate, and one output. This mechanism, as shown below, serves to tune the control variable $\bm{u}$ based off the system's current state in conjunction with the optimality conditions: 
+
+\begin{figure}[h!]
+		\centering
+\begin{tikzpicture}[auto, node distance=2cm, >=latex',
+    block/.style={draw, rectangle, minimum width=2cm, minimum height=1cm, align=center}]
+    
+% Nodes
+\node (lambda) {$\bm\lambda(t)$};
+\node[block,right=1.5cm of lambda] (Hu) {$\mathcal{H}_u^T(t,x,u,\lambda)=0$};
+\node[right=1cm of Hu] (uout) {$\bm u(t+dt)$};
+\node[block,left=4cm of lambda] (Hx) {$-\mathcal{H}_x^T(t,x,u,\lambda)$};
+\node[above=0.75cm of Hx] (lambdadot) {$\bm{\dot\lambda}(t)$};
+\node[block,right=1.5cm of lambdadot] (int) {$\displaystyle\int dt$};
+\node[above=1.05cm of lambda] (lambdaout) {$\otimes$};
+\node[left=1cm of Hx] (uin) {$\bm u(t)$};
+\node[below=2cm of lambda] (x) {$\bm X(t)$};
+\node[below=0.7625cm of lambda] (xjunc) {$\square$};
+
+% Connections                 
+\draw[->] (lambda) -- (Hu);  
+\draw[->] (Hu) -- (uout);  
+\draw[<->] (Hx) |- ([yshift=-1
+cm]lambda.south) -| (Hu);
+\draw[->] (lambda) -- (Hx);  
+\draw[->] (Hx) -- (lambdadot);
+\draw[->] (lambdadot) -- (int);
+\draw[->] (uin) -- (Hx);
+\draw[->] (x) -- (xjunc);
+
+% Feedback loops
+\draw[->] (int) -- (lambdaout) -- (lambda);
+\end{tikzpicture}
+	\caption{Black Box Internal Diagram}
+	\end{figure}\noindent
+
+Structurally, the two inputs given by $\bm{X}(t)$ and $\bm{u}(t)$ in addition to the (initialized) costate $\bm{\lambda}(t)$ feed into the internal state machines. The state machine $-\mathcal{H}_x^T(t,x,u,\lambda)$ directly returns the costate velocity $\bm{\dot\lambda}(t)$, which is then integrated, and subsequently outputs the updated costate $\bm\lambda(t+dt)$ for feedback $\otimes$. 
+\vspace{3 mm}\\
+Likewise, the state machine $\mathcal{H}_u^T(t,x,u,\lambda)$ is then fed the costate $\bm\lambda(t)$ in addition to the inputs given by $\bm X(t)$ and $\bm u(t)$. From there, the state machine determines the (closest) new control variable state $\bm u(t+dt)$ which satisfies the equation $\mathcal{H}_u^T(t,\bm{X}(t),u,\bm\lambda(t))=0$, and can then be fed back into the feedback loop.
+\vspace{3 mm}\\
+Crucially, this only a well posed interpretation provided that the Hessian satisfies $\det(\partial_u^2\mathcal{H})\neq0$ at the optimal configuration. This is because, noting $\partial_u\mathcal{H}=0$ per the optimality conditions, by the implicit function theorem, there necessarily exists (contextually) a smooth mapping $(t,x,\lambda)\mapsto u$ if the Hessian is locally invertible as prescribed before. 
+
+\begin{comment}
+\section*{Pure State Feedback Laws}
+In special cases of time invariant controllable systems, for some function $\phi:\mathbb{R}^N\to\mathbb{R}^m$, the control variable $\bm u$ can be of the form $\bm{u}(t)=\phi(\bm X(t))$, and so the black box (i.e. $\bm\lambda$) can be thrown away altogether. 
+\vspace{3 mm}\\
+Moreover, from time invariance, $\partial_tf(t,x,u)=0$. Thus, upon neglecting time dependence, the dynamics can instead be encoded by $\bm{\dot X}(t)=f(\bm X(t),\phi(\bm X(t)))$. Such systems are said to obey a pure state feedback law because the state variable $\bm X$ fully determines the state velocity $\bm{\dot X}$: 
+
+\begin{figure}[h!]
+		\centering
+\begin{tikzpicture}[auto, node distance=2cm, >=latex',
+    block/.style={draw, rectangle, minimum width=2cm, minimum height=1cm, align=center}]
+    
+% Nodes
+\node (x) {$\bm X(t)$};
+\node[block,right=2cm of x] (f) {$f(x,\phi(x))$};
+\node[right=2cm of f] (xdot) {$\bm{\dot X}(t)$};
+\node[block, right=2cm of xdot] (int) {$\displaystyle\int dt$};
+\node[right=1cm of int] (xout) {$\otimes$};
+
+% Connections                 
+\draw[->] (x) -- (f);                              
+\draw[->] (f) -- (xdot);
+\draw[->] (xdot) -- (int);
+
+% Feedback loop 
+\draw[->] (int) -- (xout) |- ([yshift=-1
+cm]xdot.south) -| (x);
+\end{tikzpicture}
+		\caption{Pure State Feedback Law Diagram}
+	\end{figure}\noindent
+
+When such a pure state feedback law can be determined, the system's local equilibrium convergence can be measured directly via the Eigenvalues of the state gradient matrix $\nabla f$ (implicitly) given by:
+\[
+\delta\bm{\dot X}=\nabla f(\bm X)\,\delta\bm X
+\quad\implies\quad
+\nabla f(x)=\frac{\partial f}{\partial x}(x,\phi(x))+\frac{\partial f}{\partial u}(x,\phi(x))\,\frac{d\phi}{dx}(x)
+\]
+\end{comment}
+
+\section*{Initialization}
+Although the feedback loop described up until this point is perfectly well defined, in practice, initializing the control algorithm is rather challenging. More specifically, the costate $\bm\lambda$ lacks an explicit initial value $\bm\lambda_0=\bm\lambda(t_0)$ despite having a terminal condition $\bm\lambda(t_1)=(\partial_x\Phi)^T(\bm X(t_1)$ for finite time problems. In order to initialize the feedback loop, $\bm\lambda_0$ needs to be determined. 
+\vspace{3 mm}\\
+Consider the functions $\bm{\tilde X}$ and $\bm{\tilde\lambda}$ that takes a candidate $\lambda_0\in\mathbb{R}^N$ as input in conjunction with $\bm X_0$ to initialize the feedback loop, and returns the respective forwardly integrated variables from time $t_0$ to $t_1$:
+\[
+\bm{\tilde X}:\lambda_0\in\mathbb{R}^N\mapsto\bm{\tilde X}(\lambda_0)\in\mathbb{R}^N
+\qquad\text{and}\qquad
+\bm{\tilde\lambda}:\lambda_0\in\mathbb{R}^N\mapsto\bm{\tilde\lambda}(\lambda_0)\in\mathbb{R}^N
+\]
+Then, consider the objective function $F$, which accepts the guessed costate $\lambda_0$ as an input, and calculates the error between the corresponding terminal costate and the targeted terminal costate:
+\[
+F: \lambda_0\in\mathbb{R}^N\mapsto\bm{\tilde\lambda}(\lambda_0)-\left(\frac{\partial\Phi}{\partial x}\right)^T\left(\bm{\tilde X}(\lambda_0)\right)
+\]
+At this point, the problem of determining $\bm\lambda_0$ has been reduced to the root finding problem $F(\bm\lambda_0)=0$, in which there exist several numerical solving techniques (e.g. Newton-Raphson). Note that this strictly applies to the finite time case. For infinite horizon problems, one needs to determine/approximate the targeted terminal costate, which is a process beyond the scope of these notes.
+
+\newpage
+
+\section*{System Valuation Evolution}
+Instead of analyzing the system's trajectory over its entire time history, we now consider how it behaves from some intermediate time $t$ to the final time $t_1$. More specifically, given that the system's dynamics are deterministic, fixing the configuration at any time determines the state's (optimal) future and past. 
+\vspace{3 mm}\\
+In this light, given an intermediate state configuration pairing $(t,\bm X_t)$, there exists a unique function of the form $\xi:\mathbb{R}\times\mathbb{R}\times\mathbb{R}^N\to\mathbb{R}^N$ such that at any time $\tau$ one has:
+\[
+\bm X(\tau)=\xi(\tau,t,\bm X_t)
+\quad\iff\quad
+\bm{\dot X}(\tau)=f(\tau,\bm X(\tau),\bm u(\tau))
+\qquad\text{s.t.}\qquad
+\bm X(t)=\bm X_t
+\]
+Casting the state evolution in this manner allows for the construction of a value function $V$ called the valuation. It determines the accumulated optimal cost between the current configuration $(t,\bm X_t)$ up to the final configuration $(t_1,\bm X(t_1))$. In the established context, the valuation takes the following form:
+\[
+V(t,\bm X_t)=\Phi(\xi(t_1,t,\bm X_t))+\int_t^{t_1}\mathcal{L}\left(\tau,\xi(\tau,t,\bm X_t),\bm u(\tau)\right)d\tau
+\]
+Carefully applying the chain rule in conjunction with the Leibnitz rule for integration results in the following equality which describes how the valuation changes:
+\begin{align*}
+&\frac{d}{dt}V(t,\bm X(t))=\frac{\partial V}{\partial t}(t,\bm X(t))+\frac{\partial V}{\partial x}(t,\bm X(t))\,\bm{\dot X}(t)=\frac{\partial V}{\partial t}(t,\bm X(t))+\frac{\partial V}{\partial x}(t,\bm X(t))\,f(t,\bm X(t),\bm u(t))
+\\[4 mm]
+&=\underbrace{\frac{d}{dt}\Phi(\xi(t_1,t,\bm X(t)))}_{=0}+\frac{d}{dt}\int_t^{t_1}\mathcal{L}\left(\tau,\xi(\tau,t,\bm X(\tau)),\bm u(\tau)\right)d\tau\qquad\text{since}\qquad\frac{d}{dt}\xi(t_1,t,\bm X(t))=0
+\\[2 mm]
+&=-\mathcal{L}(t,\xi(t,t,\bm X(t)),\bm u(t))+\int_t^{t_1}\underbrace{\frac{\partial}{\partial t}\left[\mathcal{L}\left(\tau,\xi(\tau,t,\bm X(t)),\bm u(\tau)\right)\right]}_{=0}d\tau\qquad\text{since}\qquad\frac{\partial}{\partial t}\left[\xi(\tau,t,\bm X(t))\right]=0
+\\[2 mm]
+&=-\mathcal{L}(t,\bm X(t),\bm u(t))\qquad\text{since}\qquad\xi(t,t,\bm X(t))=\bm X(t)
+\end{align*}
+This culminates in a relationship between how the valuation $V$ evolves explicitly and the running cost $\mathcal{L}$ of the optimal system. Noting the absence of the terminal function $\Phi$, it follows:
+\[
+\frac{\partial V}{\partial t}(t,\bm X(t))+\frac{\partial V}{\partial x}(t,\bm X(t))\,f(t,\bm X(t),\bm u(t))+\mathcal{L}(t,\bm X(t),\bm u(t))=0
+\]
+
+\section*{Costate Origins}
+In order to uncover the relationship between the valuation $V$ and the costate $\bm\lambda$, we consider the first order variation in the valuation itself at an arbitrary state:
+\begin{align*}
+&\delta V(t,\bm X(t))=\frac{\partial V}{\partial x}(t,\bm X(t))\,\delta\bm X(t)
+\\[4 mm]
+&=\frac{\partial\Phi}{\partial x}(\bm X(t_1))\,\delta\bm X(t_1)+\int_t^{t_1}\left[\frac{\partial\mathcal{L}}{\partial x}(\tau,\xi(\tau,t,\bm X(t)),\bm u(\tau))\,\delta\xi(\tau,t,\bm X(t))+\frac{\partial\mathcal{L}}{\partial u}(\tau,\xi(\tau,t,\bm X(t)),\bm u(\tau))\,\delta\bm u(\tau)\right]d\tau
+\\[4 mm]
+&=\frac{\partial\Phi}{\partial x}(\bm X(t_1))\,\delta\bm X(t_1)+\int_t^{t_1}\left[\frac{\partial\mathcal{L}}{\partial x}(\tau,\bm X(\tau),\bm u(\tau))\,\delta\bm X(\tau)+\frac{\partial\mathcal{L}}{\partial u}(\tau,\bm X(\tau),\bm u(\tau))\,\delta\bm u(\tau)\right]d\tau
+\end{align*}
+Crucially, the variations $\delta\bm X$ and $\delta\bm u$ are not independent. This is due to the dynamical constraint, which we recall as $\bm{\dot X}(\tau)=f(\tau,\bm X(\tau),\bm u(\tau))$, in variation form provided as such:
+\[
+\delta\bm{\dot X}(\tau)=\left.\frac{\partial f}{\partial x}\right|_{\bm I(\tau)}\delta\bm X(\tau)+\left.\frac{\partial f}{\partial u}\right|_{\bm I(\tau)}\delta\bm u(\tau)
+\qquad\text{given the input}\qquad
+\bm I(\tau)=(\tau,\bm X(\tau),\bm u(\tau))
+\]
+
+\newpage
+
+Therefore, upon introducing the Lagrange Multiplier $\bm\lambda$ (i.e. the costate), the following integral must vanish per the dynamic variational constraint:
+\[
+\int_t^{t_1}\bm\lambda^T(\tau)\left[\left.\frac{\partial f}{\partial x}\right|_{\bm I}\delta\bm X+\left.\frac{\partial f}{\partial u}\right|_{\bm I}\delta\bm u-\delta\bm{\dot X}\right](\tau)\,d\tau=0
+\]
+This fact in conjunction with the optimality conditions can be combined in order to simplify the variation in the configured valuation functional $\delta V(t,\bm X(t))$ (with integration by parts) as shown below:
+\begin{align*}
+    &\frac{\partial\Phi}{\partial x}(\bm X(t_1))\,\delta\bm X(t_1)+\int_t^{t_1}\left[\left.\frac{\partial\mathcal{L}}{\partial x}\right|_{\bm I}\delta\bm X+\left.\frac{\partial\mathcal{L}}{\partial u}\right|_{\bm I}\delta\bm u\right](\tau)\,d\tau+\int_t^{t_1}\bm\lambda^T(\tau)\left[\left.\frac{\partial f}{\partial x}\right|_{\bm I}\delta\bm X+\left.\frac{\partial f}{\partial u}\right|_{\bm I}\delta\bm u-\delta\bm{\dot X}\right](\tau)\,d\tau
+    \\[4 mm]
+    &=\frac{\partial\Phi}{\partial x}(\bm X(t_1))\,\delta\bm X(t_1)+\int_t^{t_1}\left[\left(\left.\frac{\partial\mathcal{L}}{\partial x}\right|_{\bm I}+\bm\lambda^T\left.\frac{\partial f}{\partial x}\right|_{\bm I}\right)\delta\bm X+\left(\left.\frac{\partial\mathcal{L}}{\partial u}\right|_{\bm I}+\bm\lambda^T\left.\frac{\partial f}{\partial u}\right|_{\bm I}\right)\delta\bm u-\bm\lambda^T\delta\bm{\dot X}\right](\tau)\,d\tau
+    \\[4 mm]
+    &=\left[\left.\frac{\partial\Phi}{\partial x}\right|_{\bm X}\delta\bm X\right](t_1)-\left.\bm\lambda^T\delta\bm X\right|_t^{t_1}+\int_t^{t_1}\left[\left(\left.\frac{\partial\mathcal{L}}{\partial x}\right|_{\bm I}+\bm\lambda^T\left.\frac{\partial f}{\partial x}\right|_{\bm I}+\bm{\dot\lambda}^T\right)\delta\bm X+\left(\left.\frac{\partial\mathcal{L}}{\partial u}\right|_{\bm I}+\bm\lambda^T\left.\frac{\partial f}{\partial u}\right|_{\bm I}\right)\delta\bm u\right](\tau)\,d\tau
+    \\[4 mm]
+    &=\bm\lambda^T(t)\,\delta\bm X(t)+\underbrace{\left(\left.\frac{\partial\Phi}{\partial x}\right|_{\bm X(t_1)}-\bm\lambda^T(t_1)\right)\delta\bm X(t_1)}_{=0}+\int_t^{t_1}\Bigg[\underbrace{\left(\left.\frac{\partial\mathcal{H}}{\partial x}\right|_{\bm S}+\bm{\dot\lambda}^T\right)}_{=0}\delta\bm X+\underbrace{\left.\frac{\partial\mathcal{H}}{\partial u}\right|_{\bm S}}_{=0}\delta\bm u\Bigg](\tau)\,d\tau
+\end{align*}
+Once the optimality conditions are applied, the only term that survives the cancellations is $\bm\lambda^T(t)\,\delta\bm X(t)$. Recall though that $\delta V(t,\bm X(t))$ is also equivalent to $\partial_x V(t,\bm X(t))\,\delta\bm X(t)$, and so because $\delta\bm X(t)$ is arbitrary such that $t\neq t_0$, the following relation can be established:
+\[
+\bm\lambda^T(t)\,\delta\bm X(t)=\frac{\partial V}{\partial x}(t,\bm X(t))\,\delta\bm X(t)
+\quad\implies\quad
+\bm\lambda^T(t)=\frac{\partial V}{\partial x}(t,\bm X(t))
+\quad\iff\quad
+\bm\lambda(t)=\left(\frac{\partial V}{\partial x}\right)^T(t,\bm X(t))
+\]
+This is all to say, the costate $\bm\lambda$ is determined by the value function $V$. In fact, with sufficient information, the costate can be initialized by $\bm\lambda_0=(\partial_xV)^T(t_0,\bm X_0)$. Moreover, inserting this result into the relationship between the valuation and the running cost:
+\[
+\frac{\partial V}{\partial t}(t,\bm X(t))+\bm\lambda^T(t)\,f(t,\bm X(t),\bm u(t))+\mathcal{L}(t,\bm X(t),\bm u(t))=0
+\]
+Upon further inspection, by definition, the above equation can be casted in terms the following compact relationship between the value function $V$ and the Hamiltonian $\mathcal{H}$ given as such:
+\[
+\frac{\partial V}{\partial t}(t,\bm X(t))+\mathcal{H}(t,\bm X(t),\bm u(t),\bm\lambda (t))=0
+\]
+Upon noting $\partial_u\mathcal{H}=0$, it follows that $\mathcal{H}$ attains a minimum, maximum, or a saddle point. However, in order to minimize the remaining cost $V$, the optimal controller $\bm u$ must minimize the Hamiltonian $\mathcal{H}$ over some support $\mathcal{U}$. This is encapsulated by the Hamilton Jacobi Bellman Equation (HJB) as below:
+\[
+\boxed{\;
+\frac{\partial V}{\partial t}(t,\bm X(t))+\min_{u\,\in\,\mathcal{U}}\mathcal{H}(t,\bm X(t),u,\bm\lambda (t))=0\vphantom{\frac{\frac{1}{1}}{\frac{1}{1}}}
+\;}
+\]
+Alternatively, this condition encoded by the HJB is by invoking Pontryagin's Minimum Principle (PMP) in context, which actually is an equivalent form of the optimality conditions, and is given here:
+\[
+\boxed{\;
+\bm u(t)=\underset{u\,\in\,\mathcal{U}}{\operatorname{argmin}}\,\mathcal{H}(t,\bm X(t),u,\bm\lambda (t))\vphantom{\frac{a}{b}}
+\;}
+\]
+
+\newpage
+
+\section*{The Linear Quadratic Regulator}
+Within the established context up until this point, suppose that the dynamics of the system is LTI. In particular, given matrices $A\in\mathbb{R}^{N\times N}$ and $B\in\mathbb{R}^{N\times m}$, one has a system in state-space:
+\[
+\bm{\dot X}=A\bm X+B\bm u\qquad\text{s.t.}\qquad\bm X(0)=\bm X_0
+\]
+Likewise, provided a positive semi-definite (i.e. $\succeq0$) matrix $Q\in\mathbb{R}^{N\times N}$ and a positive definite (i.e. $\succ0$) matrix $R\in\mathbb{R}^{m\times m}$ (both symmetric), we can construct a cost functional in accordance with:
+\[
+J[\bm X,\bm u]=\int_0^\infty\left(\bm X^T(t)Q\bm X(t)+\bm u^T(t)R\bm u(t)\right)dt
+\]
+Neglecting the terminal cost $\Phi$, which is null regardless, we can identify the $f$ and $\mathcal{L}$ functions corresponding to this infinite horizon problem as follows:
+\[
+f(x,u)=Ax+Bu\qquad\text{and}\qquad\mathcal{L}(x,u)=x^TQx+u^TRu
+\]
+Such a control system is referred to as a linear quadratic regulator (LQR). We now move on to compute the necessary partial derivatives in order to simplify the optimality conditions as such: 
+\begin{align*}
+    \left(\frac{\partial\mathcal{L}}{\partial x}\right)^T&=\left(\frac{\partial}{\partial x}\left(x^TQx+\cancel{u^TRu}\right)\right)^T=\left(\frac{\partial x^T}{\partial x}Qx+x^TQ\frac{\partial x}{\partial x}\right)^T=\left((Qx)^T+x^TQ\right)^T=\left(Q+Q^T\right)x=2Qx
+    \\[4 mm]
+    \left(\frac{\partial\mathcal{L}}{\partial u}\right)^T&=\left(\frac{\partial}{\partial u}\left(\cancel{x^TQx}+u^TRu\right)\right)^T=\left(\frac{\partial u^T}{\partial u}Ru+u^TR\frac{\partial u}{\partial u}\right)^T=\left((Ru)^T+u^TR\right)^T=\left(R+R^T\right)u=2Ru
+    \\[4 mm]
+    \left(\frac{\partial f}{\partial x}\right)^T&=\left(\frac{\partial}{\partial x}\left(Ax+\cancel{Bu}\right)\right)^T=\left(A\frac{\partial x}{\partial x}\right)^T=A^T
+    \\[4 mm]
+    \left(\frac{\partial f}{\partial u}\right)^T&=\left(\frac{\partial}{\partial u}\left(\cancel{Ax}+Bu\right)\right)^T=\left(B\frac{\partial u}{\partial u}\right)^T=B^T
+\end{align*}
+Substituting these expressions, which were derived from the LQR model, into the previously developed optimality conditions results in the following system of ordinary differential equations (ODEs):
+\[
+\begin{cases}
+    \dot\lambda+A^T\lambda+2Qx=0\qquad\text{s.t.}\qquad\lambda^T\delta x\to0
+    \\\\
+    B^T\lambda+2Ru=0
+    \\\\
+    \dot x=Ax+Bu\qquad\text{s.t.}\qquad x(0)=x_0
+\end{cases}
+\]
+Since $\mathcal{L}$ is a (positive) quadratic form, we expect there to be an optimal configuration $(x,u)$ determined by the above system of ODEs that minimizes $J$ subject to the dynamical constraint because $J$ is convex. Now, consider the Hamiltonian corresponding to the LQR system:
+\[
+\mathcal{H}(t,x,u,\lambda)=x^TQx+u^TRu+\lambda^T(Ax+Bu)
+\]
+More specifically, observe the behavior of the respective Jacobian and Hessian pertaining to the Hamiltonian when subject to the governing optimality conditions:
+\[
+\frac{\partial\mathcal{H}}{\partial u}=0
+\qquad\text{and}\qquad
+\frac{\partial^2\mathcal{H}}{\partial u^2}=\lambda^T\,\frac{\partial^2f}{\partial u^2}+\frac{\partial^2\mathcal{L}}{\partial u^2}=2R\succ0
+\]
+Because the Jacobian is null and the Hessian is positive definite, the Hamiltonian necessarily attains a minimum when subject to the optimality conditions (pure state feedback law). That is, the control $\bm{u}$ that minimizes $\mathcal{H}$ is the control that minimizes $J$ (due to convexity) subject to the dynamical constraint.
+
+\section*{The Algebraic Riccati Equation}
+Now that the governing optimality conditions have been determined for the LQR model, as the respective system of equations are linear ODEs with constant coefficients, from the theory of differential equations, there necessarily exists a unique solution.
+\vspace{3 mm}\\
+Because of the existence of such a solution, an ansatz will be made in order to solve the system. In particular, we will assume the costate is strictly determined by the state variable:
+\[
+\lambda=2Px\qquad\text{for some}\qquad P\in\mathbb{R}^{N\times  N}
+\]
+Directly substituting the ansatz into the ODEs given by the optimality conditions results in the following:
+\[
+\begin{cases}
+    2P\dot x+2A^TPx+2Qx=0\qquad\text{s.t.}\qquad2x^TP^T\delta x\to0
+    \\\\
+    2B^TPx+2Ru=0
+    \\\\
+    \dot x=Ax+Bu\qquad\text{s.t.}\qquad x(0)=x_0
+\end{cases}
+\]
+Upon simplifying the current system of equations, whilst noting that $R$ is invertible as because $R\succ0$, the control variable $u$ can be isolated as such:
+\[
+\begin{cases}
+    P\dot x+\left(A^TP+Q\right)x=0\qquad\text{s.t.}\qquad x^TP^T\delta x\to0
+    \\\\
+    u=-R^{-1}B^TPx
+    \\\\
+    \dot x=Ax+Bu\qquad\text{s.t.}\qquad x(0)=x_0
+\end{cases}
+\]
+At this point, the (isolated) expressions for $u$ and $\dot x$ can be substituted into the costate (upper) equation in order to arrive at a purely algebraic equation:
+\[
+P\left(Ax+B\left(-R^{-1}B^TPx\right)\right)+\left(A^TP+Q\right)x=0
+\qquad\text{s.t.}\qquad
+x^TP^T\delta x\to0
+\qquad\text{and}\qquad
+x(0)=x_0
+\]
+Moreover, the system can be further simplified by factoring out the variable $x$ from the algebraic equation as follows in order to determine the system's homogeneous conditions:
+\[
+\left(PA-PBR^{-1}B^TP+A^TP+Q\right)x=0
+\qquad\text{s.t.}\qquad
+x^TP^T\delta x\to0
+\qquad\text{and}\qquad
+x(0)=x_0
+\]
+Under the assumption that the traversal condition holds and that the state is initialized accordingly, because the above algebraic equation holds for every state configuration $x$, the respective matrix must therefore be zero as it is constant in $\mathbb{R}^{N\times N}$. This is precisely the Algebraic Riccati Equation (ARE):
+\[
+\boxed{\;
+PA-PBR^{-1}B^TP+A^TP+Q=0\vphantom{\frac{a}{b}}
+\;}
+\qquad\text{with}\qquad
+\boxed{\;
+u=-Kx\vphantom{\frac{a}{b}}
+\quad\text{s.t.}\quad
+K=R^{-1}B^TP
+\;}
+\]
+The system thus obeys a pure state feedback law, and the controller can be characterizes by a gain matrix $K$ as shown above. Furthermore, the system as a whole can be characterized by the following diagram:
+
+\begin{figure}[h!]
+		\centering
+\begin{tikzpicture}[auto, node distance=2cm, >=latex',
+    block/.style={draw, rectangle, minimum width=2cm, minimum height=1cm, align=center}]
+    
+% Nodes
+\node (x) {$\bm X(t)$};
+\node[block,right=2cm of x] (f) {$\left(A-BK\right)x$};
+\node[right=2cm of f] (xdot) {$\bm{\dot X}(t)$};
+\node[block, right=2cm of xdot] (int) {$\displaystyle\int dt$};
+\node[right=1cm of int] (xout) {$\otimes$};
+
+% Connections                 
+\draw[->] (x) -- (f);                              
+\draw[->] (f) -- (xdot);
+\draw[->] (xdot) -- (int);
+
+% Feedback loop 
+\draw[->] (int) -- (xout) |- ([yshift=-1
+cm]xdot.south) -| (x);
+\end{tikzpicture}
+		\caption{LQR Feedback Diagram}
+	\end{figure}\noindent
+
+\newpage
+
+\begin{comment}
+\section*{LQR Equilibrium Solutions}
+Assuming controllability, upon inspecting the solution to the LQR problem, the state variable $\bm X$ must evolve according to the following equations in order to meet the optimality conditions:
+\[
+\bm{\dot X}=(A-BK)\bm X
+\quad\implies\quad
+\bm X(t)=e^{(A-BK)t}\bm X_0
+\]
+If all of the Eigenvalues of $A-BK$ are (real part) negative, then the state variable $\bm X$ must decay to zero. Otherwise, $\bm X$ oscillates, is constant, or $||\bm X||\to\infty$. Before advancing, we recast the ARE in terms of $K$:
+\begin{align*}
+    &PA-PBR^{-1}B^TP+A^TP+Q=PA-PBK+A^TP+Q
+    \\[4 mm]
+    &=P(A-BK)+\left(A^T-(BK)^T\right)P+(BK)^TP+Q=P(A-BK)+(A-BK)^TP+K^TB^TP+Q
+    \\[4 mm]
+    &=P(A-BK)+(A-BK)^TP+K^TRK+Q=0
+\end{align*}
+Now, let $\bm v$ be an Eigenvector of $A-BK$ with a corresponding Eigenvalue $\mu$. Taking into consideration the conjugate transpose operation, we thus obtain the following equations given below:
+\[
+\left(A-BK\right)\bm v=\mu\bm v\quad\iff\quad\bm v^*\left(A-BK\right)^T=\mu^*\bm v^*
+\]
+Sandwiching the ARE in between the Eigenvector $\bm v$  and its conjugate transpose $\bm v^*$ thereby results in the relationship over the scalar field $\mathbb{C}$ as follows:
+\begin{align*}
+&\bm v^*\left(P(A-BK)+(A-BK)^TP+K^TRK+Q\right)\bm v
+\\[4 mm]
+&=\bm v^*P\left(A-BK\right)\bm v+\bm v^*\left(A-BK\right)^TP\bm v+\bm v^*K^TRK\bm v+\bm v^*Q\bm v
+\\[4 mm]
+&=\bm v^*P\mu\bm v+\mu^*\bm v^*P\bm v+\bm v^*K^TRK\bm v+\bm v^*Q\bm v
+\\[4 mm]
+&=(\mu+\mu^*)\bm v^*P\bm v+\bm v^*K^TRK\bm v+\bm v^*Q\bm v
+\\[4 mm]
+&=\underbrace{2\mathrm{Re}(\mu)\bm v^*P\bm v}_{<0}+\underbrace{(K\bm v)^*R\,(K\bm v)}_{>0}+\underbrace{\bm v^*Q\bm v}_{\geq0}=\bm v^*(0)\bm v=0
+\qquad\text{since}\qquad R\succ0\qquad\text{and}\qquad Q\succeq0
+\end{align*}
+In order to deduce the sign of $\mathrm{Re}(\mu)$, we must determine the sign of $\bm v^*P\bm v$. That is, we must determine if $P\succeq0$. This will be done by plugging the solution into the value function $V\in\mathbb{R}_0^+$, noting that $\bm u=-K\bm X$:
+\begin{align*}
+&V(t,\bm X(t))=\int_t^\infty\left[\bm X^TQ\bm X+\bm u^TR\bm u\right](\tau)\,d\tau+\underbrace{\int_t^\infty\frac{d}{d\tau}\left[\bm X^TP\bm X\right](\tau)\,d\tau-\int_t^\infty\frac{d}{d\tau}\left[\bm X^TP\bm X\right](\tau)\,d\tau}_{=0}
+\\[4 mm]
+&=\int_t^\infty\Big[\bm X^TQ\bm X+\bm u^TR\bm u+\underbrace{\bm{\dot X}^TP\bm X+\bm X^TP\bm{\dot X}}_{\frac{d}{d\tau}\left[\bm X^TP\bm X\right]}\Big](\tau)\,dt-\left.\bm X^TP\bm X\right|_t^\infty
+\\[4 mm]
+&=\int_t^\infty\left[\bm X^TQ\bm X+(-K\bm X)^TR\,(-K\bm X)+\left((A-BK)\bm X\right)^TP\bm X+\bm X^TP\left((A-BK)\bm X\right)\right](\tau)\,d\tau-\left.\bm X^TP\bm X\right|_t^\infty
+\\[4 mm]
+&=\int_t^\infty\bm X^T(\tau)\big[\underbrace{\left(PA-PBK+A^TP+Q\right)}_{=0}+K^TR\underbrace{\left(K-R^{-1}B^TP\right)}_{=0}\big]\bm X(\tau)\,d\tau-\left.\bm X^TP\bm X\right|_t^\infty
+\\[4 mm]
+&=\bm X^T(t)P\bm X(t)-\lim_{t\to\infty}\bm X^T(t)P\bm X(t)\geq0
+\quad\implies\quad 
+\bm X^T(t)P\bm X(t)\geq\lim_{t\to\infty}\bm X^T(t)P\bm X(t)
+\end{align*}
+Upon setting $t=0$, because $P$ does not depend on $\bm X_0$ in the ARE, varying $\bm X_0$ does not alter $P$. In this regard, without loss of generality, choose $\bm X_0$ such that $\bm X_0^TP\bm X_0=2\lim\limits_{t\to\infty}\bm X^T(t)P\bm X(t)$, which implies:
+\[
+\bm X^T_0P\bm X_0-\lim\limits_{t\to\infty}\bm X^T(t)P\bm X(t)=\lim\limits_{t\to\infty}\bm X^T(t)P\bm X(t)\geq0
+\quad\implies\quad
+\bm X^T(t)P\bm X(t)\geq0
+\]. This is to say, $P\succeq0$.
+
+Due to the fact that $\mathrm{Re}(\mu)\bm v^*P\bm v<0$, by the zero product law, $\bm v^*P\bm v\neq0$. Therefore, as $P\succeq0$, one has $\bm v^*P\bm v>0$, and so $\mathrm{Re}(\mu)<0$, which implies the state $\bm X$ must decay to zero regardless of the initial condition:
+\[
+\boxed{\;
+\lim_{t\to\infty}\bm X(t)=\lim_{t\to\infty}e^{(A-BK)t}\bm X_0=0\vphantom{\frac{a}{b}}
+\;}
+\]
+This directly validates the transversal condition $\bm X^TP^T\delta\bm X\to0$. Moreover, the minimal valuation/cost associated with the optimized control setup can be calculated and characterized accordingly:
+\[
+\boxed{\;
+V(t,\bm X(t))=\bm X^T(t)P\bm X(t)\vphantom{\frac{a}{b}}
+\;}
+\qquad\text{and}\qquad
+\boxed{\;
+J[\bm X,\bm u]=V(0,\bm X_0)=\bm X_0^TP\bm X_0\vphantom{\frac{a}{b}}
+\;}
+\]
+\end{comment}
+
+
+\section*{Optimal Linearization}
+Let us reconsider the general time invariant state evolution equation pertaining to the sate variable $\bm X$ with an admissible control $\bm u\in\mathcal{U}$, where $\bm{\dot X}(t)=f(\bm X(t),\bm u(t))$ such that $\bm X(0)=\bm X_0$. Furthermore,  assume that the system is controllable within some connected region in state space containing $\bm X_0,\bm{\bar X}\in\mathbb{R}^N$.
+\vspace{3 mm}\\
+Given such an operating state $\bm{\bar X}$, it is desired to find an optimal control variable $\bm u$ that forces $\bm{\bar X}$ to be an equilibrium state of the system (i.e. $\bm X\to\bm{\bar X}$). To do this, we consider a controller of the form:
+\[
+\bm u(t)=\bm{\bar u}+\delta\bm u(t)
+\qquad\text{for some}\qquad
+\bm{\bar u}\in\mathbb{R}^N
+\qquad\text{and}\qquad
+\delta\bm u:\mathbb{R}\to\mathbb{R}^m
+\qquad\text{s.t.}\qquad
+\bm{\dot{\!\bar{X}}}\coloneq f\left(\bm{\bar X},\bm{\bar u}\right)=0
+\]
+Likewise, we consider perturbing the state $\bm X$ from the operating state $\bm{\bar X}$ in the same manner:
+\[
+\bm X(t)=\bm{\bar X}+\delta\bm X(t)
+\qquad\text{for some}\qquad
+\delta\bm X:\mathbb{R}\to\mathbb{R}^N
+\]
+Finally, we consider perturbing the state velocity by analyzing the system locally around the equilibrium or operating point $(\bm{\bar X},\bm{\bar u})$ as such:
+\begin{align*}
+\delta\bm{\dot X}(t)\coloneq\bm{\dot X}(t)-\bm{\dot{\!\bar{X}}}&=f\left(\bm{\bar X}+\delta\bm X(t),\bm{\bar u}+\delta\bm u(t)\right)-\cancel{f\left(\bm{\bar X},\bm{\bar u}\right)}
+\\[4 mm]
+&=\frac{\partial f}{\partial x}\left(\bm{\bar X},\bm{\bar u}\right)\delta\bm X(t)+\frac{\partial f}{\partial u}\left(\bm{\bar X},\bm{\bar u}\right)\delta\bm u(t)+\mathcal{O}\left(||[\delta\bm X(t),\delta\bm u(t)]||^2\right)
+\end{align*}
+We can now treat $\delta\bm X$ and $\delta\bm u$ as auxiliary state and controller variables respectively pertaining to the system. If not clear, the initial condition associated with this auxiliary state variable is $\delta\bm X(0)=\delta\bm X_0=\bm X_0-\bm{\bar X}$. 
+\vspace{3 mm}\\
+Moreover, for sufficiently \emph{small} $\delta\bm X$ and $\delta\bm u$, the system can be considered LTI locally around the operating point $(\bm{\bar X},\bm{\bar u})$. Therefore, upon implementing a quadratic regulator/running cost function, the system can be optimized via the LQR algorithm. Firstly, we extract the corresponding $A$ and $B$ matrices:
+\[
+A=\frac{\partial f}{\partial x}\left(\bm{\bar X},\bm{\bar u}\right)
+\qquad\text{and}\qquad
+B=\frac{\partial f}{\partial u}\left(\bm{\bar X},\bm{\bar u}\right)
+\]
+Then, for some corresponding $Q$ and $R$ matrices associated with the implicit cost functional, we obtain the ARE in conjunction with the auxiliary control law:
+\[
+PA-PBR^{-1}B^TP+A^TP+Q=0
+\qquad\text{with}\qquad
+\delta\bm u\approx-K\delta\bm X
+\qquad\text{s.t.}\qquad
+K=R^{-1}B^TP
+\]
+Lastly, substituting the definitions for $\delta\bm X$ and $\delta\bm u$ into the above auxiliary optimal conditions results in the locally optimal control law:
+\[
+\boxed{\;
+\bm u(t)\approx\bm{\bar u}-K\left(\bm X(t)-\bm{\bar X}\right)\vphantom{\frac{\frac{a}{b}}{\frac{a}{b}}}
+\;}
+\]
+If there exists a $\bm{\bar u}$ such that $f(\bm{\bar X},\bm{\bar u})=0$, then the above control law is guaranteed to force the system to reach equilibrium around the operating state $\bm{\bar X}$ for a sufficiently \emph{close} $\bm X_0$ as $\delta\bm X=\bm X-\bm{\bar X}\to0$. Importantly, if $\bm X_0$ is sufficiently \emph{far} from the operating state $\bm{\bar X}$, then the state may not reach equilibrium around $\bm{\bar X}$.
+\vspace{3 mm}\\
+As a side note:
+\[
+\boxed{\;
+V(t,\bm X(t))=\bm X^T(t)P\bm X(t)\vphantom{\frac{a}{b}}
+\;}
+\qquad\text{and}\qquad
+\boxed{\;
+J[\bm X,\bm u]=V(0,\bm X_0)=\bm X_0^TP\bm X_0\vphantom{\frac{a}{b}}
+\;}
+\]
+Under the assumption:
+\[
+\boxed{\;
+\lim_{t\to\infty}\bm X(t)=\lim_{t\to\infty}e^{(A-BK)t}\bm X_0=0\vphantom{\frac{a}{b}}
+\;}
+\]
+\newpage
+
+\section*{The Inverted Pendulum}
+Here, we apply the developed principles of optimal control theory to the inverted pendulum problem. The objective of the optimization is to keep the pendulum upright with minimum control effort. In particular, the system can be illustrated as shown below:
+
+\begin{figure}[h!]
+		\centering
+\begin{tikzpicture}[scale=1.125]
+
+% Parameters
+\def\r{0.5}      % wheel radius
+\def\cartW{3}    % cart width
+\def\cartH{0.5}  % cart height
+\def\L{2.2}      % pendulum length
+\def\th{20}      % pendulum angle from vertical
+\def\g{8}        % gap between wheels
+
+% Ground
+\draw[thick] (-4,0) -- (4,0);
+\path[pattern={Lines[angle=45, distance=12.5pt, line width=0.125pt]}] (-4,-0.2) rectangle (4,0);
+
+% Wheels
+\coordinate (R) at (0.5*\g-0.5*\cartW,\r);
+\coordinate (L) at (-0.5*\g+0.5*\cartW,\r);
+\draw[thick,fill=gray!5] (L) circle (\r);
+\draw[thick,fill=gray!5] (R) circle (\r);
+\fill (R) circle (1.5pt);
+\fill (L) circle (1.5pt);
+\draw[thick] (L) -- (R);
+
+% Radii
+\draw[->, >=stealth] (R) -- ++({ \r/2 }, { \r*(sqrt(3)/2) }) node[midway, left] {$r$};
+\draw[->, >=stealth] (L) -- ++({ \r/2 }, { \r*(sqrt(3)/2) })
+node[midway, left] {$r$};
+
+% Angular Velocity
+\draw[->, >=stealth] (R) +(150:0.625cm) arc (150:30:0.625cm) node[above=0.125cm,xshift=0.15cm] {\large$\omega$};
+\draw[->, >=stealth] (L) +(150:0.625cm) arc (150:30:0.625cm) node[above=0.125cm,xshift=0.15cm] {\large$\omega$};
+
+% Cart body
+\draw[thick,fill=gray!10]
+    (-\cartW/2,0.5*\r)
+    rectangle
+    (\cartW/2,0.5*\r+\cartH);
+
+% Pendulum pivot
+\coordinate (P) at (0,1.5*\cartH);
+\filldraw[fill=black, draw=black] (P) circle (1.5pt);
+
+% Dashed vertical reference
+\draw[dashed] (P) -- ++(0,\L);
+
+% Pendulum rod and mass
+\coordinate (M) at ($(P)+({\L*sin(\th)},{\L*cos(\th)})$);
+\draw[thick] (P) -- (M);
+\filldraw[fill=black] (M) circle (0.1);
+\node[right=0.25cm] at (M) {\large$m$};
+\node[right=0.125cm] at ($(P)!0.5!(M)$) {\large$\ell$};
+
+% Angle Label
+\coordinate (V) at ($(P)+(0,1)$);
+\draw[->, >=stealth] (V) arc (-270:-270-\th:1cm) node[midway, above] {\large$\theta$};
+
+\end{tikzpicture}
+\caption{Inverted Pendulum Diagram}
+	\end{figure}\noindent
+In this illustration, a vertical pendulum of length $\ell$ with a point mass $m$, which makes an angle $\theta$ with the vertical, is attached to a platform with wheels of radius $r$ mounted to it. The wheels spin with a controllable angular velocity $\omega$ under the no slip condition. Given a uniform gravitational field $g$, the Lagrangian of the system (not to be confused with the running cost function), can be given as such:
+\begin{align*}
+\mathcal{L}&=\underbrace{\tfrac{1}{2}m\left|\left|(r\omega,0)+\tfrac{d}{dt}(\ell\sin\theta,\ell\cos\theta)\right|\right|^2}_{\text{Kinetic}}-\underbrace{mg\ell\cos\theta\vphantom{\tfrac{1}{2}}}_{\text{Potential}}=\tfrac{1}{2}m\left|\left|\left(r\omega+\ell\dot\theta\cos\theta,-\ell\dot\theta\sin\theta\right)\right|\right|^2-mg\ell\cos\theta
+\\[4 mm]
+&=\tfrac{1}{2}m\left((r\omega+\ell\dot\theta\cos\theta)^2+(-\ell\dot\theta\sin\theta)^2\right)-mg\ell\cos\theta=\tfrac{1}{2}mr^2\omega^2+\tfrac{1}{2}m\ell^2\dot\theta^2+mr\omega\ell\dot\theta\cos\theta-mg\ell\cos\theta
+\end{align*}
+With the Lagrangian $\mathcal{L}$ at hand, the conjugate (angular) momentum and force (torque) associated with the system can be determined as follows:
+\begin{align*}
+\text{Conjugate Momentum:}\quad&\frac{\partial\mathcal{L}}{\partial\dot\theta}=m\ell^2\dot\theta+mr\omega\ell\cos\theta\quad\implies\quad
+\frac{d}{dt}\frac{\partial\mathcal{L}}{\partial\dot\theta}=m\ell^2\ddot\theta+mr\dot\omega\ell\cos\theta-mr\omega\ell\dot\theta\sin\theta
+\\[4 mm]
+\text{Conjugate Force:}\quad&\frac{\partial\mathcal{L}}{\partial\theta}=-mr\omega\ell\dot\theta\sin\theta+mg\ell\sin\theta
+\end{align*}
+According to the Euler-Lagrange Equation (i.e. Newton's Second Law), the equation of motion pertaining to the angle made with the vertical $\theta$ is provided as such:
+\begin{align*}
+\frac{d}{dt}\frac{\partial\mathcal{L}}{\partial\dot\theta}=\frac{\partial\mathcal{L}}{\partial\theta}
+\quad&\implies\quad
+m\ell^2\ddot\theta+mr\dot\omega\ell\cos\theta-\cancel{mr\omega\ell\dot\theta\sin\theta}=-\cancel{mr\omega\ell\dot\theta\sin\theta}+mg\ell\sin\theta
+\\[4 mm]
+&\implies\quad
+\boxed{\;
+\ell\ddot\theta+r\dot\omega\cos\theta=g\sin\theta\vphantom{\frac{a}{b}}
+\;}
+\end{align*}
+Keeping in mind that $[\theta,\dot\theta]^T$ is the state variable and $\dot\omega$ is the effective control variable, the equation of motion can be written in state-space form as below:
+\[
+\frac{d}{dt}
+\begin{bmatrix}
+    \,\theta\,\\\,\dot\theta\,
+\end{bmatrix}
+=
+\begin{bmatrix}
+    \dot\theta\\\;\frac{g}{\ell}\sin\theta-\frac{r}{\ell}\dot\omega\cos\theta\;
+\end{bmatrix}
+\quad\implies\quad
+\left.\frac{d}{dt}
+\begin{bmatrix}
+    \,\theta\,\\\,\dot\theta\,
+\end{bmatrix}
+\right|_{(\theta,\dot\theta,\dot\omega)=(0,0,0)}
+=\begin{bmatrix}
+    \,0\,\\\,0\,
+\end{bmatrix}
+\quad\text{corresponding to an equilibrium}
+\]
+By inspection, although this system is time invariant, it is not linear in the state variable (specifically $\theta$), and so the system is not LTI. In this respect, determining an analytical model for an optimal control law would be a formidable challenge, and will not be entertained.
+
+\newpage
+
+In order to simplify matters, the state equation will be linearized around the operating (equilibrium) point given by $(\theta,\dot\theta,\dot\omega)=(0,0,0)$. This of course corresponds to modeling the system locally around the upright pendulum position (i.e. $\theta=0$):
+\begin{align*}
+    \theta\;\text{linearization:}\quad&\left.\frac{\partial}{\partial\theta}
+    \begin{bmatrix}
+    \dot\theta\\\;\frac{g}{\ell}\sin\theta-\frac{r}{\ell}\dot\omega\cos\theta\;
+\end{bmatrix}\right|_{(\theta,\dot\theta,\dot\omega)=(0,0,0)}
+=
+    \left.
+    \begin{bmatrix}
+    0\\\;\frac{g}{\ell}\cos\theta\;
+\end{bmatrix}\right|_{\theta=0}
+=
+\begin{bmatrix}
+    0\\\;g/\ell\;
+\end{bmatrix}
+\\[4 mm]
+\dot\theta\;\text{linearization:}\quad&\left.\frac{\partial}{\partial\dot\theta}
+    \begin{bmatrix}
+    \dot\theta\\\;\frac{g}{\ell}\sin\theta-\frac{r}{\ell}\dot\omega\cos\theta\;
+\end{bmatrix}\right|_{(\theta,\dot\theta,\dot\omega)=(0,0,0)}
+=
+    \begin{bmatrix}
+    1\\\;0\;
+\end{bmatrix}
+\\[4 mm]
+\dot\omega\;\text{linearization:}\quad&\left.\frac{\partial}{\partial\dot\omega}
+    \begin{bmatrix}
+    \dot\theta\\\;\frac{g}{\ell}\sin\theta-\frac{r}{\ell}\dot\omega\cos\theta\;
+\end{bmatrix}\right|_{(\theta,\dot\theta,\dot\omega)=(0,0,0)}
+=
+    \left.
+    \begin{bmatrix}
+    0\\\;-\frac{r}{\ell}\cos\theta\;
+\end{bmatrix}\right|_{\theta=0}
+=
+\begin{bmatrix}
+    0\\\;-r/\ell\;
+\end{bmatrix}
+\end{align*}
+With the dynamics now linearized, the state equation can be appropriately approximated by the above linearization scheme as follows noting $\delta\theta=\theta$, $\delta\dot\theta=\dot\theta,$ and $\delta\dot\omega=\dot\omega$:
+\[
+\frac{d}{dt}
+\begin{bmatrix}
+    \,\theta\,\\\,\dot\theta\,
+\end{bmatrix}
+\approx
+\underbrace{\begin{bmatrix}
+    \;0 & 1\; \\
+    \;g/\ell & 0\;
+\end{bmatrix}}_{A}
+\begin{bmatrix}
+    \,\theta\,\\\,\dot\theta\,
+\end{bmatrix}
++
+\underbrace{\begin{bmatrix}
+    0\\\;-r/\ell\;
+\end{bmatrix}}_{B}
+\,\dot\omega
+\qquad\text{for}\qquad
+(\theta,\dot\theta)\approx(0,0)
+\]
+At this point, the Kalman Controllability Criterion ought to be checked in order to determine if an admissible control $\dot\omega$ can be effectively implemented. Per the criterion, if the rank of the following matrix is the dimension of state-space (i.e. 2), then the linearized system is indeed controllable:
+\[
+\mathrm{rank}\begin{bmatrix}
+    \;B & AB\;
+\end{bmatrix}
+=
+\mathrm{rank}\begin{bmatrix}
+\;\begin{bmatrix}
+    0\\\;-r/\ell\;
+\end{bmatrix} 
+&
+\begin{bmatrix}
+    \;0 & 1\; \\
+    \;g/\ell & 0\;
+\end{bmatrix}
+\begin{bmatrix}
+    0\\\;-r/\ell\;
+\end{bmatrix}\;
+\end{bmatrix}
+=
+\mathrm{rank}\begin{bmatrix}
+\;0 & -r/\ell\;\\
+\;-r/\ell & 0\;
+\end{bmatrix}
+=2\;\checkmark
+\]
+Because the linearized system is controllable, there exists an implementable LQR control law. We now construct a cost functional $J$ that accounts for the (squared) accumulated state-equilibrium error and the corresponding control effort. In particular, given $q_{11},q_{22}\geq0$ and $R>0$, it has the following form:
+\[
+J[\theta,\dot\theta,\dot\omega]=\int_0^\infty\left[q_{11}\theta^2+q_{22}\dot\theta^2+R\dot\omega^2\right](t)\,dt=\int_0^\infty\left[
+\begin{bmatrix}
+    \,\theta &\dot\theta\,
+\end{bmatrix}
+\begin{bmatrix}
+    \;q_{11} & 0\;\\
+    \;0 & q_{22}\;
+\end{bmatrix}
+\begin{bmatrix}
+    \,\theta\,\\\,\dot\theta\,
+\end{bmatrix}
++\dot\omega R\dot\omega
+\right](t)\,dt
+\]
+The corresponding $Q$ and $R$ matrices can be identified, and so the optimal LQR control law can be determined by solving the ARE, given by $PA+A^TP-PBR^{-1}B^TP+Q=0$, for $P=[p_{ij}]_{1\leq i,j\leq2}$ as follows:
+\begin{align*}
+\begin{bmatrix}
+    \;p_{11} & p_{12}\;\\
+    \;p_{21} & p_{22}\;
+\end{bmatrix}
+\begin{bmatrix}
+    \;0 & 1\;\\
+    \;g/\ell & 0\;
+\end{bmatrix}
+&+
+\begin{bmatrix}
+    \;0 & g/\ell\;\\
+    \;1 & 0\;
+\end{bmatrix}
+\begin{bmatrix}
+    \;p_{11} & p_{12}\;\\
+    \;p_{21} & p_{22}\;
+\end{bmatrix}
+\\[4 mm]
+&-
+\begin{bmatrix}
+    \;p_{11} & p_{12}\;\\
+    \;p_{21} & p_{22}\;
+\end{bmatrix}
+\begin{bmatrix}
+    \;0\;\\
+    \;-r/\ell\;
+\end{bmatrix}
+R^{-1}
+\begin{bmatrix}
+    \,0 & -r/\ell\,\,
+\end{bmatrix}
+\begin{bmatrix}
+    \;p_{11} & p_{12}\;\\
+    \;p_{21} & p_{22}\;
+\end{bmatrix}
++
+\begin{bmatrix}
+    \;q_{11} & 0\;\\
+    \;0 & q_{22}\;
+\end{bmatrix}
+=0
+\end{align*}
+Solving this equation is left as an exercise. It can be solved using standard algebraic techniques or by utilizing computer algebra software. In most practical settings, the ARE is solved numerically due to its inherent complexity. In any case, the solution is shown below:
+\[
+P=
+\begin{bmatrix}
+    \;\dfrac{1}{r}
+    \sqrt{
+    \left(g^2+\dfrac{r^2q_{11}}{R}\right)
+    \left[
+    Rq_{22}
+    +\dfrac{2\ell R^2}{r^2}
+    \left(
+    g+\sqrt{g^2+\dfrac{r^2q_{11}}{R}}
+    \right)
+    \right]
+    }
+    &
+    \dfrac{\ell R}{r^2}
+    \left(
+    g+\sqrt{g^2+\dfrac{r^2q_{11}}{R}}
+    \right)\;\\[20pt]
+
+    \;\dfrac{\ell R}{r^2}
+    \left(
+    g+\sqrt{g^2+\dfrac{r^2q_{11}}{R}}
+    \right)
+    &
+    \dfrac{\ell}{r}
+    \sqrt{
+    Rq_{22}
+    +\dfrac{2\ell R^2}{r^2}
+    \left(
+    g+\sqrt{g^2+\dfrac{r^2q_{11}}{R}}
+    \right)
+    }\;
+\end{bmatrix}
+\]
+
+\newpage
+
+Now, it goes without saying, the corresponding control law given by $\dot\omega=-K[\theta,\dot\theta]^T$, where $K=R^{-1}B^TP$, is only so effective as the linearization error is small. With this in mind, we will now simulate the system \emph{close} to the equilibrium point. 
+\vspace{3 mm}\\
+Consider the inverted pendulum with mass $m=1\,\mathrm{kg}$, pendulum length $\ell=0.125\,\mathrm{m}$, and with wheel spoke radii $r=0.051\,\mathrm{m}$. In conjunction, let the state be initialized by $(\theta_0,\dot\theta_0)=(0.35\,\mathrm{rad},0.1\,\mathrm{rad/s})$. We also assume the uniform gravitational field to be $g=9.81\,\mathrm{m/s^2}$. Likewise, let the running cost be characterized by the parameters $q_{11}=1\,\mathrm{W}$, $q_{22}=1\,\mathrm{J\,s}$, and $R=10\,\mathrm{J\,s^3}$, which makes $J$ an energy cost functional that prioritizes minimizing the controller effort over equilibrium state error.
+\vspace{3 mm}\\
+With all said, the $A$ and $B$ matrices will be presented, and upon solving the ARE, the corresponding $P$ and $K$ matrices will be outlined as well:
+\begin{align*}
+A &=
+\begin{bmatrix}
+    \;0 & 1\;\\
+    \;78.48\,\mathrm{s^{-2}} & 0\;
+\end{bmatrix}
+&
+B &=
+\begin{bmatrix}
+    \;0\;\\
+    \;-0.408\;
+\end{bmatrix}
+\\[6mm]
+P &=
+\begin{bmatrix}
+    \;8.3533\times10^4\,\mathrm{J}
+    &
+    0.9429\times10^4\,\mathrm{J\,s}\;
+    \\
+   \;0.9429\times10^4\,\mathrm{J\,s}
+    &
+    0.1064\times10^4\,\mathrm{J\,s^2}\;
+\end{bmatrix}
+&
+K &=
+\begin{bmatrix}
+    \;-384.7061\,\mathrm{W/s}
+    &
+    -43.4271\,\mathrm{W}\;
+\end{bmatrix}
+\end{align*}
+The control algorithm derived from LQR can now be simulated. In particular, using the control systems toolbox in MATLAB (see Appendix), the state evolution can be illustrated in phase space accordingly: 
+\begin{figure}[h!]
+    \centering
+    \hspace*{-1.5cm}
+    \includegraphics[width=0.75\linewidth]{LQR_Phase_Portrait.eps}
+    \caption{State-Space Evolution Streamline Plot}
+\end{figure}
+
+Here we see that the controller (i.e. $\dot\omega$) manages to overcome the open-loop phase streamlines, and is able to bring the system to the targeted equilibrium point. That is, releasing the pendulum \emph{near} the vertical will result in the pendulum maintaining an upright position with optimal control engaged. 
+
+\newpage
+
+Going one step further, the individual state trajectories $\theta$ and $\dot\theta$ can be plotted separately against time. In the same regard, the control input $\dot\omega$ can be plotted against time as well. The performance speaks for itself:
+\begin{figure}[h!]
+    \centering
+    \hspace*{-1.25cm}
+    \includegraphics[width=0.75\linewidth]{LQR_State_Trajectories.eps}
+    \caption{State Variable Convergence Tracking Plot}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \hspace*{-1.25cm}
+    \includegraphics[width=0.75\linewidth]{LQR_Control_Input.eps}
+    \caption{Control Input Convergence Tracking Plot}
+\end{figure}
+
+\newpage
+
+\section*{Appendix: MATLAB Code}
+The following code can be used to simulate any LQR system in MATLAB according to the conventions established in these notes. Though, in particular, it is configured to simulate the linearized inverted pendulum problem as outlined previously:
+\tiny
+\lstinputlisting{LQR_Simulator.m}
+
+\end{document}
