@@ -1,0 +1,120 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\geometry{margin=1in}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\usepackage{comment}
+
+\begin{document}
+\begin{center}
+\textbf{\LARGE{Proving the Fundamental Theorem of Algebra}}
+\end{center}
+\vspace{6 mm}
+Let $\left\{a_k\right\}_{k=0}^n\subset\mathbb{C}$, where $a_n\neq0$. With this collection of complex numbers, construct the $n^{\text{th}}$ degree polynomial function $p:\mathbb{C}\rightarrow\mathbb{C}$ defined as such:
+\begin{large}
+\[
+p(z)=\sum\limits_{k=0}^{n}a_kz^k\quad\forall z\in\mathbb{C}
+\]
+\end{large}
+
+Now suppose there exists a set $\mathcal{Z}=\left\{z_k\right\}_{k=1}^N$ such that $p(z_k)=0$ for each $k$. It goes without saying that if $p(z)\neq0,\forall z\in\mathbb{C}$, then $N=0$, and $\mathcal{Z}=\phi$.
+\vspace{3 mm}\\
+Furthermore, by the Factor Theorem, for some polynomial function $q:\mathbb{C}\rightarrow\mathbb{C}\setminus\{0\}$, $\exists\left\{m_k\right\}_{k=1}^N\subset\mathbb{N}$ such that $p$ could be expressed as such:
+\begin{large}
+\[
+p(z)=q(z)\prod\limits_{k=1}^N(z-z_k)^{m_k}\quad\text{with the understanding}\quad N=0\implies p(z)=q(z)
+\]
+\end{large}
+
+By definition, $\text{deg}\left[p\right]=n$, which implies upon inspection, $n=\text{deg}\left[p\right]=\text{deg}\left[q\right]+\sum_{k=1}^Nm_k$. As $\text{deg}\left[q\right]\geq0$ and $m_k\geq1$, it follows that $n\geq N$.
+\vspace{3 mm}\\
+For any function $f\in C^1\left(\mathbb{C},\mathbb{C}\setminus\{0\}\right)$, the logarithmic derivative of $f$ is defined to be $f'/f$. Provided that $g$ is of the same class as $f$, the logarithmic derivative of $fg$ is given by $(fg)'/(fg)=(f'g+fg')/(fg)=f'/f+g'/g$. It follows (by induction) that the logarithmic derivative of $p$ is given as follows:
+\begin{large}
+\[
+\dfrac{p'(z)}{p(z)}=\dfrac{q'(z)}{q(z)}+\sum\limits_{k=1}^{N}\dfrac{\frac{d}{dz}(z-z_k)^{m_k}}{(z-z_k)^{m_k}}=\dfrac{q'(z)}{q(z)}+\sum\limits_{k=1}^{N}\dfrac{m_k}{z-z_k}\quad\forall z\in\mathbb{C}\setminus\mathcal{Z}
+\]
+\end{large}
+
+As $N\leq n<\infty$, $\max\limits_{z\in\mathcal{Z}}|z|\in\mathbb{R}^+$ is well defined. Now, let $C_R$ be a positively oriented contour defined by $C_R=\left\{z:z\in\mathbb{C},|z|=R\right\}$, where $R>\max\limits_{z\in\mathcal{Z}}|z|$. Thus, by construction, $C_R$ encloses $\mathcal{Z}$. Additionally, because $q'/q$ is entire, by Cauchy's Theorem and Residue Theorem, the following holds: 
+\begin{large}
+\[
+\oint_{C_R}\dfrac{p'(z)}{p(z)}\,dz=\oint_{C_R}\dfrac{q'(z)}{q(z)}\,dz+\sum\limits_{k=1}^Nm_k\oint_{C_R}\dfrac{1}{z-z_k}\,dz=2\pi i\sum\limits_{k=1}^Nm_k
+\]
+\end{large}
+
+At this point, define the functional $\mathcal{N}_0\left[p\right]=\sum_{k=1}^Nm_k$, which counts the number of zeros of $p$ including multiplicities. From this point of view:
+\begin{large}
+\[
+n=\text{deg}\left[q\right]+\mathcal{N}_0\left[p\right]\qquad\text{and}\qquad\mathcal{N}_0\left[p\right]=\dfrac{1}{2\pi i}\oint_{C_R}\dfrac{p'(z)}{p(z)}\,dz
+\]
+\end{large}
+
+Now, by invoking the non-factorized expression of $p$, the total number of zeros of $p$ counting multiplicities can likewise be computed as such:
+\begin{large}
+\[
+\mathcal{N}_0\left[p\right]=\dfrac{1}{2\pi i}\oint_{C_R}\dfrac{\frac{d}{dz}\sum_{k=0}^na_kz^k}{\sum_{k=0}^na_kz^k}\,dz=\dfrac{1}{2\pi i}\oint_{C_R}\dfrac{\sum_{k=1}^nka_kz^{k-1}}{\sum_{k=0}^na_kz^k}\,dz
+\]
+\end{large}
+
+In order to compute the above integral, parameterize $C_R$ by the map $\theta\in[0,2\pi)\mapsto Re^{i\theta}$. In this respect, the dummy variable $z$ can be expressed as $Re^{i\theta}$. Likewise, the differential element $dz$ can thus be expressed as $iRe^{i\theta}d\theta$ in these coordinates:
+\begin{large}
+\[
+\implies\mathcal{N}_0\left[p\right]=\dfrac{1}{2\pi i}\int_0^{2\pi}\dfrac{\sum_{k=1}^nka_k\left(Re^{i\theta}\right)^{k-1}}{\sum_{k=0}^na_k\left(Re^{i\theta}\right)^k}\,iRe^{i\theta}d\theta=\dfrac{1}{2\pi}\int_0^{2\pi}\dfrac{\sum_{k=1}^nka_kR^{k-n}e^{ik\theta}}{\sum_{k=0}^na_kR^{k-n}e^{ik\theta}}\,d\theta
+\]
+\end{large}
+
+Furthermore, the integral will be split into its constituent real and imaginary parts in order for real analytic techniques to be applied:
+\begin{large}
+\[
+\implies\mathcal{N}_0\left[p\right]=\dfrac{1}{2\pi}\int_0^{2\pi}\text{Re}\left(\dfrac{\sum_{k=1}^nka_kR^{k-n}e^{ik\theta}}{\sum_{k=0}^na_kR^{k-n}e^{ik\theta}}\right)d\theta+\dfrac{i}{2\pi}\int_0^{2\pi}\text{Im}\left(\dfrac{\sum_{k=1}^nka_kR^{k-n}e^{ik\theta}}{\sum_{k=0}^na_kR^{k-n}e^{ik\theta}}\right)d\theta
+\]
+\end{large}
+
+By the Mean Value Theorem, $\exists\,\alpha_R,\beta_R\in[0,2\pi)$ such that the above integral(s) can be expressed as follows:
+\begin{large}
+\[
+\implies\mathcal{N}_0\left[p\right]=\text{Re}\left(\dfrac{\sum_{k=1}^nka_kR^{k-n}e^{ik\alpha_R}}{\sum_{k=0}^na_kR^{k-n}e^{ik\alpha_R}}\right)+i\,\text{Im}\left(\dfrac{\sum_{k=1}^nka_kR^{k-n}e^{ik\beta_R}}{\sum_{k=0}^na_kR^{k-n}e^{ik\beta_R}}\right)
+\]
+\end{large}
+
+In order to observe the asymptotic behavior of this expression as $R\rightarrow\infty$, Big O notation will be employed in powers of $R^{-1}$ as such: 
+\begin{large}
+\[
+\implies\mathcal{N}_0\left[p\right]=\text{Re}\left(\dfrac{na_ne^{in\alpha_R}+\mathcal{O}\left(R^{-1}\right)}{a_ne^{in\alpha_R}+\mathcal{O}\left(R^{-1}\right)}\right)+i\,\text{Im}\left(\dfrac{na_ne^{in\beta_R}+\mathcal{O}\left(R^{-1}\right)}{a_ne^{in\beta_R}+\mathcal{O}\left(R^{-1}\right)}\right)
+\]
+\end{large}
+
+Because the above expression does not have explicit dependence on $R$ (so long as $R$ is large enough to encircle all the zeros of $p$), taking the limit as $R\rightarrow\infty$ will maintain overall equality:
+\begin{large}
+\begin{align*}
+\implies\mathcal{N}_0\left[p\right]
+&=
+\lim\limits_{R\to\infty}\left(\text{Re}\left(\dfrac{na_ne^{in\alpha_R}+\mathcal{O}\left(R^{-1}\right)}{a_ne^{in\alpha_R}+\mathcal{O}\left(R^{-1}\right)}\right)+i\,\text{Im}\left(\dfrac{na_ne^{in\beta_R}+\mathcal{O}\left(R^{-1}\right)}{a_ne^{in\beta_R}+\mathcal{O}\left(R^{-1}\right)}\right)\right)
+\\[6 mm]&=
+\text{Re}\left(\lim\limits_{R\to\infty}\dfrac{na_ne^{in\alpha_R}+\mathcal{O}\left(R^{-1}\right)}{a_ne^{in\alpha_R}+\mathcal{O}\left(R^{-1}\right)}\right)+i\,\text{Im}\left(\lim\limits_{R\to\infty}\dfrac{na_ne^{in\beta_R}+\mathcal{O}\left(R^{-1}\right)}{a_ne^{in\beta_R}+\mathcal{O}\left(R^{-1}\right)}\right)
+\\[6 mm]&=
+\text{Re}\left(\dfrac{na_ne^{in\alpha_{\infty}}}{a_ne^{in\alpha_{\infty}}}\right)+i\,\text{Im}\left(\dfrac{na_ne^{in\beta_{\infty}}}{a_ne^{in\beta_{\infty}}}\right)=n
+\end{align*}
+\end{large}
+
+By the string of equalities, it follows that $\mathcal{N}_0\left[p\right]=n$. Therefore, it directly follows that $\text{deg}\left[q\right]=0$, which further implies that $q$ is constant. In this respect, by the distributive property ($\forall z\in\mathbb{C}$):
+\begin{large}
+\[
+p(z)=q(z)\prod\limits_{k=1}^N(z-z_k)^{m_k}=q(z)z^n+\sum\limits_{k=0}^{n-1}a_kz^k\implies q(z)=a_n\quad\square
+\]
+\end{large}
+
+This concludes the proof of the Fundamental Theorem of Algebra. The theorem states that every $n^{\text{th}}$ degree polynomial with complex valued coefficients has exactly $n$ roots counting multiplicities. With the established context at hand, the theorem equivalently states:
+
+\begin{Large}
+\[
+\sum\limits_{k=0}^na_kz^k=a_n\prod\limits_{k=1}^N(z-z_k)^{m_k}\quad\forall z\in\mathbb{C}\quad\text{where}\quad \sum\limits_{k=1}^Nm_k=n
+\]
+\end{Large}
+
+\end{document}
