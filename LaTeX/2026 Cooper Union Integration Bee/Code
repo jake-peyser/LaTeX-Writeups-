@@ -1,0 +1,296 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\geometry{margin=1in}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\usepackage{comment}
+
+\begin{document}
+\large
+\section*{Integral \#1 (Hard)}
+\[
+I=\int_0^{\pi/2}\ln(\csc\theta)\sin^3\theta \;d\theta
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Sub: $x=\cos\theta$
+    \item Simplify
+    \item Sub: $u=1+x$
+    \item Simplify
+    \item IBP ($\times2$)
+\end{itemize}
+\[
+\boxed{\;I=\frac{5}{9}-\frac{2}{3}\ln2\;}
+\]
+
+\section*{Integral \#2 (Hard)}
+\[
+I=\int_0^1 e^{-t^2}f(t)\,dt\quad\text{with}\quad f(t)=\sum_{n=0}^{\infty}e^{-2n(t+n/2)},\quad t\in\mathbb{R}^+
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Complete the square: $-2n(t+n/2)=t^2-(t+n)^2$
+    \item Simplify Integrand
+    \item Swap summation \& integration operators: $\int_0^1\sum_{n=0}^\infty=\sum_{n=0}^\infty\int_0^1$
+    \item Sub: $x=t+n$
+    \item Sum the integrals: $\sum_{n=0}^\infty\int_n^{n+1}=\int_0^\infty$
+    \item Abuse even symmetry: $\int_0^\infty=\tfrac{1}{2}\int_{-\infty}^\infty$
+    \item Identify the Gaussian Integral
+    \[
+    \boxed{\;I=\frac{\sqrt\pi}{2}\;}
+    \]
+\end{itemize}
+
+\section*{Integral \#3 (Easy)}
+\[
+I=\int_0^\infty(2x)^{1012.5}e^{-\sqrt{2x}}dx
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Sub: $u=2x,\,t=\sqrt{u}$
+    \item Identify Gamma Function (or do IBP$\times2026$)
+\end{itemize}
+\[
+\boxed{\;I=2026!\;}
+\]
+
+\section*{Integral \#4 (Medium)}
+\[
+I=\int\ln\left(x+\sqrt{x^2-1}\right)dx
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Sub: $x=\cosh\varphi$
+    \item Simplify
+    \item IBP
+    \item Reverse Sub: $\varphi=\cosh^{-1}x=\ln(x+\sqrt{x^2-1})$
+    \item Simplify
+\end{itemize}
+\[
+\boxed{\;I=x\ln\left(x+\sqrt{x^2-1}\right)-\sqrt{x^2+1}+C\;}
+\]
+
+\section*{Integral \#5 (Easy)}
+\[
+I=\int_0^1\frac{x^6}{x^2+1}dx
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Polynomial Long Division
+\end{itemize}
+\[
+\boxed{\;I=\frac{13}{15}-\frac{\pi}{4}\;}
+\]
+
+\section*{Integral \#6 (Very Hard)}
+\[
+I=\int_0^\infty \frac{x}{e^x-1}dx\qquad\text{Hint: Geometric Series!}
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Algebraic manipulation: $\frac{1}{e^x-1}=\frac{e^{-x}}{1-e^{-x}}$ 
+    \item Expand via a geometric series: $\frac{1}{1-e^{-x}}=\sum_{n=0}^\infty e^{-nx}$
+    \item Simplify Integrand
+    \item Swap summation and integration operators: $\int_0^\infty\sum_{n=0}^\infty=\sum_{n=0}^\infty\int_0^\infty$
+    \item Sub: $t=(n+1)x$
+    \item Separate the integral: $\sum_{n=0}^\infty\int_0^\infty(\frac{t}{n+1})e^{-t}(\frac{1}{n+1})dt=\sum_{n=0}^\infty\frac{1}{(n+1)^2}\int_0^\infty te^{-t}dt$
+    \item Identify the Basel Problem and the Gamma Function (or use IBP)
+\end{itemize}
+\[
+\boxed{\;I=\frac{\pi^2}{6}\;}
+\]
+
+\section*{Integral \#7 (Easy-ish)}
+\[
+I=\int_0^\infty\frac{\ln x}{x^2+1}dx
+\]
+Solution Method:
+\begin{itemize}
+    \item Sub: $u=1/x$
+    \item Simplify
+    \item Observe: $I=-I$
+\end{itemize}
+\[
+\boxed{\;I=0\;}
+\]
+
+\section*{Integral \#8 (Easy)}
+\[
+I=\int\frac{\pi-e^x}{\pi+e^x}dx
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Sub: $u=\pi+e^x$
+    \item Simplify
+    \item Partial Fractions
+    \item Reverse Sub: $x=\ln(u-\pi)$
+    \item Simplify
+\end{itemize}
+\[
+\boxed{\;I=x-2\ln\left(\pi+e^x\right)+C\;}
+\]
+
+\section*{Integral \#9 (Medium)}
+\[
+\mathcal{L}_t\left\{\cos(\omega t-\phi)\right\}(s)=\int_0^\infty e^{-st}\cos(\omega t-\phi)\,dt
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Apply angle sum formula: $\cos(\omega t-\phi)=\cos(\omega t)\cos(\phi)+\sin(\omega t)\sin(\phi)$
+    \item Break up the integral into two integrals: 
+    \[
+    \mathcal{L}_t\left\{\cos(\omega t-\phi)\right\}(s)\cos\phi=\mathcal{L}_t\left\{\cos(\omega t)\right\}(s)\cos\phi+\mathcal{L}_t\left\{\sin(\omega t)\right\}(s)\sin\phi
+    \]
+    \item \textbf{Know your Laplace Transforms!} Or....
+    \item Preform IBP$\times2$ on each integral and recover the implicit recurrence relations
+    \item Solve for the individual integrals
+    \item Combine and simplify
+\end{itemize}
+\[
+\boxed{\;\mathcal{L}_t\left\{\cos(\omega t-\phi)\right\}(s)=\frac{s\cos\phi+\omega\sin\phi}{s^2+\omega^2}\;}
+\]
+
+\section*{Integral \#10 (Easy)}
+\[
+I=\int\cos(2\sin^{-1}(x))\,dx
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Apply Double Angle Formula:
+    \item Simplify 
+\end{itemize}
+\[
+\boxed{\;I=x-\frac{2x^3}{3}+C\;}
+\]
+
+\section*{Integral \#11 (Medium)}
+\[
+I=\lim_{h\to0^+}\int_0^h\frac{x\cot^{-1}(\pi x)}{\sin(hx)}dx
+\]
+Solution Methodology:
+\begin{itemize}
+\item Expand the sine via its Maclaurin series:
+\[
+\sin(hx)=hx+\mathcal{O}\left((hx)^3\right)
+\]
+\item Pull out a factor of $hx$:
+\[
+I=\lim_{h\to0^+}\frac{1}{h}\int_0^h\frac{\cot^{-1}(\pi x)}{1+\mathcal{O}\left((hx)^2\right)}dx
+\]
+\item Apply the MVT:
+\[
+I=\lim_{h\to0^+}\frac{\cot^{-1}(\pi x_h)}{1+\mathcal{O}\left((hx_h)^2\right)},\quad0\leq x_h\leq h
+\]
+\item Take the limit via continuity
+\end{itemize}
+\[
+\boxed{\;I=\pi/2\;}
+\]
+
+\section*{Integral \#12 (Easy)}
+\[
+I=\int_{-1}^1x^2\cos(\pi x)\,dx
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Even Symmetry (optional)
+    \item IBP
+\end{itemize}
+\[
+\boxed{\;I=-\frac{4}{\pi^2}\;}
+\]
+
+\section*{Integral \#13 (Medium)}
+\[
+I=\int_0^1 x^2\sqrt{1-x^2}dx
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Sub: $x=\sin\theta$
+    \item Simplify Integrand and apply the Double Angle Formula
+    \item Sub: $\phi=2\theta$
+    \item Apply Double Angle Formula in reverse
+\end{itemize}
+\[
+\boxed{\;I=\frac{\pi}{16}\;}
+\]
+
+\section*{Integral \#14 (Medium-ish)}
+\[
+I=\int_0^{\pi/4} \frac{d\theta}{\cos\theta+\sin\theta}
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Apply Angle Sum Formula in reverse: $\cos\theta+\sin\theta=\sqrt2\cos(\theta-\pi/4)$
+    \item Sub: $\phi=\theta-\pi/4$, $x=\sin\phi$
+    \item Partial Fractions
+\end{itemize}
+\[
+\boxed{\;I=\frac{1}{2\sqrt2}\ln\left(\frac{\sqrt2+1}{\sqrt2-1}\right)\;}
+\]
+
+\section*{Integral \#15 (Hard)}
+\[
+I=\int_1^\infty\frac{dx}{x^2\sqrt{x^2+x-1}}
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Sub: $u=1/x$
+    \item Simplify
+    \item Complete the square: $1+u-u^2=\frac{5}{4}-(u-1/2)^2$
+    \item Sub: $v=u-1/2$
+    \item Split integral and abuse odd symmetry
+    \item Sub: $t=\frac{2}{\sqrt5}v$
+\end{itemize}
+\[
+\boxed{\;\sin^{-1}\left(\frac{1}{\sqrt 5}\right)\;}
+\]
+
+\section*{Integral \#16 (Super Hard)}
+\[
+I=\int_0^\infty\frac{e^{-t}-e^{-2t}}{t}\cos(t)\,dt\qquad\text{Hint: Laplace Transform}
+\]
+Solution Methodology:
+\begin{itemize}
+    \item Define the auxiliary function:
+\[
+\quad F(s)=\int_0^\infty e^{-st}\,\frac{1-e^{-t}}{t}\cos(t)\,dt,\quad F(1)=I
+\]
+\item Compute the derivative:
+\[
+F'(s)=\int_0^\infty\frac{\partial}{\partial s}\left[ e^{-st}\,\frac{1-e^{-t}}{t}\cos(t)\right]dt=-\int_0^\infty e^{-st}(1-e^{-t})\cos(t)\,dt
+\]
+\item Split the integral:
+\[
+F'(s)=\int_0^\infty e^{-(s+1)t}\cos(t)\,dt-\int_0^\infty e^{-st}\cos(t)\,dt=\mathcal{L}_t\left\{\cos(t)\right\}(s+1)-\mathcal{L}_t\left\{\cos(t)\right\}(s)
+\]
+\item Compute the Laplace Transforms:
+\[
+F'(s)=\frac{s+1}{(s+1)^2+1}-\frac{s}{s^2+1}
+\]
+\item Apply the FTC:
+\[
+F(1)=\lim_{s\to\infty}F(s)-\int^\infty_1F'(s)\,ds
+\]
+\item Compute the limit:
+\[
+\lim_{s\to\infty}F(s)=\int_0^\infty\lim_{s\to\infty}e^{-st}\,\frac{1-e^{-t}}{t}\cos(t)\,dt=0
+\]
+\item Compute the integral:
+\begin{align*}
+\int_1^{\infty}F'(s)\,ds&=\int_1^{\infty}\left[\frac{s+1}{(s+1)^2+1}-\frac{s}{s^2+1}\right]ds
+\\[5 mm]
+&=\left.\left(\frac{1}{2}\ln\left((s+1)^2+1\right)-\frac{1}{2}\ln\left(s^2+1\right)\right)\right|_1^\infty=-\frac{1}{2}\ln\left(\frac{5}{2}\right)
+\end{align*}
+\item Synthesize
+\end{itemize}
+\[
+\boxed{\;I=\frac{1}{2}\ln\left(\frac{5}{2}\right)\;}
+\]
+
+\end{document}
