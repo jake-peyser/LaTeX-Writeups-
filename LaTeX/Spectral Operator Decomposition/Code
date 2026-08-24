@@ -1,0 +1,114 @@
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{mathtools}
+\usepackage{xfrac}
+\usepackage[margin=1in]{geometry}
+
+\title{Spectral Decomposition of Differential Operators}
+\author{Jacob Peyser}
+\date{June 2025}
+
+\begin{document}
+\maketitle
+
+\section*{Function Decomposition}
+One result of Fourier Analysis is that the space of square integrable functions $L^2(\mathbb{R})$ has a spectral decomposition. In particular, if $F\in L^2(\mathbb{R},\mathbb{C})$, then $F=\mathscr{F}^{-1}\left\{\mathscr{F}\left\{F\right\}\right\}=\mathscr{F}\left\{\mathscr{F}^{-1}\left\{F\right\}\right\}$, where $\mathscr{F}$ is the Fourier Transform and $\mathscr{F}^{-1}$ is the Inverse Fourier Transform.
+
+\begin{equation}\notag
+\mathscr{F}\left\{F\right\}(\omega)=\int_{\mathbb{R}}F(t)e^{-i\omega t}dt
+\qquad \text{and} \qquad
+\mathscr{F}^{-1}\{F\}(t)=\frac{1}{2\pi}\int_{\mathbb{R}}F(\omega)e^{i\omega t}d\omega
+\end{equation}
+
+\section*{Exponentiation of the Differential Operator}
+The (partial) differential operator $\partial_t:f\mapsto f_t$, where $f\in C^{\infty}(\mathbb{R},\mathbb{C})\cup C(\mathbb{C})$, will be informally exponentiated. Given that $\tau\in\mathbb{C}$, define $e^{\tau\partial_t}$ by:  
+
+\begin{equation}\notag
+e^{\tau\partial_t}f\coloneq\sum_{n=0}^{\infty}\frac{\tau^n}{n!}\partial_t^nf
+\end{equation}
+\\\\
+Because $f\in C^{\infty}(\mathbb{R},\mathbb{C})\subset L^2(\mathbb{R},\mathbb{C})$, it follows that $f=\mathscr{F}^{-1}\left\{\hat{f}\right\}$, where $\hat{f}=\mathscr{F}\left\{f\right\}$. It follows $\forall t\in\mathbb{R}$:
+\\\\
+\begin{subequations}
+\begin{equation}\notag
+e^{\tau\partial_t}f(t)=\sum_{n=0}^{\infty}\frac{\tau^n}{n!}\partial_t^n\frac{1}{2\pi}\int_{\mathbb{R}}\hat{f}(\omega)e^{i\omega t}d\omega=\frac{1}{2\pi}\int_{\mathbb{R}}\hat{f}(\omega)\sum_{n=0}^{\infty}\frac{\tau^n}{n!}\partial_t^ne^{i\omega t}d\omega=\frac{1}{2\pi}\int_{\mathbb{R}}\hat{f}(\omega)\sum_{n=0}^{\infty}\frac{(i\omega\tau)^n}{n!}e^{i\omega t}d\omega
+\end{equation}
+\\
+\begin{equation}\notag
+=\frac{1}{2\pi}\int_{\mathbb{R}}\hat{f}(\omega)e^{i\omega\tau}e^{i\omega t}d\omega=\frac{1}{2\pi}\int_{\mathbb{R}}\hat{f}(\omega)e^{i\omega( t+\tau)}d\omega=f(t+\tau)
+\end{equation}
+\end{subequations}
+\\
+\begin{center}
+It thus follows that $e^{\tau\partial_t}$ is the shift operator $T^{\tau}:f(t)\mapsto f(t+\tau)$.
+\end{center}
+
+\section*{Generalized Differential Operators}
+The generalized differential operator $F(\partial_t)$ is subsequently motivated to be defined $\forall t\in\mathbb{R}$ as such:
+
+\begin{subequations}
+\begin{equation}\notag
+ F(\partial_t)f(t)=\mathscr{F}\left\{\mathscr{F}^{-1}\left\{F\right\}\right\}(\partial_t)f(t)\coloneq\int_{\mathbb{R}}\mathscr{F}^{-1}\{F\}(\tau)e^{-i\tau\partial_t}d\tau\ f(t)\coloneq\int_{\mathbb{R}}\mathscr{F}^{-1}\{F\}(\tau)e^{-i\tau\partial_t}f(t)d\tau
+\end{equation}
+\\
+\begin{equation}\notag
+\implies F(\partial_t)f(t)=\int_{\mathbb{R}}\mathscr{F}^{-1}\{F\}(\tau)f(t-i\tau)d\tau,\ \forall t\in\mathbb{R}
+\end{equation}
+\end{subequations}
+
+\section*{Eigen Functions}
+Let $s\in\mathbb{C}$ and consider applying $F(\partial_t)$ to the exponential function $E_s:t\mapsto e^{st}$, where $t\in\mathbb{R}$:
+
+\begin{equation}\notag
+F(\partial_t)e^{st}=\int_{\mathbb{R}}\mathscr{F}^{-1}\{F\}(\tau)e^{s(t-i\tau)}d\tau=\int_{\mathbb{R}}\mathscr{F}^{-1}\{F\}(\tau)e^{-is\tau}d\tau\ e^{st}=\mathscr{F}\left\{\mathscr{F}^{-1}\{F\}\right\}(s)e^{st}=F(s)e^{st}
+\end{equation}
+\\
+\begin{center}
+It follows that $E_s$ is an eigen function of $F(\partial_t)$ with eigen value $F(s)$.
+\end{center}
+
+\section*{Eigen Function Expansion}
+Because every function $f$ can be expanded as the continuous sum of (a subset of) these eigen functions, in general, applying $F(\partial_t)$ to $f$ equivalently, $\forall t\in\mathbb{R}$, results in:
+
+\begin{equation}\notag
+F(\partial_t)f(t)=F(\partial_t)\mathscr{F}^{-1}\left\{\hat{f}\right\}(t)=F(\partial_t)\frac{1}{2\pi}\int_{\mathbb{R}}\hat{f}(\omega)e^{i\omega t}d\omega=\frac{1}{2\pi}\int_{\mathbb{R}}\hat{f}(\omega)F(\partial_t)e^{i\omega t}d\omega=\frac{1}{2\pi}\int_{\mathbb{R}}\hat{f}(\omega)F(i\omega)e^{i\omega t}d\omega
+\end{equation}
+
+\section*{Operational Inversion}
+Suppose there exists an operator $F(\partial_t)^{-1}$ defined on the eigen function(s) $E_s$, and by extension, all valid functions $f$, as such:
+
+\begin{subequations}
+\begin{equation}\notag
+  F(\partial_t)^{-1}E_s\coloneq E_s/F(s)\quad\text{such that}\quad F\neq0\quad\text{on}\quad i\mathbb{R}
+\end{equation}
+
+\begin{equation}\notag
+\implies \forall t\in\mathbb{R},\ F(\partial_t)^{-1}f(t)=F(\partial_t)^{-1}\frac{1}{2\pi}\int_{\mathbb{R}}\hat{f}(\omega)e^{i\omega t}d\omega=\frac{1}{2\pi}\int_{\mathbb{R}}\hat{f}(\omega)F(\partial_t)^{-1}e^{i\omega t}d\omega=\frac{1}{2\pi}\int_{\mathbb{R}}\frac{\hat{f}(\omega)}{F(i\omega)}e^{i\omega t}d\omega
+\end{equation}
+
+\begin{equation}\notag
+\implies \forall t\in\mathbb{R},\ F(\partial_t)^{-1}F(\partial_t)f(t)=F(\partial_t)F(\partial_t)^{-1}f(t)=\frac{1}{2\pi}\int_{\mathbb{R}}\frac{\hat{f}(\omega)}{F(i\omega)}F(i\omega)e^{i\omega t}d\omega=\frac{1}{2\pi}\int_{\mathbb{R}}\hat{f}(\omega)e^{i\omega t}d\omega=f(t)
+\end{equation}
+\\
+\begin{equation}\notag
+\implies F(\partial_t)F(\partial_t)^{-1}=I=F(\partial_t)^{-1}F(\partial_t)
+\end{equation}
+\end{subequations}
+
+\section*{Particular Solutions to Functional Equations}
+Suppose that $F\neq0$ on $i\mathbb{R}$ and $x$ is a solution to the functional equation $F(\partial_t)x(t)=f(t),\ \forall t\in\mathbb{R}$. It then follows that $F(\partial_t)^{-1}F(\partial_t)x=F(\partial_t)^{-1}f$, further implying that $x=F(\partial_t)^{-1}f$. Equivalently, $\forall t\in\mathbb{R}$: 
+
+\begin{equation}\notag
+x(t)=\frac{1}{2\pi}\int_{\mathbb{R}}\frac{\hat{f}(\omega)}{F(i\omega)}e^{i\omega t}d\omega
+\end{equation}
+\\
+Informally, from the theory of differential equations, this is only a particular solution. Furthermore, even if $F=0$ on $i\mathbb{R}$, so long as the integral has a principal value, $x$ will be a solution. Moreover, as $\mathscr{F}_t\{\delta(t-\tau)\}(\omega)=e^{-i\omega\tau}$, a general formula for the Green's function $G: F(\partial_t)G(t,\tau)=\delta(t-\tau)$ can be obtained as such:
+
+\begin{equation}\notag
+G(t,\tau)=\frac{1}{2\pi}\int_{\mathbb{R}}\frac{e^{i\omega(t-\tau)}}{F(i\omega)}d\omega
+\end{equation}
+
+
+\end{document}
