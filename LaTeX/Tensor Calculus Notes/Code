@@ -1,0 +1,1488 @@
+% Compiler: pdfLaTex
+% TeX Live version: 2025 or 2024
+\documentclass{article}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{amsmath,bm}
+\usepackage{mathtools}
+\usepackage[margin=1in]{geometry}
+\usepackage{pgfplots}  
+\usepackage{tikz}   
+\pgfplotsset{compat=newest}
+\usetikzlibrary{positioning,calc,pgfplots.fillbetween,external}
+\tikzexternalize[prefix=External/]
+\usepgfplotslibrary{fillbetween}
+\newcommand{\bbar}[1]{\mkern 1mu\overline{\mkern-1mu#1\mkern-1mu}\mkern 1mu}
+\newcommand{\ibar}[1]{\mkern 2mu\overline{\mkern-2.5mu#1\mkern-0.5mu}\mkern 1mu}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\usepackage{comment}
+
+
+\begin{document}
+	
+	\begin{center}
+		\textbf{\LARGE{Personal Notes on Tensor Calculus}}\\  
+		\vspace{3 mm}
+		By: Jake Peyser\\
+		\vspace{3 mm}
+		From\; 7/24/2025\; to\; 3/18/2026
+	\end{center}
+	\section*{The Outline}
+	These notes will develop and motivate the intrinsic calculus of tensor fields over smooth manifolds alongside related concepts from differential geometry. Prerequisites include, but are not limited to set theory, linear algebra, and vector calculus. The Einstein summation convention will be utilized throughout.
+	
+	\section*{Topological Spaces}
+	In order to establish the notion of a manifold, some groundwork needs to be established first. Let $M\neq\varnothing$ be a collection of elements. If $p\in M$, then $p$ is said to be a point in $M$. Furthermore, $\mathcal{T}\subseteq\mathcal{P}(M)$ is said to be a topology of $M$ if it satisfies the following properties (axioms):
+	\begin{itemize}
+		\item $\varnothing,M\in\mathcal{T}$ ------------------------------------------------------------ Nothing \& Everything -----------------------------
+		\item $\forall I\subseteq\mathbb{N},\,\left\{U_i\right\}_{i\in I}\subseteq\mathcal{T}\implies\bigcup_{i\in I}U_i\in\mathcal{T}$ --------------------- Closure Under Unions ------------------------------
+		\item $\forall n\in\mathbb{N},\,\left\{U_i\right\}_{i=1}^n\subseteq\mathcal{T}\implies\bigcap_{i=1}^nU_i\in\mathcal{T}$ --------------------- Closure Under Finite Intersections --------------
+	\end{itemize}
+	\vspace{1 mm}
+	The pairing $(M,\mathcal{T})$ is said to be a topological space, and any element of $\mathcal{T}$ is said to be an open subset of $M$ by definition. Now, given any $p\in M$, let $\mathcal{N}(p)=\left\{U\in\mathcal{T}\;|\;p\in U\right\}$ denote the neighborhood system of the point $p$. If $U\in\mathcal{N}(p)$, then $U$ is called a neighborhood of $p$. The following notions can now be formalized:
+	\begin{itemize}
+		\item $p$ is an interior point of $S\subseteq M$ (i.e. $p\in \mathrm{Int}(S)$) if $\exists\,U\in\mathcal{N}(p)$ such that $U\subseteq S$.
+		\item $p$ is an exterior point of $S\subseteq M$ (i.e. $p\in\mathrm{Ext}(S)$) if $\exists\,U\subseteq \mathcal{N}(p)$ such that $U\subseteq M\setminus S$.
+		\item $p$ is a boundary point of $S\subseteq M$ (i.e. $p\in\partial S$) if $\forall\,U\in\mathcal{N}(p),\,U\,\cap\,S\neq\varnothing$ and $U\,\cap\,(M\setminus S)\neq\varnothing$.
+		\item $p$ is an accumulation point of $S\subseteq M$ (i.e. $p\in S'$) if $\forall\,U\in\mathcal{N}(p),\,U\setminus\{p\}\,\cap\,S\neq\varnothing$.
+	\end{itemize}
+	The closure of any such $S\subseteq M$ is thus defined by $\mathrm{Cl}(S)=\mathrm{Int}(S)\,\cup\,\partial S$, and without proof, it can be shown that $\mathrm{Cl}(S)=S\,\cup\,S'$. It is said that $S$ is closed if $S=\mathrm{Cl}(S)$. It likewise follows that $S$ is open if $S=\mathrm{Int}(S)$. These definitions clearly partition all the regions of $M$ with respect to any one of its subsets.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=.85]
+			\shade[inner color=white, outer color=black!10]
+			(0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4)
+			.. controls (9,-3) and (11,-3.5) .. (13,-4)
+			.. controls (11,-2) and (10.5,-1) .. (10,0)
+			.. controls (7,1) and (3.5,1.5) .. (0,0)
+			-- cycle;
+			\draw (0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4);
+			\draw (0,0) .. controls (3.5,1.5) and (7,1) .. (10,0);
+			\draw (6,-4) .. controls (9,-3) and (11,-3.5) .. (13,-4);
+			\draw (10,0) .. controls (10.5,-1) and (11,-2) .. (13,-4);
+			\draw node at (4,-3.5) {\LARGE{$M$}};
+			% The Set
+			\shade[inner color=white,outer color=gray!30,rotate=2] (7,-1.5) ellipse (2.5 and 1.25);
+			\draw node at (9,-2.5) {\Large{$S$}};
+			% Boundary Point
+			\draw[dash pattern=on 2pt off 1pt,thick,black] (9.45,-1.568) ellipse (0.25 and 0.25);
+			\shade[inner color=white,outer color=gray!60] (9.45,-1.568) ellipse (0.25 and 0.25);
+			\filldraw (9.45,-1.568) circle (0.5 mm) node[xshift=6.25 mm,yshift=-4 mm]{\small{$\in\partial S$}};
+			\draw (9.45,-1.568) -- (9.75,-2);
+			% Interior Point
+			\draw[dash pattern=on 2pt off 1pt,thick,black] (6.4,-1) ellipse (0.5 and 0.35);
+			\shade[inner color=white,outer color=gray!60] (6.4,-1) ellipse (0.5 and 0.35);
+			\filldraw (6.4,-1) circle (0.5 mm) node[xshift=9 mm,yshift=-4 mm]{\small{$\in\mathrm{Int}(S)$}};
+			\draw (6.4,-1) -- (6.75,-1.4);
+			% Exterior Point
+			\draw[dash pattern=on 2pt off 1pt,thick,black] (3,-0.25) ellipse (0.75 and 0.5);
+			\shade[inner color=white,outer color=gray!60] (3,-0.25) ellipse (0.75 and 0.5);
+			\filldraw (3,-0.25) circle (0.5 mm) node[xshift=13 mm,yshift=4 mm]{\small{$\in\mathrm{Ext}(S)$}};
+			\draw (3,-0.25) -- (3.75,0.25);
+			% Set Boundary
+			\draw[dashed,thin,rotate=2,black] (7,-1.5) ellipse (2.5 and 1.25);
+		\end{tikzpicture}
+		\caption{Region Partitioning}
+	\end{figure}\noindent
+	By definition, a point $p\in M$ is said to be close (adherent) to a set $S\subseteq M$ if $p\in\mathrm{Cl}(S)$. In the same respect, the points $p,q\in M$ are said to be close to each other if $q\in U$ for every $U\in\mathcal{N}(p)$, or equivalently, $p\in V$ for every $V\in\mathcal{N}(q)$. In order to make this notion more precise, a metric would have to be imposed.
+	
+	\section*{The Hausdorff Property}
+	With the established structure at hand, $(M,\mathcal{T})$ is considered Hausdorff if $\forall\,p\neq q,\,\exists\,U\in\mathcal{N}(p)$ and $\exists\,V\in\mathcal{N}(q)$ such that $U\cap V=\varnothing$. In other words, any two distinct points in $M$ can be located respectively in their own neighborhoods which do not overlap with each other.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=.65]
+			\shade[inner color=white, outer color=black!10]
+			(0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4)
+			.. controls (9,-3) and (11,-3.5) .. (13,-4)
+			.. controls (11,-2) and (10.5,-1) .. (10,0)
+			.. controls (7,1) and (3.5,1.5) .. (0,0)
+			-- cycle;
+			\draw (0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4);
+			\draw (0,0) .. controls (3.5,1.5) and (7,1) .. (10,0);
+			\draw (6,-4) .. controls (9,-3) and (11,-3.5) .. (13,-4);
+			\draw (10,0) .. controls (10.5,-1) and (11,-2) .. (13,-4);
+			\draw node at (4,-3.5) {\LARGE{$M$}};
+			\draw[dashed,thick,rotate=3,black] (3.5,-0.5) ellipse (1.25 and 0.75);
+			\shade[inner color=white,outer color=gray!30,rotate=3] (3.5,-0.5) ellipse (1.25 and 0.75);
+			\draw[dashed,thick,rotate=-2,black] (9.75,-2.125) ellipse (1.5 and 0.75);
+			\shade[inner color=white,outer color=gray!30,rotate=-2] (9.75,-2.125) ellipse (1.5 and 0.75);
+			\draw node at (5.5,0) {\Large{$U$}};
+			\draw node at (7.75,-2) {\Large{$V$}};
+			\filldraw (3.5,-0.5) circle (0.75 mm) node[anchor=south east]{$p$};
+			\filldraw (10,-2.125) circle (0.75 mm) node[anchor=north east]{$q$};
+		\end{tikzpicture}
+		\caption{Distinct Neighborhoods}
+	\end{figure}\noindent
+	Let $s:\mathbb{N}\to M$ be a sequence. By definition, $s$ converges to $p\in M$ (i.e. $s\to p$) if $\forall\,U\in\mathcal{N}(p),\,\exists\,m\in\mathbb{N}$ such that $n\geq m\implies s_n\in U$. Intuitively, no matter how small the neighborhood $U$ is around $p$, there always exists a location in the sequence $s$ beyond which the outputs of $s$ reside entirely inside $U$.
+	\vspace{3 mm}\\
+	Assuming $(M,\mathcal{T})$ is Hausdorff, suppose that the sequence $s$ converges to both $p,q\in M$. There necessarily exists open sets $U,V\subset M$ such that $p\in U$ and $q\in V$. It directly follows that $\exists\,m\in\mathbb{N}$ such that $n\geq m\implies s_n\in U\,\cap\, V$. Thus, by assumption, if $p\neq q$, then one can choose $U,V$ such that $U\,\cap\, V=\varnothing$, which would be a contradiction, implying $p=q$. That is to say, convergent limits of sequences are unique.
+	
+	\section*{Topological Basis}
+	Given the topological space $(M,\mathcal{T})$, a collection of open subsets $\mathcal{B}\in\mathcal{T}$ is called a basis of the topology $\mathcal{T}$ if $\forall\,U\mathcal{\in\mathcal{T}},\,\exists\,\left\{U_i\right\}_{i\in I}\subseteq\mathcal{B}$ such that $\bigcup_{i\in I}U_i=U$, where $I\subseteq\mathbb{N}$.
+	\vspace{3 mm}\\
+	The topological space $(M,\mathcal{T})$ is said to be first-countable if $\forall\,p\in M,\,\exists\,U_k\subseteq U\in\mathcal{N}(p)$, with $k\in\mathbb{N}$, such that $\mathcal{N}(p)=\left\{U_k\right\}_{k\in I}$, where $I\subseteq\mathbb{N}$. In other words, in this context, every neighborhood system can be generated by a countable set of neighborhoods. This set is referred to as a countable neighborhood basis. 
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=.74]
+			%U5
+			\draw[dashed,thick,rotate=-10,black] (0,0) ellipse (3 and 2.65);
+			\shade[inner color=white,outer color=black!10,rotate=-10] (0,0) ellipse (3 and 2.65);
+			%U4
+			\draw[dashed,thick,rotate=10,black] (0,0) ellipse (2.5 and 1.85);
+			\shade[inner color=white,outer color=black!20,rotate=10] (0,0) ellipse (2.5 and 1.85);
+			%U3
+			\draw[dashed,thick,rotate=-4,black] (0,0) ellipse (1.75 and 1.5);
+			\shade[inner color=white,outer color=black!30,rotate=-4] (0,0) ellipse (1.75 and 1.5);
+			%U2
+			\draw[dashed,thick,rotate=3,black] (0,0) ellipse (1 and 0.85);
+			\shade[inner color=white,outer color=black!40,rotate=3] (0,0) ellipse (1 and 0.85);
+			% U1
+			\draw[dashed,thick,black] (0,0) circle (0.5);
+			\shade[inner color=white,outer color=black!50] (0,0) circle (0.5);
+			\filldraw (0,0) circle (0.5 mm) node[xshift=-1.25 mm,yshift= 1mm]{\footnotesize{$p$}};
+			\draw node at (3.75,-2.25) {\LARGE{$\mathcal{N}(p)$}};
+		\end{tikzpicture}
+		\caption{Countable Neighborhood Basis}
+	\end{figure}\noindent
+	Provided that $I\subseteq\mathbb{N}
+	$, the topological space $(M,\mathcal{T})$ is said to be second-countable if $\exists\,\mathcal{B}_k\in\mathcal{T}$, where $k\in\mathbb{N}$, such that $\mathcal{B}=\left\{\mathcal{B}_k\right\}_{k\in I}$ is a basis of $\mathcal{T}$. In short, $\mathcal{B}$ can be generated by a countable set of open sets. It can be shown that $(M,\mathcal{T})$ being second-countable implies that the space is first-countable.
+	\vspace{3 mm}\\
+	Suppose $(M,\mathcal{T})$ is second-countable, which implies (contextually) that $\mathcal{B}=\left\{\mathcal{B}_k\right\}_{k\in I}$ is a basis of $\mathcal{T}$. For any $p\in M$, let $U\in\mathcal{N}(p)$ and $\mathcal{B}_p=\left\{V\in\mathcal{B}\;|\;p\in V\right\}$, which is countable. At the same time, since $\mathcal{B}$ is a basis, $\exists\,\mathcal{B}_k\in\mathcal{B}_p$ such that $\mathcal{B}_k\subseteq U$. Therefore, $\mathcal{B}_p$ generates $U$, implying the space is first-countable.  
+	
+	
+	
+	\section*{Topological Continuity}
+	Suppose $(M,\mathcal{T}_M)$ and $(N,\mathcal{T}_N)$ are topological spaces. The map $F:M\to N$ is called continuous (with respect to $\mathcal{T}_M$ and $\mathcal{T}_N$) if $V\in\mathcal{T}_N\implies F^{-1}(V)\in\mathcal{T}_M$, where $F^{-1}$ is the preimage of $F$. That is to say, for any $p\in M$, fixing the neighborhood $V\in\mathcal{N}(F(p))$ guarantees the existence of another neighborhood $U\in\mathcal{N}(p)$ such that $F(U)\subseteq V$. 
+	\vspace{3 mm}\\
+	Intuitively, assuming that $F$ is continuous, regardless of how small of a neighborhood $V$ is chosen around the output $F(p)$, a sufficiently small neighborhood $U$ exists around $p$ that is mapped to the inside of
+	$V$. 
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.55]
+			\shade[inner color=white, outer color=black!10]
+			(0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4)
+			.. controls (9,-3) and (11,-3.5) .. (13,-4)
+			.. controls (11,-2) and (10.5,-1) .. (10,0)
+			.. controls (7,1) and (3.5,1.5) .. (0,0)
+			-- cycle;
+			\draw (0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4);
+			\draw (0,0) .. controls (3.5,1.5) and (7,1) .. (10,0);
+			\draw (6,-4) .. controls (9,-3) and (11,-3.5) .. (13,-4);
+			\draw (10,0) .. controls (10.5,-1) and (11,-2) .. (13,-4);
+			\draw node at (4,-3.5) {\LARGE{$M$}};
+			\draw[dashed,thick,rotate=-3,black] (7,-1) ellipse (1.25 and 0.75);
+			\shade[inner color=white,outer color=gray!50,rotate=-3]
+			(7,-1) ellipse (1.25 and 0.75);
+			\filldraw (7,-1) circle (0.75 mm) node[anchor=north east]{\small{$p$}};
+			\draw node at (5,-1) {\large{$U$}};
+			
+			\shade[inner color=white, outer color=black!10]
+			(16,0) 
+			.. controls (14.5,-1) and (21,-1.5) .. (16,-4)
+			.. controls (22,-3) and (25,-3) .. (27,-4)
+			.. controls (26,-3) and (25.5,-1) .. (26,1)
+			.. controls (21,1.5) and (17,1) .. (16,0)
+			-- cycle;
+			\draw (16,0) .. controls (14.5,-1) and (21,-1.5) .. (16,-4);
+			\draw (16,0) .. controls (17,1) and (21,1.5) .. (26,1);
+			\draw (16,-4) .. controls (22,-3) and (25,-3) .. (27,-4);
+			\draw (26,1) .. controls (25.5,-1) and (26,-3) .. (27,-4);
+			\draw node at (28,-3.5) {\LARGE{$N$}};
+			\draw[dashed,thick,rotate=4,black] (21,-2.5) ellipse (3 and 1.75);
+			\shade[inner color=white,outer color=gray!30,rotate=4,gray!75]
+			(21,-2.5) ellipse (3 and 1.75);
+			\draw node at (24.5,0) {\large{$V$}};
+			\draw[dashed,thick,rotate=0,black] (21.5,-1) ellipse (1.5 and 1);
+			\shade[inner color=white,outer color=gray!50,rotate=0]
+			(21.5,-1) ellipse ((1.5 and 1);
+			\filldraw (22,-1.25) circle (0.75 mm) node[anchor=south east]{\small{$F(p)$}};
+			\draw node at (19.25,-1.5) {\small{$F(U)$}};
+			\draw (20,-1.5) -- (20.5,-1.25);
+			
+			\draw[-{latex}] (11.5,-1.5) .. controls (13,-1) and (15,-1) .. (16.5,-1.5);
+			\draw node at (14,-0.5) {\LARGE{$F$}};
+		\end{tikzpicture}
+		\caption{Continuous Mapping} 
+	\end{figure}\noindent
+	If $F:M\to N$ is continuous and bijective, and $F^{-1}$ is continuous, then $F$ is called a homeomorphism. Moreover, if $\forall\,p\in  M,\,\exists\,U\in\mathcal{N}(p)$ such that $F(U)\in\mathcal{T}_N$, then $\left.F\right|_U$ is called a local homeomorphism. It is said that a pair of topological spaces are (locally) homeomorphic if there exists a (local) homeomorphism between them.
+	\vspace{3 mm}\\
+	Now, provided that $s:\mathbb{N}\to M$ is any sequence, another sequence derived via composition can be built as given by $F(s):n\in\mathbb{N}\mapsto F(s_n)$. If $s\to p\implies F(s)\to F(p)$, then $F$ is said to be sequentially continuous.
+	\vspace{3 mm}\\
+	Suppose $F$ is continuous and $s\to p$. Upon letting $V\in\mathcal{N}(F(p))$, it directly follows from continuity of $F$ that $p\in F^{-1}(V)\in\mathcal{T}_M$. By supposition, $\exists\,m\in\mathbb{N}$ such that $n\geq m\implies s_n\in F^{-1}(V)$, which further implies $F(s_n)\in V$, and thus $F(s)\to F(p)$. More concisely, continuity implies sequential continuity.
+	\vspace{3 mm}\\ 
+	Provided that $(M,\mathcal{T}_M)$ is first countable and $F:M\to N$ is sequentially continuous, fix $p\in M$. Let $\{U_k\}_{k\in\mathbb{N}}$ be a countable neighborhood basis at $p$ such that $U_{k+1}\subseteq U_k$ for all $k$, and let $V\in\mathcal{N}(F(p))$. For each $k\in\mathbb{N}$, either $F(U_k)\subseteq V$, in which case $\exists\,U_k\in\mathcal{N}(p)$ satisfying $F(U_k)\subseteq V$, or $\exists\,s_k\in U_k$ such that $F(s_k)\notin V$. In the latter case, for all $k\in\mathbb{N}$, define a sequence $s:n\in\mathbb{N}\mapsto s_n\in U_n$. Given any $U\in\mathcal{N}(p),\,\exists\,m\in\mathbb{N}$ such that $U_m\subseteq U$, hence $s_n\in U$ for all $n\geq m$, implying $s\to p$. By sequential continuity, $F(s)\to F(p)$, and since $V\in\mathcal{N}(F(p)),\,\exists\,m'\in\mathbb{N}$ such that $n\geq m'\implies F(s_n)\in V$. Therefore, for $k=m'$, there does not exist any $q\in U_k$ such that $F(q)\notin V$, and thus $F(U_k)\subseteq V$. Since $V$ was arbitrary, $F$ is continuous at $p$. In other words, sequential continuity of $F$ implies continuity of $F$ in a first-countable space.
+	%Provided that $(M,\mathcal{T}_M)$ is first-countable and $F$ is sequentially continuous, assume (apriori) that $F$ is not continuous at $p\in M$. Then $\exists\, V\in\mathcal{N}(F(p))$ such that $U\in\mathcal{N}(p)\implies\exists\,q\in U$, where $F(q)\not\in V$. From first-countability, $\exists\,U_k\subseteq U$, such that $U=\left\{U_k\right\}_{k\in I}$ and $U_{k+1}\subseteq U_k$, where $k\in\mathbb{N}$ and $I\subseteq\mathbb{N}$. Now, construct the sequence $s:\mathbb{N}\to M$ such that for each $n\in\mathbb{N}$, one has $s_n\in U_n$, where $F(s_n)\not\in V$. Because $s_n\in U_n\subseteq U_m\subseteq U$ for $n\geq m$, it follows that $s\to p$. By sequential continuity, $F(s)\to F(p)$, and so for sufficiently large $n$, $F(s_n)\in V$, implying $F$ is continuous, which is a contradiction. Therefore, provided that $(M,\mathcal{T}_M)$ is first-countable, if $F$ is sequentially continuous, it must be continuous. 
+	
+	\section*{Metric Spaces}
+	From scratch, let $M\neq\varnothing$ be a collection of elements. Suppose $M$ admits a distance function $d:M\times M\to\mathbb{R}$. If the function $d$ has the following properties, then it is a metric, and $(M,d)$ is called a metric space:
+	\begin{itemize}
+		\item $\forall\,x,y\in M,\,d(x,y)\geq0$ -------------------------------------------------- Strict Non-negativity ------------------------
+		\item If $x,y\in M$, then $d(x,y)=0$ iff $x=y$ ------------------------------ Indistinguishability 
+		---------------------------
+		\item $\forall\,x,y\in M,\,d(x,y)=d(y,x)$ ------------------------------------------ Symmetrical ------------------------------------
+		\item $\forall\,x,y,z\in M,\,d(x,y)\leq d(x,z)+d(y,z)$ --------------------------- Triangle Inequality -----------------------------
+	\end{itemize}
+	\vspace{1 mm}
+	Intuitively, the metric quantifies how close any two points are with respect to a specific distance convention. Given this structure, one can construct a definition for open balls at points. In particular, provided that $\varepsilon>0$, the open $\varepsilon$-ball at $x\in M$ is the set given by $B_{\varepsilon}(x)=\left\{y\in M\;|\;d(x,y)<\varepsilon\right\}$. %Likewise, the $\varepsilon$-shell at $x\in M$ is given by $S_{\varepsilon}(x)=\partial B_{\varepsilon}(x)=\left\{y\in M\;|\;d(x,y)=\varepsilon\right\}$.
+	
+	\section*{Properties of Metric Spaces}
+	With a metric space at hand, a topology on $M$ can be constructed. Specifically, upon defining the set $\mathcal{T}_d=\left\{U\subseteq M\;|\;\forall\,x\in U,\,\exists\,\epsilon>0:B_{\varepsilon}(x)\subseteq U\right\}$, it can be identified as a topology. That is to say, given $U\subseteq M$, if all points in $U$ are individually equipped with at least one ball that resides entirely inside $U$, then the subset $U$ can be considered to be open. The proof is straight forward:
+	\begin{itemize}
+		\item By inspection, $\varnothing\in\mathcal{T}_d$. Likewise, for any $x\in M$, choose $\varepsilon>0$. It follows that $B_{\varepsilon}(x)\subset M$, which implies $M\in\mathcal{T}_d$. Therefore, it consequently holds that $\varnothing,M\in\mathcal{T}_d$.
+		\item Contextually, let $\left\{U_i\right\}_{i\in I}\subseteq\mathcal{T}_d$, and define $U=\bigcup_{i\in I}U_i$. Take $x\in U$, and so there necessarily exists some $k\in I$ such that $x\in U_k\in\mathcal{T}_d$. Thus, $\exists\,\varepsilon>0$ with $B_{\varepsilon}(x)\subseteq U_k\subseteq U$, which implies $U\in\mathcal{T}_d$.
+		\item Let $U_1,U_2\in\mathcal{T}_d$, and take $x\in U_1\cap U_2$, which implies $x\in U_1,U_2$. There necessarily exists $\varepsilon_1,\varepsilon_2>0$ such that $U_1\subseteq B_{\varepsilon_1}(x)$ and $U_2\subseteq B_{\varepsilon_2}(x)$. Take $\varepsilon=\min(\varepsilon_1,\varepsilon_2)$, which implies $B_{\varepsilon}(x)\subseteq U_1\cap U_2$, further implying $U_1\cap U_2\in\mathcal{T}_d$.
+	\end{itemize}
+	Consequently, every metric space induces a topological space. Now, consider two points $x\neq y$, and thus $d(x,y)>0$. Let $\varepsilon=\tfrac{1}{3}d(x,y)$, and suppose $z\in B_{\varepsilon}(x)\cap B_{\varepsilon}(y)$. It follows that $d(x,z),d(y,z)<\varepsilon$, and so by the triangle inequality, $d(x,y)\leq d(x,z)+d(y,z)<2\varepsilon=\tfrac{2}{3}d(x,y)$, which is impossible. Therefore, $B_{\varepsilon}(x)\cap B_{\varepsilon}(y)=\varnothing$, which implies $(M,\mathcal{T}_d)$ is Hausdorff. 
+	\vspace{3 mm}\\
+	Next, define the (countable) unit ball system at $x\in M$ to be $\mathcal{N}_B(x)=\left\{B_{1/n}(x)\;|\;n\in\mathbb{N}\right\}$, in which it follows that $\mathcal{N}_B(x)\subseteq\mathcal{T}_d$. Suppose $U\in\mathcal{N}(x)$, and note $\exists\,\varepsilon>0$ such that $B_{\varepsilon}(x)\subseteq U$. Likewise, $\exists\,n\in\mathbb{N}$ such that $1/n<\varepsilon$, which implies $B_{1/n}(x)\subseteq B_{\varepsilon}(x)$. Therefore, $B_{1/n}(x)\subseteq U$, and thus $\mathcal{N}_B(x)$, which is countable, generates $\mathcal{N}(x)$. It can now be concluded $(M,\mathcal{T}_d)$ is first-countable.   
+	
+	\section*{Euclidean Space}
+	For some $n\in\mathbb{N}$, consider the collection of $n$-tuples $\mathbb{R}^n=\left\{x=(x_1,\dots,x_n)\;|\;x_i\in\mathbb{R},\,i\in\mathbb{N}_n\right\}$. Using a metric, a notion of distance between points can be established. In particular, if $x=(x_1,\dots,x_n)$, by definition, $||x||=\sqrt{\sum_{i=1}^nx_i^2}$, which is the standard (Euclidean) norm on $\mathbb{R}^n$. Upon inspection, the distance function given by $d:(x,y)\in\mathbb{R}^n\times\mathbb{R}^n\mapsto||x-y||$ is a valid metric on $\mathbb{R}^n$. Therefore, $(\mathbb{R}^n,d)$ is a metric space which induces the Hausdorff first-countable topological space $(\mathbb{R}^n,\mathcal{T}_d)$.
+	\vspace{3 mm}\\
+	Now, construct the basis of $\mathbb{R}^n$ to be $\mathcal{B}_d=\left\{B_{\varepsilon}(q)\;|\;q\in\mathbb{Q}^n,\,\varepsilon\in\mathbb{Q}^+\right\}$. Suppose $U\subset\mathbb{R}^n$ is open, and let $x\in U$. Then $\exists\,\varepsilon>0$ such that $B_{\varepsilon}(x)\subseteq U$. Choose $q\in\mathbb{Q}^n$ such that $d(x,q)<\varepsilon/2$, and take $r\in\mathbb{Q}^+$, where $r<\varepsilon/2$. Then $B_r(q)\subseteq B_{\varepsilon}(x)\subseteq U$. Because $\mathbb{Q}^n$ is countable, $\mathcal{B}_d$ is countable. Therefore, $\mathcal{B}_d$ is a countable basis on $\mathcal{T}_d$, which implies $(\mathbb{R}^n,\mathcal{T}_d)$ is second-countable.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.64]
+			\draw[step=0.75,gray!75,very thin] (-4,-4) grid (4,4);
+			\draw (0,-4) -- (0,4);
+			\draw (-4,0) -- (4,0);
+			\draw[dashed,thick,black] (-2,-2) circle (1);
+			\shade[inner color=white,outer color=black!10] (-2,-2) circle (1);
+			\filldraw (-2,-2) circle (0.75 mm) node[anchor=north east]{$z$};
+			\draw (-2,-2) -- (-1.29289322,-1.29289322);
+			\draw node at (-1.8,-1.45) {\small{$\varepsilon$}};
+			\draw node at (-0.75,-3.25) {\small{$B_{\varepsilon}(z)$}};
+			\filldraw (-3,3) circle (0.75 mm) node[anchor=south west]{$x$};
+			\filldraw (2.25,-1.5) circle (0.75 mm) node[anchor=south west]{$y$};
+			\draw [dashed] (-3,3) -- (2.25,-1.5);
+			\draw node at (-1.5,0.5) {\small{$d(x,y)$}};
+			\draw node at (3,-3) {\LARGE{$\mathbb{R}^n$}};
+		\end{tikzpicture}
+		\caption{The Euclidean Metric}
+	\end{figure}\noindent
+	This space has a basis $\beta_n=\left\{\hat{x}_i\right\}_{i=1}^n$ such that $\forall\,x=(x^1,\dots,x^n)\in\mathbb{R}^n$, one can write (via the Einstein summation convention) $x=x^i\hat{x}_i$. Since $\beta_n$ is linearly independent, there exists a map $(x^1,\dots,x^n)\mapsto x^i$.
+	
+	\section*{Local Coordinate Charts}
+	Contextually, if there exists a local homeomorphism $\varphi:U\subseteq M\to\mathbb{R}^n$, which establishes a coordinate system on $M$, then $U$ and $\mathbb{R}^n$ are locally homeomorphic, and $M$ is locally Euclidean on $U$ by definition. To be precise, the pairing $(U,\varphi)$ is referred to as a (local) coordinate chart on $M$. 
+	\vspace{3 mm}\\\
+	Assume (apriori) that $M$ is locally homeomorphic to $\mathbb{R}^n$ and $\mathbb{R}^m$ ($n,m\in\mathbb{N}$), with respective coordinate charts $\varphi$ and $\psi$. Upon fixing $p\in M,\,\exists\,U,V\in\mathcal{N}(p)$. Provided that $W=U\,\cap\,V$, it follows that $\left.\varphi\right|_W$ and $\left.\psi\right|_W$ are local homeomorphisms onto open sets in $N$. Thus, the map $\psi\circ \varphi^{-1}:\varphi(W)\to\psi(W)$ is a local homeomorphism (bijection). Therefore, $\varphi(W)\cong\psi(W)$, which implies $\mathbb{R}^n\cong\mathbb{R}^m$, further implying $n=m$.    
+	\vspace{3 mm}\\
+	This uniqueness motivates the following definition. If $M$ is locally homeomorphic to $\mathbb{R}^n$, then it is locally Euclidean of dimension $n$ (i.e. $\mathrm{dim}(M)=n$). Note that in the literature, $\mathrm{dim}(M)$ has a compatible, but more primitive definition in which $\mathrm{dim}(M)=n\rlap{$\quad\not$}\implies M$ is homeomorphic to $\mathbb{R}^n$.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.65]
+			\shade[inner color=white, outer color=black!10]
+			(0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4)
+			.. controls (9,-3) and (11,-3.5) .. (13,-4)
+			.. controls (11,-2) and (10.5,-1) .. (10,0)
+			.. controls (7,1) and (3.5,1.5) .. (0,0)
+			-- cycle;
+			\draw (0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4);
+			\draw (0,0) .. controls (3.5,1.5) and (7,1) .. (10,0);
+			\draw (6,-4) .. controls (9,-3) and (11,-3.5) .. (13,-4);
+			\draw (10,0) .. controls (10.5,-1) and (11,-2) .. (13,-4);
+			\draw[dashed,thick,rotate=-3,black] (7,-1) ellipse (1.75 and 1);
+			\shade[inner color=white,outer color=gray!30,rotate=-3]
+			(7,-1) ellipse (1.75 and 1);
+			\draw node at (4,-3.5) {\LARGE{$M$}};
+			\draw node at  (5,-0.5) {\large{$U$}};
+			\filldraw (6.938,-1.365) circle (0.75 mm) node[anchor=south east]{$p$};
+			\draw[-{latex}] (12.5,-1) .. controls (14,-0.5) and (16,-0.5) .. (17.5,-1);
+			\draw node at (15,0) {\LARGE{$\varphi$}};
+			\draw[{latex}-] (12.5,-1.5) .. controls (14,-2) and (16,-2) .. (17.5,-1.5);
+			\draw node at (15,-2.5) {\LARGE{$\varphi^{-1}$}};
+			\draw[step=0.525,gray!75,very thin] (18.5,-3.5) grid (22.5,0.5);
+			\begin{scope}[xshift=20.5 cm,yshift=-1.5 cm]
+				\draw[dashed,thick,black,rotate=20] (0,0) ellipse (1.5 and 1.15);
+				\shade[inner color=white,outer color=gray!30,rotate=20]
+				(0,0) ellipse (1.5 and 1.15);
+			\end{scope}
+			\filldraw (20.5,-1.5) circle (0.75 mm) node[xshift=-3.5 mm,yshift=-3 mm]{$\varphi(p)$};
+			\draw node at (21.5,-3) {\large{$\varphi(U)$}};
+			\draw node at (17.5,-3.5) {\LARGE{$\mathbb{R}^n$}};
+		\end{tikzpicture}
+		\caption{Local Coordinate Chart Mapping}
+	\end{figure}\noindent
+	If $M$ is locally Euclidean of dimension $n$, for any respective (local) coordinate chart $\varphi:M\to\mathbb{R}^n$, there exists continuous (local) coordinate functions $x^i:M\to\mathbb{R}$ such that $\varphi:p\in M\mapsto(x^1(p),\dots,x^n(p))$. In this respect, for any $p\in M$, the $i^\text{th}$ coordinate of $p$ with respect to the chart $\varphi$ is the $i^\text{th}$ component of $\varphi(p)$.
+	\section*{Transition Maps}
+	Let $M$ be locally Euclidean of dimension $n$ equipped with (local) coordinate charts given by $\varphi:U\to D$ and $\psi:V\to R$ such that $U\,\cap\,V\neq\varnothing$. These charts describe the same region in their own coordinate systems, and because these charts are invertible, their respective coordinate systems can be transformed into each other via transition maps. In particular, provided that $D_\cap=\varphi(U\,\cap\,V)$ and $R_{\cap}=\psi(U\,\cap\,V)$, these transition maps can be (explicitly) defined by $\psi\circ\varphi^{-1}:D_\cap\to R_\cap$ and $\varphi\circ\psi^{-1}: R_\cap\to D_\cap$.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.6]
+			% M 
+			\shade[inner color=white, outer color=black!10]
+			(0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4)
+			.. controls (9,-3) and (11,-3.5) .. (13,-4)
+			.. controls (11,-2) and (10.5,-1) .. (10,0)
+			.. controls (7,1) and (3.5,1.5) .. (0,0)
+			-- cycle;
+			\draw (0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4);
+			\draw (0,0) .. controls (3.5,1.5) and (7,1) .. (10,0);
+			\draw (6,-4) .. controls (9,-3) and (11,-3.5) .. (13,-4);
+			\draw (10,0) .. controls (10.5,-1) and (11,-2) .. (13,-4);
+			\node at (11,0) {\LARGE{$M$}};
+			% U and V
+			\shade[inner color=white, outer color=gray!30, rotate=-3]
+			(6,-0.5) ellipse (1.75 and 1);
+			\shade[inner color=white, outer color=gray!30, rotate=-30]
+			(7.75,3) ellipse (1.5 and 1.125);
+			\draw[dashed, thin, rotate=-3, black, name path = A] (6,-0.5) ellipse (1.75 and 1);
+			\draw[dashed, thin, rotate=-30, black, name path = B] (7.75,3) ellipse (1.5 and 1.125);
+			
+			\fill [black!30, intersection segments={of=A and B, sequence={A0--B1--A2}}];
+			
+			\node at (5.85,-0.75)   {\large{$U$}};
+			\node at (8.35,-1.25) {\large{$V$}};
+			\node at (6.6,-2.85)  {\large{$U\,\cap\,V$}};
+			\draw (7.25,-0.875) -- (6.65,-2.5);
+			% Phi
+			\begin{scope}[xshift=12.75 cm, yshift=-3 cm]
+				\draw[-{latex},rotate=-20,thick] (-2.875, 0.25) .. controls (-0.875, 0.75) and (1.125, 0.75) .. (2.625, 0.25);
+				\draw[{latex}-,rotate=-20,thick] (-2.875, -0.25) .. controls (-0.875, -0.75) and (1.125, -0.75) .. (2.625, -0.25);
+			\end{scope}
+			\draw node at (1.65,-1.85) 
+			{\LARGE{$\varphi^{-1}$}};
+			\draw node at (3,-4.25) 
+			{\LARGE{$\varphi$}};
+			% Psi
+			\begin{scope}[xshift=2.5 cm, yshift=-3 cm]
+				\draw[-{latex},rotate=20,thick] (-2.875, 0.25) .. controls (-0.875, 0.75) and (1.125, 0.75) .. (2.625, 0.25);
+				\draw[{latex}-,rotate=20,thick] (-2.875, -0.25) .. controls (-0.875, -0.75) and (1.125, -0.75) .. (2.625, -0.25);
+			\end{scope}
+			\draw node at (13.5,-1.85) 
+			{\LARGE{$\psi$}};
+			\draw node at (12.75,-4.65) 
+			{\LARGE{$\psi^{-1}$}};
+			% D
+			\begin{scope}[xshift=-23.5 cm, yshift=-4 cm]
+				\draw[step=0.525,gray!75,very thin] (18.5,-3.5) grid (22.5,0.5);
+				\begin{scope}[xshift=20.5 cm,yshift=-1.5 cm]
+					\draw[dashed,thin,black,rotate=-30,name path=A] (0,0) ellipse (1.5 and 1.15);
+					\shade[inner color=white, outer color=gray!30, rotate=-30]
+					(0,0) ellipse (1.5 and 1.125);
+					\path[rotate=10,name path=B] (2,-0.5) ellipse (1.5 and 1.15);
+					\draw [dashed,black,thin, intersection segments={of=A and B, sequence={B1}}];
+					\fill [black!30, intersection segments={of=A and B, sequence={A0--B1--A2}}];
+				\end{scope}
+				\draw node at (20.5,-1.5) {\large{$D$}};
+				\draw (21.5,-1.75) -- (21.85,-2.65);
+				\draw node at (21.95,-3) {$D_\cap$};
+				\draw node at (20.5,1.25) {\LARGE{$\mathbb{R}^n$}};
+			\end{scope}
+			% R
+			\begin{scope}[xshift=-2.5 cm, yshift=-4 cm]
+				\draw[step=0.525,gray!75,very thin] (18.5,-3.5) grid (22.5,0.5);
+				\begin{scope}[xshift=20.5 cm,yshift=-1.5 cm]
+					\draw[dashed,thin,black,rotate=-40,name path=A] (0,0) ellipse (1.125 and 1.25);
+					\shade[inner color=white, outer color=gray!30, rotate=-40]
+					(0,0) ellipse (1.125 and 1.25);
+					\path[rotate=30,name path=B] (-1.5,0) ellipse (1.125 and 1.35);
+					\draw[dashed,black,thin, intersection segments={of=A and B, sequence={B0--B2}}];
+					\fill [black!30, intersection segments={of=A and B, sequence={A1--B2--B0}}];
+				\end{scope}
+				\draw node at (20.75,-1.5) {\large{$R$}};
+				\draw node at (19.25,-3) {$R_\cap$};
+				\draw (19.85,-1.85) -- (19.25,-2.65);
+				\draw node at (20.5,1.25) {\LARGE{$\mathbb{R}^n$}};
+			\end{scope}
+			% Transition
+			\begin{scope}[yshift=-6.25 cm]
+				\draw[-{latex},thick] (0, 0.25) -- (15, 0.25);
+				\draw[{latex}-,thick] (0, -0.25) -- (15, -0.25);
+				\draw node at (7.5,1) {\Large{$\psi\circ\varphi^{-1}$}};
+				\draw node at (7.5,-1) {\Large{$\varphi\circ\psi^{-1}$}};
+			\end{scope}
+		\end{tikzpicture}
+		\caption{Coordinate Transformation}
+	\end{figure}
+	
+	\section*{Differentiability}
+	\section*{Tangent Spaces}
+	At every point $p\in M$, by construction, there exists a vector space over $\mathbb{R}$ called the tangent space at $p$ denoted by $T_pM$ with a basis $\left\{\bm{e}_1(p),\cdots,\bm{e}_n(p)\right\}$. The tangent bundle on $M$ is defined as $TM\coloneq\bigcup_{p \in M}\left\{p\right\}\times T_p M$. One natural choice of basis on $T_pM$ is $\bm{e}_i(p)=\left.\partial_i\right|_p$ as will become evident later.  
+	\vspace{3 mm}\\
+	If $\bm{v}_p\in T_pM$, then it is called a tangent vector at $p$. Moreover, provided that $\bm\pi:\bm{v}_p\in T_pM\mapsto p$, the collection of smooth vector fields over $M$ can be constructed as $\Gamma(TM)\coloneq\left\{\bm{X}:M\to TM\,|\,\bm\pi\circ\bm{X}=\mathrm{id}_M, \bm{X}\;\text{smooth}\right\}$.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.65]
+			\shade[inner color=white, outer color=black!10]
+			(0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4)
+			.. controls (9,-3) and (11,-3.5) .. (13,-4)
+			.. controls (11,-2) and (10.5,-1) .. (10,0)
+			.. controls (7,1) and (3.5,1.5) .. (0,0)
+			-- cycle;
+			\draw (0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4);
+			\draw (0,0) .. controls (3.5,1.5) and (7,1) .. (10,0);
+			\draw (6,-4) .. controls (9,-3) and (11,-3.5) .. (13,-4);
+			\draw (10,0) .. controls (10.5,-1) and (11,-2) .. (13,-4);
+			\draw node at (4,-3.5) {\LARGE{$M$}};
+			
+			\filldraw[color=white] (1.5,0) -- (3.5,-1.5) -- (5.5,-1) -- (3.5,0.5) -- (1.5,0);
+			\draw (1.5,0) -- (3.5,-1.5) -- (5.5,-1) -- (3.5,0.5) -- (1.5,0);
+			\foreach \i in {0.25,0.5,0.75} 
+			{
+				\draw[gray,very thin] ({1.5-\i*(-2)},{0-\i*(-0.5)}) -- ({3.5-\i*(-2)},{-1.5-\i*(-0.5)});
+			}
+			\foreach \i in {0.25,0.5,0.75} 
+			{
+				\draw[gray,very thin] ({3.5+\i*(-2)},{-1.5+\i*(1.5)}) -- ({5.5+\i*(-2)},{-1+\i*(1.5)});
+			}
+			\draw node at (5.5,-0.25) {$T_pM$};
+			\filldraw (3.5,-0.5) circle (0.75 mm) node[anchor=south east]{$p$};
+			
+			\filldraw[color=white] (8,-1) -- (9.5,-3) -- (12,-3.25) -- (10.5,-1.25) -- (8,-1);
+			\draw (8,-1) -- (9.5,-3) -- (12,-3.25) -- (10.5,-1.25) -- (8,-1);
+			\foreach \i in {0.25,0.5,0.75} 
+			{
+				\draw[gray,very thin] ({8-\i*(-2.5)},{-1-\i*(0.25)}) -- ({9.5-\i*(-2.5)},{-3-\i*(0.25)});
+			}
+			\foreach \i in {0.25,0.5,0.75} 
+			{
+				\draw[gray,very thin] ({9.5-\i*(1.5)},{-3-\i*(-2)}) -- ({12-\i*(1.5)},{-3.25-\i*(-2)});
+			}
+			\filldraw (10,-2.125) circle (0.75 mm) node[anchor=north west]{$q$};
+			\draw node at (8.25,-2.5) {$T_qM$}; 
+			
+			\filldraw[fill=gray!5] (-6.5,-0.5) rectangle (-3.5,-3.5);
+			\filldraw[fill=gray!5] (-6.25,-0.25) rectangle (-3.25,-3.25);
+			\filldraw[fill=gray!5] (-6,0) rectangle (-3,-3);
+			\draw node at (-4.5,-1.5) {$T_pM$};
+			\draw node at (-1.5,-3.5) {\LARGE{$TM$}};
+		\end{tikzpicture}
+		\caption{Tangent Spaces \& Bundle}
+	\end{figure}\noindent
+	It should be stressed that the above figure is not to be taken literally. The tangent spaces are not geometrically tangent to $M$; they are local vector spaces that are isomorphic to $\mathbb{R}^n$ at each point in $M$ ($T_pM\cong\mathbb{R}^n$). 
+	
+	\section*{Curve Mappings}
+	Let $\gamma:I\subset\mathbb{R}\to M$ be a smooth map with a parameterized coordinate chart mapping $\alpha\coloneq\varphi\circ\gamma$. This allows for the construction of the curve $\gamma(I)$ and its chart mapping $\alpha(I)$ as seen in figures 1 and 3. 
+	\vspace{3 mm}\\
+	Now, define the coordinate projection operation to be $(\cdot)^i:y\in\mathbb{R}^n\mapsto x^i\circ\varphi^{-1}(y)$. So, the $i^{th}$ coordinate of $\alpha$ is thus $\alpha^i$. Lastly, define the coordinate separation over $\gamma$ by $\delta x^j_{\gamma}(a,b)\coloneq\alpha^j(b)-\alpha^j(a)$ for any $a,b\in I$.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.65]
+			\shade[inner color=white, outer color=black!10]
+			(0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4)
+			.. controls (9,-3) and (11,-3.5) .. (13,-4)
+			.. controls (11,-2) and (10.5,-1) .. (10,0)
+			.. controls (7,1) and (3.5,1.5) .. (0,0)
+			-- cycle;
+			\draw[{latex}-{latex}] (-1,0) -- (-1,-4);
+			\filldraw (-1,-1) circle (0.5 mm) node[anchor=east]
+			{$t_1$};
+			\filldraw (-1,-3) circle (0.5 mm) node[anchor=east]
+			{$t_0$};
+			\draw[thick] (-1,-1) -- (-1,-3);
+			\draw[-{latex}] (-0.5,-2) .. controls (1,-3) and (1.5,-3) .. (3,-2);
+			\draw node at (1.25,-2){\LARGE{$\gamma$}};
+			\draw node at (-0.25,-3.5){\LARGE{$\mathbb{R}$}};
+			\draw (0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4);
+			\draw (0,0) .. controls (3.5,1.5) and (7,1) .. (10,0);
+			\draw (6,-4) .. controls (9,-3) and (11,-3.5) .. (13,-4);
+			\draw (10,0) .. controls (10.5,-1) and (11,-2) .. (13,-4);
+			\draw node at (4,-3.5) {\LARGE{$M$}};
+			\draw (3.5,-0.5) .. controls (5,-3) and (7,-1.5) .. (10,-2.125);
+			\filldraw (3.5,-0.5) circle (0.75 mm) node[anchor=south east]{$\gamma(t_0)$};
+			\filldraw (10,-2.125) circle (0.75 mm) node[anchor=north west]{$\gamma(t_1)$};
+			\draw[-{latex}] (11.5,-1.5) .. controls (13,-1) and (15,-1) .. (16.5,-1.5);
+			\draw node at (14,-0.5) {\LARGE{$\varphi$}};
+			\draw[step=0.5,gray!50,very thin] (17,0) grid (20.5,-3.5);
+			\draw (17,0) rectangle (20.5,-3.5);
+			\filldraw (17.5,-1) circle (0.75 mm) node[anchor=south west]{$\alpha(t_0)$};
+			\filldraw (19.5,-2.5) circle (0.75 mm) node[anchor=north east]{$\alpha(t_1)$};
+			\draw (17.5,-1) .. controls (17.5,-2) and (18,-2.25) .. (19.5,-2.5);
+			\draw node at (16,-3.5) {\LARGE{$\mathbb{R}^n$}};
+			\draw[<->] (17.5,0.25) -- (19.5,0.25);
+			\draw node at (18.5,0.6) {$\delta x^1$};
+			\draw[<->] (20.75,-2.5) -- (20.75,-1);
+			\draw node at (21.25,-1.75) {$\delta x^2$};
+		\end{tikzpicture}
+		\caption{Curve Mappings ($n=2$)}
+	\end{figure}\noindent
+	The derivative of the parameterized coordinate chart $\alpha$ denoted by $\dot\alpha$ encodes the directionality of the curve mapping $\gamma$ (i.e. $\dot\gamma\in T_\gamma M$) in the local coordinates. Its components at $t\in I$ are given as such:
+	
+	\begin{equation*}
+		\dot\alpha^j(t)=\left.\dfrac{d\alpha^j}{dt}\right|_{t}=\lim\limits_{\tau\to t}\dfrac{\alpha^j(t)-\alpha^j(\tau)}{t-\tau}
+	\end{equation*}
+	\section*{Parallel Transport}
+	As each point in $M$ has a distinct tangent space, parallelism between vectors in separate tangent spaces is not well defined. To remedy this, first define (for convenience) $\bm{e}_i^{\gamma}:t\in I\mapsto\bm{e}_i(\gamma(t))$, and consider the tangent vectors $\bm{v}_a=v^i_a\bm{e}_i^{\gamma}(a)\in T_{\gamma(a)}M$ and $\bm{v}_b=v^i_b\bm{e}_i^{\gamma}(b)\in T_{\gamma(b)}M$, where $v^i_a,v^i_b\in\mathbb{R}$ such that $a,b\in I$.
+	\vspace{3 mm}\\
+	Then, define the parallel transport map $\mathcal{P}$ to be a one to one linear map that connects tangent spaces along a curve. In particular, by definition, provided that $\mathcal{P}_{a,b}^{\gamma}:T_{\gamma(a)}M\to T_{\gamma(b)}M$ for any $a,b\in I$, in accordance with $\left\{\bm{e}_i\right\}$, $\exists\,(\mathcal{P}^{\gamma})_i^j:I\times I\to\mathbb{R}$ such that:
+	\begin{equation*}
+		\mathcal{P}_{a,b}^{\gamma}\left(\bm{e}_i^{\gamma}(a)\right)=(\mathcal{P}^{\gamma})_i^j(a,b)\,\bm{e}_j^{\gamma}(b)\implies\mathcal{P}_{a,b}^{\gamma}(\bm{v}_a)=\mathcal{P}_{a,b}^{\gamma}\left(v_a^i\bm{e}_i^{\gamma}(a)\right)= v^i_a\,\mathcal{P}_{a,b}^{\gamma}\left(\bm{e}_i^{\gamma}(a)\right)=v^i_a(\mathcal{P}^{\gamma})_i^j(a,b)\,\bm{e}_j^{\gamma}(b)
+	\end{equation*}
+	\vspace{0 mm}
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.65]
+			\draw[color=gray,very thin] (0,0) grid (6,6);
+			\draw[black!75] (0,0) rectangle (6,6);
+			\draw node at (-2,0) {\LARGE{$T_{\gamma(a)}M$}};
+			\draw[-{latex},very thick] (0,0) -- (5,4) node[anchor=south east] {$\bm{v}_a$};
+			\draw[-{latex},very thick] (0,0) -- (0,1) node[anchor=south east] {$\bm{e}_2^{\gamma}(a)$};
+			\draw[-{latex},very thick] (0,0) -- (1,0) node[anchor=north west] {$\bm{e}_1^{\gamma}(a)$};
+			\filldraw (0,0) circle (0.75 mm);
+			\draw[-{latex}] (7,3) -- (13,3);
+			\draw node at (10,4) {\LARGE{$\mathcal{P}_{a,b}^{\gamma}$}};
+			
+			\draw[color=gray,very thin] (14,0) grid (20,6);
+			\draw[black!75] (14,0) rectangle (20,6);
+			\draw node at (12,0) {\LARGE{$T_{\gamma(b)}M$}};
+			\draw[-{latex},very thick,dashed] (14,0) -- (17,5) node[anchor=north west] {$\bm{v}_b$};
+			\draw[-{latex},very thick] (14,0) -- (19,2) node[anchor=south east,xshift=1 mm] {$\mathcal{P}_{a,b}^{\gamma}(\bm{v}_a)$};
+			\draw[-{latex},very thick] (14,0) -- (14,1) node[anchor=south east] {$\bm{e}_2^{\gamma}(b)$};
+			\draw[-{latex},very thick] (14,0) -- (15,0) node[anchor=north west] {$\bm{e}_1^{\gamma}(b)$};
+			\filldraw (14,0) circle (0.75 mm);
+		\end{tikzpicture}
+		\caption{Parallel Transport Map ($n=2$)}
+	\end{figure}\noindent
+	In figure 4, the tangent vector $\bm{v}_a\in T_{\gamma(a)}M$ is transported to $T_{\gamma(b)}M$. In general, even if $v_a^i=v_b^i$, the transported vector $\mathcal{P}_{a,b}^{\gamma}(\bm{v}_a)\neq\bm{v}_b$, which is quantified by the difference $\mathcal{P}_{a,b}^{\gamma}(\bm{v}_a)-\bm{v}_b$. Though, by definition, if $\mathcal{P}_{a,b}^{\gamma}(\bm{v}_a)=\bm{v}_b$, or equivalently, $\mathcal{P}_{b,a}^{\gamma}(\bm{v}_b)=\bm{v}_a$, it is said that $\bm{v}_a\parallel\bm{v}_b$ (i.e. $\bm{v}_a$ and $\bm{v}_b$ are parallel).
+	
+	
+	\section*{Covariant Differentiation of Vector Fields}
+	Upon inspection, $\mathcal{P}^{\gamma}_{a,a}=\mathrm{id}_{T_{\gamma(a)}M}$, and so in order to ensure that $\mathcal{P}$ is a smooth operation (along any curve), there must exist smooth functions (connection coefficients) $\Gamma_{ij}^k\in C^{\infty}(M,\mathbb{R})$ and $(\Gamma^{\gamma})_{ij}^k\in C^{\infty}(I\times I,\mathbb{R})$, where $(\Gamma^{\gamma})_{ij}^k(t,t)=\Gamma_{ij}^k(\gamma(t))$, such that, via a local expansion (Taylor's Theorem) along the curve at the point $\gamma(a)$, $(\mathcal{P}^{\gamma})_i^k(a,b)=\delta_i^k-(\Gamma^{\gamma})_{ij}^k(a,b)\,\delta x^j_{\gamma}(a,b)+\left.\mathcal{O}\left(\delta x^j_{\gamma}\delta x^k_{\gamma}\right)\right|_{(a,b)}$ for any $a,b\in I$.  
+	\vspace{3 mm}\\
+	At this point, consider the vector field $\bm{V}\in\Gamma(TM): p\mapsto V^i(p)\,\bm{e}_i(p)$, and construct its restriction to $\gamma$ given by $\bm{V}_{\gamma}=\bm{V}(\gamma)=V^i_{\gamma}\,\bm{e}_i^{\gamma}$ (i.e. $V^i(\gamma)=V^i_{\gamma}$). Given $0,\delta t\in I$, the expression $\mathcal{P}^{\gamma}_{\delta t,0}(\bm{V}_{\gamma}(\delta t))-\bm{V}_\gamma(0)$ quantifies the change in $\bm{V}$ relative to $\gamma(0)$ as it is parallel transported from $\gamma(\delta t)$ back to $\gamma(0)$ along the curve:  
+	\vspace{1.5 mm}
+	\begin{align*}
+		\mathcal{P}_{\delta t,0}^{\gamma}&(\bm{V}_{\gamma}(\delta t))-\bm{V}_\gamma(0)=V^i_{\gamma}(\delta t)\left(\mathcal{P}^{\gamma}\right)_i^k(\delta t,0)\,\bm{e}_k^{\gamma}(0)-V^i_{\gamma}(0)\,\bm{e}_i^{\gamma}(0)
+		\\[4 mm]
+		&=V_{\gamma}^i(\delta t)\left(\delta_i^k-(\Gamma^{\gamma})_{ij}^k(\delta t,0)\,\delta x^j_{\gamma}(\delta t,0)+\left.\mathcal{O}\left(\delta x^j_{\gamma}\delta x^k_{\gamma}\right)\right|_{(\delta t,0)}\right)\bm{e}_k^{\gamma}(0)-V^k_{\gamma}(0)\,\bm{e}_k^{\gamma}(0)
+		\\[4 mm]
+		&=\left(V^k_{\gamma}(\delta t)-V^k_{\gamma}(0)+V^i_{\gamma}(\delta t)(\Gamma^{\gamma})_{ij}^k(\delta t,0)\,\delta x^j_{\gamma}(0,\delta t)+\left.\mathcal{O}\left(\delta x^j_{\gamma}\delta x^k_{\gamma}\right)\right|_{(0,\delta t)}\right)\bm{e}_k^{\gamma}(0)
+		\\[4 mm]
+		&=\left(\left.\partial_jV^k\right|_{\gamma(0)}\delta x^j_{\gamma}(0,\delta t)+V^i_{\gamma}(\delta t)\,(\Gamma^{\gamma})_{ij}^k(\delta t,0)\,\delta x^j_{\gamma}(0,\delta t)+\left.\mathcal{O}\left(\delta x^j_{\gamma}\delta x^k_{\gamma}\right)\right|_{(0,\delta t)}\right)\bm{e}_k^{\gamma}(0)
+		\\[4 mm]
+		&=\delta x^j_{\gamma}(0,\delta t)\left(\left.\partial_jV^k\right|_{\gamma(0)}+(\Gamma^{\gamma})_{ij}^k(\delta t,0)V^i_{\gamma}(\delta t)+\mathcal{O}\left(\delta x^k_{\gamma}(0,\delta t)\right)\right)\bm{e}_k^{\gamma}(0)
+	\end{align*}
+	\begin{center}
+		Take particular note of the shorthand: $\left.\partial_j\right|_p=\left.\dfrac{\partial}{\partial x^j}\right|_p:f\in C^{1}(M,\mathbb{R})\mapsto\left.\dfrac{\partial\left(f\circ\varphi^{-1}\right)}{\partial x^j}\right|_{\varphi(p)}$
+	\end{center}
+	\vspace{1 mm}
+	Now, let $\bm{u}=u^j\bm{e}_j\in\Gamma(TM)$ such that $\bm{u}(\gamma)=\dot\gamma$, or equivalently, $u^j(\gamma)=\dot\alpha^j$. Observe how $\bm{u}$ links $\varphi$ to the basis on $TM$ (see Appendix A). Also, take note $\mathcal{O}\left(\delta x^k_{\gamma}(0,\delta t)\right)=\mathcal{O}(\delta t)$ via the MVT, thereby supplementing the construction of the covariant derivative of the vector field $\bm{V}$ with respect to $\gamma$ at $p=\gamma(0)$:
+	\begin{align*}
+		\nabla_{\bm{u}}\bm{V}(p)&\coloneq\nabla_{\dot\gamma}\bm{V}(0)\coloneq\left.\dfrac{d}{dt}\right|_{t=0}\mathcal{P}^\gamma_{t,0}(\bm{V}_\gamma(t))=\lim\limits_{\delta t\to0}\dfrac{\mathcal{P}_{\delta t,0}^{\gamma}(\bm{V}_{\gamma}(\delta t))-\bm{V}_{\gamma}(0)}{\delta t}
+		\\[4 mm]
+		&=\lim\limits_{\delta t\to0}\dfrac{\delta x^j_{\gamma}(0,\delta t)}{\delta t}\left(\left.\partial_jV^k\right|_{\gamma(0)}+(\Gamma^{\gamma})_{ij}^k(\delta t,0)\,V^i_{\gamma}(\delta t)+\mathcal{O}(\delta t)\right)\bm{e}_k^\gamma(0)
+		\\[4 mm]
+		&=\lim\limits_{\delta t\to 0}\dfrac{\alpha^j(\delta t)-\alpha^j(0)}{\delta t}\left(\left.\partial_jV^k\right|_{\gamma(0)}+\lim\limits_{\delta t\to0}(\Gamma^{\gamma})_{ij}^k(\delta t,0)\lim\limits_{\delta t\to0}V^i_{\gamma}(\delta t)+\lim\limits_{\delta t\to0}\mathcal{O}(\delta t)\right)\bm{e}_k^\gamma(0)
+		\\[4 mm]
+		&=\left.\dfrac{d\alpha^j}{dt}\right|_{t=0}\left(\left.\partial_jV^k\right|_{\gamma(0)}+(\Gamma^{\gamma})_{ij}^k(0,0)\,V^i_\gamma(0)\right)\bm{e}_k^\gamma(0)
+		\\[4 mm]
+		&=u^j(p)\left(\left.\partial_jV^k\right|_p+\Gamma_{ij}^k(p)V^i(p)\right)\bm{e}_k(p)\quad\text{with shorthand}\quad(\nabla_j\bm{V})^k=\partial_jV^k+\Gamma_{ij}^kV^i
+	\end{align*}
+	The above expression, is evaluated locally at $p$ (i.e. lacks global dependence on $\gamma$), and is, by definition, the covariant derivative of $\bm{V}$ in the direction $\bm{u}$ at the point $p$. As the choices of $p$ and $\bm{u}$ (or $\gamma$) were arbitrary, this operation holds for any such choices, thereby establishing the vector field(s):   
+	\vspace{1 mm}
+	\begin{center}
+		\begin{LARGE}
+			$\boxed{\;\nabla_{\bm{u}}\bm{V}=u^j\left(\partial_jV^k+\Gamma_{ij}^kV^i\right)\bm{e}_k\;}\quad\boxed{\;\nabla_j\,\bm{e}_i=\Gamma_{ij}^k\,\bm{e}_k\;}$
+		\end{LARGE}
+		\vspace{2 mm}\\
+		\begin{large}
+			The Covariant Derivative on Vector Fields 
+		\end{large}
+	\end{center} 
+	
+	\section*{Properties of the Connection}
+	At this point, it should be apparent as to what the connection coefficients are. To be specific, observe that $\Gamma^k_{ij}=(\nabla_j\,\bm{e}_i)^k$.
+	In other words, $\Gamma^{k}_{ij}$ is the coefficient of the $k^{\text{th}}$ component relative to the frame $\{\bm e_i\}$ of the covariant derivative of the basis vector (field) $\bm{e}_i$ in the $\bm{e}_j$ direction. It thus quantifies how $\bm{e}_i$ deviates from being parallel when transported along the $\bm{e}_j$ direction, as resolved against the $\bm{e}_k$ direction.
+	\vspace{3 mm}\\
+	Let $\bm{X},\bm{Y},\bm{Z}\in\Gamma(TM)$, and let $f,g\in C^{\infty}(M,\mathbb{R})$. Also, consider the scalars $a,b\in\mathbb{R}$. Conventionally, the directional derivative of $f$ along $\bm{X}=X^i \bm{e}_i$ is given by $D_{\bm{X}}f=\bm{X}[f]=X^i\partial_if$ (see Appendix A). Hence the natural basis $\left\{\partial_i|_p\right\}$ on $T_pM$. In this light, the following properties hold (upon inspection) point-wise:
+	\vspace{2 mm}
+	\begin{itemize}
+		\item $\nabla_{\bm{Z}}\left(a\bm{X}+b\bm{Y}\right)=a\nabla_{\bm{Z}}\bm{X}+b\nabla_{\bm{Z}}\bm{Y}$ -------------------------------------- Linearity in Second Slot ------------------ 
+		\item $\nabla_{f\bm{X}+g\bm{Y}}\bm{Z}=f\,\nabla_{\bm{X}}\bm{Z}+g\nabla_{\bm{Y}}\bm{Z}$ ------------------------------------------ Functional Linearity in First Slot ------
+		\item $\nabla_{\bm{X}}f\coloneq\bm{X}[f]$\, --------------------------------------------------------------- Scalar Field Compatibility ---------------
+		\item $\nabla_{\bm{Y}}\left(f\,\bm{X}\right)=\left(\nabla_{\bm{Y}}f\right)\bm{X}+f\,\nabla_{\bm{Y}}\bm{X}$ --------------------------------------- Leibniz Rule ---------------------------------
+	\end{itemize}
+	\vspace{3 mm}
+	Any operation that contains the above structure (minus scalar field compatibility) is known as a linear (affine) connection, which is denoted by $\nabla$. In this regard, every such $\mathcal{P}$ induces a linear connection.
+	
+	\section*{Refining Parallel Transport} 
+	Here, the notion of parallel transport will be refined using the connection. By definition, $\bm{V}\in\Gamma(TM)$ is said to be parallel along $\gamma(I)$ if for any such $a,b\in I$, $\bm{V}_{\gamma}(a)\parallel\bm{V}_{\gamma}(b)$, or equivalently, $\mathcal{P}_{a,b}^{\gamma}(\bm{V}_{\gamma}(a))=\bm{V}_{\gamma}(b)$.
+	\vspace{3 mm}\\
+	From the previous context, it follows that if $\bm{V}$ is parallel along $\gamma(I)$, then $\nabla_{\dot\gamma}\bm{V}=0$ by definition. In the appropriate context, the converse will now be developed. In particular, in accordance with the definition of $\nabla_{\dot\gamma}\bm{V}$, for any location along the curve mapping $\gamma$, one can write:
+	\vspace{2 mm}
+	\begin{center}
+		$\nabla_{\dot\gamma}\bm{V}(t)=\left.\frac{d}{d\tau}\right|_{\tau=t}\mathcal{P}^\gamma_{\tau,t}(\bm{V}_\gamma(\tau))=\left.\frac{d}{d\tau}\right|_{\tau=t}\mathcal{P}_{b,t}^\gamma\mathcal{P}^\gamma_{\tau,b}(\bm{V}_\gamma(\tau))=\mathcal{P}^\gamma_{b,t}\left.\frac{d}{d\tau}\right|_{\tau=t}\mathcal{P}^\gamma_{\tau,b}(\bm{V}_\gamma(\tau))=\mathcal{P}^\gamma_{b,t}\frac{d}{dt}\mathcal{P}^\gamma_{t,b}(\bm{V}_\gamma(t))$ 
+	\end{center}
+	\vspace{2 mm}
+	By the FTC, $\int_a^b\frac{d}{dt}\mathcal{P}_{t,b}^\gamma(\bm{V}_\gamma(t))\,dt=\mathcal{P}_{b,b}^\gamma(\bm{V}_\gamma(b))-\mathcal{P}_{a,b}^\gamma(\bm{V}_\gamma(a))=\bm{V}_\gamma(b)-\mathcal{P}_{a,b}^\gamma(\bm{V}_\gamma(a))$. Therefore, in the above equality, upon isolating the term $\frac{d}{dt}\mathcal{P}_{t,b}^\gamma(\bm{V}_\gamma(t))$ via a rearrangement of $\mathcal{P}$, it directly follows that:
+	\begin{center}
+		\vspace{2 mm}
+		\large
+		$\boxed{\;\mathcal{P}_{a,b}^{\gamma}\left(\bm{V}_{\gamma}(a)\right)=\bm{V}_{\gamma}(b)-\int_{a}^{b}\mathcal{P}_{t,b}^{\gamma}\left(\nabla_{\dot\gamma}\bm{V}(t)\right)dt\quad\text{where}\quad\mathcal{P}_{t,b}^{\gamma}(\nabla_{\dot\gamma}\bm{V}(t))=\tfrac{d}{dt}\mathcal{P}_{t,b}^{\gamma}(\bm{V}_{\gamma}(t))\;}$  
+		\vspace{1.5 mm}\\
+		The Fundamental Theorem of Calculus on Connections (FTCC)
+	\end{center}
+	\vspace{2 mm}
+	By inspection, the FTCC implies that if $\nabla_{\dot\gamma}\bm{V}=0$, then $\forall\,a,b\in I$, $\mathcal{P}_{a,b}^{\gamma}(\bm{V}_{\gamma}(a))=\bm{V}_{\gamma}(b)$, or equivalently, $\bm{V}_{\gamma}(a)\parallel\bm{V}_{\gamma}(b)$, which directly implies $\bm{V}$ is parallel along $\gamma(I)$. Therefore, $\bm{V}$ is parallel along $\gamma(I)$ if and only if $\nabla_{\dot\gamma}\bm{V}=0$. Thus, as this holds for any such $\gamma$, $\mathcal{P}\leftrightarrow\nabla$ is a unique correspondence.
+	\vspace{3 mm}\\
+	At this point, $\mathcal{P}$ can be extracted from $\nabla$. Given that $\bm{V}$ is parallel along $\gamma(I)$ and $\bm{V}_\gamma(0)=\bm{v}_p\in T_pM$, it follows that $\bm{V}_{\gamma}(t)=\mathcal{P}_{0,t}^{\gamma}(\bm{v}_p)$, where $\nabla_{\dot\gamma}\bm{V}=0$. Upon a coordinate expansion, this directly implies that $\dot\alpha^j(\nabla_j\bm{V})^k\,\bm{e}_k^\gamma=0$, implying due to linear independence that $\dot\alpha^j(\nabla_j\bm{V})^k=\dot\alpha^j\partial_jV^k(\gamma)+\dot\alpha^j\,\Gamma_{ij}^k(\gamma)V_{\gamma}^i=0$, which corresponds to the uniquely determined IVP given as such:
+	\vspace{2 mm}
+	\begin{center}
+		\begin{Large}
+			$\boxed{\vphantom{\dfrac{0}{0}}\;\bm{V}_{\gamma}(t)=\mathcal{P}_{0,t}^{\gamma}(\bm{v}_p)\quad\text{iff}\quad\dot{V}_{\gamma}^k+\dot\alpha^j\,\Gamma_{ij}^k(\gamma)V_{\gamma}^i=0\quad\text{s.t.}\quad\bm{V}_{\gamma}(0)=\bm{v}_p\;}$  
+		\end{Large}
+		\vspace{2 mm}\\
+		\large
+		The Parallel Transport Equation
+	\end{center}
+	\vspace{2 mm}
+	Alternatively, by iterating the FTCC and applying Cauchy's repeated integration formula (on the remainder), the coordinate-free Taylor expansion for the parallel transport operation can be deduced as follows:
+	\[
+	\mathcal{P}_{a,b}^{\gamma}(\bm{V}_\gamma(a))=\sum\limits_{k=0}^N\dfrac{(-1)^k(b-a)^k}{k!}\nabla^k_{\dot\gamma}\bm{V}(b)+\frac{(-1)^N}{N!}\int_{a}^{b}(t-a)^N\mathcal{P}_{t,b}^{\gamma}\left(\nabla_{\dot\gamma(t)}^{N+1}\bm{V}\right)dt=\bm{V}_\gamma(b)-(b-a)\nabla_{\dot\gamma}\bm{V}(b)+\dots
+	\]
+	
+	\section*{Geodesics}
+	By definition, a geodesic is a curve whose tangents are parallel. More concretely, a curve mapping $\gamma:I\to M$ is said to be a geodesic if for any $a,b\in I$, it satisfies $\dot\gamma(a)\parallel\dot\gamma(b)$. Using shorthand, $\nabla_{\dot\gamma}\dot\gamma=0$. Contextually, provided that $\dot\gamma(0)=\bm{v}_p\in T_pM$, it directly follows from the parallel transport equation:
+	
+	\begin{figure}[ht]
+		\centering
+		
+		\begin{minipage}[t]{0.48\textwidth}
+			\raggedright
+			\vspace{0pt}
+			
+			$\dfrac{d}{dt}\dfrac{d\alpha^k}{dt} + \dfrac{d\alpha^j}{dt} \Gamma_{ij}^k(\gamma) \dfrac{d\alpha^i}{dt} = 0 \quad\text{where}\quad V_{\gamma}^k = \dot\alpha^k$
+			
+			\vspace{4mm}
+			
+			So, given an initial point and direction, which are encoded by $\bm{v}_p$, the respective geodesic could be uniquely determined in accordance with $\Gamma_{ij}^k$ (i.e.$\nabla$) via the following (second order) IVP:
+			
+			\vspace{3mm}
+			\centering
+			$\boxed{\dfrac{d^2\alpha^k}{dt^2} + \Gamma_{ij}^k(\gamma) \dfrac{d\alpha^i}{dt} \dfrac{d\alpha^j}{dt} = 0 \quad\text{s.t.}\quad \dot\gamma(0) = \bm{v}_p\,}$
+			
+			\vspace{3mm}
+			
+			The Geodesic Equation
+		\end{minipage}%
+		\hfill
+		\begin{minipage}[t]{0.48\textwidth}
+			\centering
+			\vspace{0pt}
+			
+			\begin{tikzpicture}
+				\node[anchor=south west, inner sep=0] (image) at (0,0)
+				{\includegraphics[width=\linewidth]{Geodesic Map-modified.png}};
+				
+				\begin{scope}[x={(image.south east)}, y={(image.north west)}]
+					\foreach \i in {1,...,9}
+					\draw[very thin, gray] (\i/10, 0) -- (\i/10, 1);
+					
+					\foreach \i in {1,...,5}
+					\draw[very thin, gray] (0, {(10/53)*\i - 7/106}) -- (1, {(10/53)*\i - 7/106});
+					
+					\draw[thick] (0,0) rectangle (1,1);
+					
+					\draw[thick, smooth, black] plot coordinates {
+						(0.19527,0.4672) (0.2,0.47556)    (0.25,0.5585)
+						(0.3,0.621)     (0.35,0.6653)     (0.4,0.695)
+						(0.45,0.7082)   (0.5,0.7075)      (0.55,0.6914)
+						(0.6,0.6608)    (0.65,0.6134)     (0.7,0.549)
+						(0.75,0.4637)   (0.8,0.3558)      (0.8117,0.32644)
+					};
+					
+					\filldraw[fill=black, draw=black] (0.19527,0.4672) circle (1mm);
+					\filldraw[fill=black, draw=black] (0.8117,0.32644)  circle (1mm);
+				\end{scope}
+			\end{tikzpicture}
+			\caption{Geodesic on Mercator Map}
+		\end{minipage}
+		
+	\end{figure}\noindent
+	Regarding figure 5, the connection coefficients are derived from the Mercator map itself in conjunction with the intrinsic (spherical) geometry of Earth's surface via the Levi-Civita connection $\nabla^{(g)}$, which will later be addressed. It is without coincidence that the resultant geodesics generated by the Levi-Civita connection (locally) minimize the path length between their respective end points on the map of Earth’s surface.
+	\section*{Cotangent Spaces}
+	By construction, suppose that at every point $p\in M$ there exists a complimentary vector (cotangent) space at $p$ denoted by $T^*_pM$ with a co-coordinate basis $\left\{\bm{e}^1_p,\cdots,\bm{e}^n_p\right\}$. This is a dual basis of covectors/one-forms/linear functionals with the property that $\bm{e}^j_p(\bm{e}_i(p))=\delta_i^j$. The cotangent bundle on $M$ is analogously defined as $T^*M\coloneq\bigcup_{p \in M}\left\{p\right\}\times T_p^*M$. The tangential bundle structure on $M$ is thus given by $\mathscr{T}(M)\coloneq(TM,T^*M)$.  
+	\vspace{3 mm}\\
+	Observe that for any $\bm{v}_p\in T_pM$ and $f\in C^{\infty}(M,\mathbb{R})$, one has $\bm{v}_p=\bm{e}_p^i(\bm{v}_p)\,\bm{e}_i(p)$, and so it follows that $\bm{v}_p[f]=\bm{e}_p^i(\bm{v}_p)\,\bm{e}_i(p)[f]=\partial_if(p)\,\bm{e}_p^i(\bm{v}_p)$, which motivates the differential one-form $df:\bm{v}\in TM\mapsto\bm{v}[f]$, which implies $df=\partial_if\bm{e}^i$. Clearly, $dx^j=\partial_ix^j\bm{e}^i=\delta_i^j\bm{e}^i=\bm{e}^j$, which implies $df=\partial_ifdx^i$ as expected.
+	\vspace{3 mm}\\
+	Provided that $\bm\pi^*:\omega_p\in T_p^*M\mapsto p$, the collection of smooth covector fields over $M$ can be constructed as $\Gamma(T^*M)\coloneq\left\{\theta:M\to T^*M\,|\,\bm\pi^*\circ\theta=\mathrm{id}_M, \theta\;\text{smooth}\right\}$. So, if $\omega=\omega_k\bm{e}^k\in\Gamma(T^*M)$ and $\bm{v}_p=v^j_p\bm{e}_j(p)$, then $\omega(\bm{v}_p)=\omega_k(p)\,\bm{e}_p^k(v_p^j\bm{e}_j(p))=\omega_k(p)v_p^j\bm{e}_p^k(\bm{e}_j(p))=\omega_k(p)v_p^j\delta_j^k=\omega_k(p)v_p^k$. In this respect, given $\bm{V}\in\Gamma(TM)$, in the proper context, the scalar field $\omega(\bm{V}):p\in M\mapsto\omega_k(p)V^k(p)$ can be naturally constructed.
+	\vspace{3 mm}\\
+	At this point, tangent vectors can be concretely assigned coordinates with a chart. Given any tangent vector $\bm{v}\in TM$, define the tangent chart $\varphi_*:TM\to\mathbb{R}^n$ by $\varphi_*(\bm{v})\coloneq\left(v^1,\cdots,v^n\right)$, where $v^i=\bm{e}^i_{\bm\pi\circ\bm{v}}(\bm{v})$.
+	
+	\section*{Connection 1-Forms}
+	Looking back, it may seem as though in order to specify the connection $\nabla$, one would need a function of the form $\tilde{\Gamma}:M\times\mathbb{N}_n^3\to\mathbb{R},(p\,;i,j,k)\mapsto\Gamma_{ij}^k(p)$ to be established as the connection coefficients induce the connection. However, this is not entirely true. 
+	\vspace{3 mm}\\
+	Define the connection one-forms to be $\Gamma_i^k\coloneq\Gamma_{ij}^k\,\bm{e}^j$, implying $\nabla_{\bm{u}}\,\bm{e}_i=u^j\,\Gamma_{ij}^k\,\bm{e}_k=\Gamma_{ij}^k\,\bm{e}^j(\bm{u})\,\bm{e}_k=\Gamma_i^k(\bm{u})\,\bm{e}_k$, which further implies, because $\left\{\bm{e}_i\right\}$ is linearly independent, the connection one-forms completely determine the structure of $\nabla$. Thus, one could instead use a function of the form $\tilde\Gamma_*:TM\times\mathbb{N}_n^2\to\mathbb{R},(\bm{u}\,;i,k)\mapsto\Gamma_i^k(\bm{u})$, which packages the information more compactly. To be clear, contextually, one can write:
+	\begin{center}
+		\large
+		$(\nabla_{\bm{u}}\bm{V})^k=\bm{u}\left[V^k\right]+\Gamma_i^k(\bm{u})V^i\quad\text{and}\quad\dot{V}_{\gamma}^k+\Gamma_i^k(\dot\gamma)V_{\gamma}^i=0\quad\text{(for parallel transport)}$ 
+	\end{center}
+	
+	\section*{Connecting the Cotangent Bundle}
+	In pursuit of extending the connection $\nabla$ into being applicable to $\Gamma(T^*M)$, it is natural to construct the dual parallel transport map $\mathcal{P}^*$ contextually defined by $(\mathcal{P}^\gamma_{a,b})^*:\omega\in T^*_{\gamma(b)}M\mapsto\omega\circ\mathcal{P}^\gamma_{a,b}\in T^*_{\gamma(a)}M$. 
+	\vspace{3 mm}\\
+	The map $\mathcal{P}^{\gamma}_{a,b}$ pulls back covectors from $\gamma(a)$ to $\gamma(b)$ with respect to the curve mapping $\gamma$. This establishes a parallelism convention on $T^*M$, enabling covectors to be compared on $M$ analogously to tangent vectors.   
+	\vspace{3 mm}\\
+	Suppose that $\omega\in\Gamma(T^*M)$ in the sense that $\omega_p\in T_p^*M$ for each $p\in M$. Now, in the appropriate context, let $\dot\gamma=\bm{u}(\gamma)$ such that $\gamma(0)=p$, and let $\bm{V}_\gamma$ be the curve restriction of $\bm{V}\in\Gamma(TM)$. Then, define the covariant derivative of $\omega$ in the $\bm{u}$ direction at $p$ to be $(\nabla_{\bm{u}}\,\omega)_p\coloneq\left.\frac{d}{dt}\right|_{t=0}(\mathcal{P}_{0,t}^\gamma)^*\omega_{\gamma(t)}$. Thus, via the auxiliary field $\bm{V}$:
+	\begin{align*}
+		\nabla_{\bm{u}}\,&\omega\,(\bm{V}(p))=\lim\limits_{\delta t\to0}\dfrac{(\mathcal{P}_{0,\delta t}^{\gamma})^*\omega_{\gamma(\delta t)}(\bm{V}_\gamma(0))-\omega_{\gamma(0)}(\bm{V}_\gamma(0))}{\delta t}=\lim\limits_{\delta t\to0}\dfrac{\omega_{\gamma(\delta t)}\left(\mathcal{P}_{0,\delta t}^{\gamma}(\bm{V}_{\gamma}(0))\right)-\omega_{\gamma(0)}(\bm{V}_\gamma(0))}{\delta t}
+		\\[4 mm]
+		&=\lim\limits_{\delta t\to0}\dfrac{\omega_{\gamma(\delta t)}\left(\mathcal{P}_{0,\delta t}^{\gamma}(\bm{V}_{\gamma}(0))\right)-\omega_{\gamma(\delta t)}(\bm{V}_\gamma(\delta t))}{\delta t}+\lim\limits_{\delta t\to0}\dfrac{\omega_{\gamma(\delta t)}(\bm{V}_\gamma(\delta t))-\omega_{\gamma(0)}(\bm{V}_\gamma(0))}{\delta t}
+		\\[4 mm]
+		&=\lim\limits_{\delta t\to0}\omega_{\gamma(\delta t)}\left(\dfrac{\mathcal{P}_{0,\delta t}^{\gamma}(\bm{V}_{\gamma}(0))-\bm{V}_\gamma(\delta t)}{\delta t}\right)+\left.\dfrac{d}{dt}\right|_{t=0}\omega_{\gamma(t)}(\bm{V}_\gamma(t))
+		\\[4 mm]
+		&=-\lim\limits_{\delta t\to0}\omega_{\gamma(\delta t)}\left(\mathcal{P}^\gamma_{0,\delta t}\left(\dfrac{\mathcal{P}^\gamma_{\delta t,0}(\bm{V}_\gamma(\delta t))-\bm{V}_\gamma(0)}{\delta t}\right)\right)+\left.\dfrac{d}{dt}\right|_{t=0}\omega(\bm{V})(\gamma(t))
+		\\[4 mm]
+		&=-\omega_{\gamma(0)}\left(\mathcal{P}^\gamma_{0,0}\left(\lim\limits_{\delta t\to0}\dfrac{\mathcal{P}^\gamma_{\delta t,0}(\bm{V}_\gamma(\delta t))-\bm{V}_\gamma(0)}{\delta t}\right)\right)+\left.D_{\dot\gamma}\right|_p\omega(\bm{V})\quad(\text{due to continuity over}\;\omega\;\text{and}\;\mathcal{P})
+		\\[4 mm]
+		&=-\omega_p(\nabla_{\bm{u}}\bm{V}(p))+\bm{u}[\omega(\bm{V})](p)\quad\text{(or equivalently)}\quad\nabla_{\bm{u}}(\omega(\bm{V}))(p)-\omega(\nabla_{\bm{u}}\bm{V})(p)
+	\end{align*}
+	\begin{center}
+		\vspace{2 mm}
+		\begin{Large}
+			$\boxed{\;\nabla_{\bm{u}}\,\omega\,(\bm{V})=\nabla_{\bm{u}}(\omega(\bm{V}))-\omega(\nabla_{\bm{u}}\bm{V})\;}$
+		\end{Large}
+		\vspace{2 mm}\\
+		\large
+		The Induced Leibniz Rule
+	\end{center}
+	\vspace{1 mm}
+	It will be noted the above formula for $\nabla_{\bm{u}}\,\omega$ does not depend on the derivatives of $\bm{V}$ despite appearances. This is especially clear from both the limit construction and the local coordinate expansion given as such:
+	\begin{align*}
+		\nabla_{\bm{u}}\,\omega\,(\bm{V})&=\nabla_{\bm{u}}(\omega(\bm{V}))-\omega(\nabla_{\bm{u}}\bm{V})=u^j\partial_j\left(\omega_kV^k\right)-\omega\left(u^j\left(\partial_jV^i+\Gamma_{ij}^kV^i\right)\bm{e}_k\right)
+		\\[4 mm]
+		&=u^j\partial_j\,\omega_kV^k+u^j\omega_k\partial_jV^k-\omega_ku^j\left(\partial_jV^i+\Gamma_{ij}^kV^i\right)
+		\\[4 mm]
+		\text{(index swap)}\qquad&=u^j\partial_j\,\omega_iV^i+u^j\omega_k\partial_jV^k-u^j\omega_k\partial_jV^i-u^j\Gamma_{ij}^k\,\omega_kV^i
+		\\[4 mm]
+		&=u^j\left(\partial_j\,\omega_i-\Gamma_{ij}^k\,\omega_k\right)V^i\quad\text{where}\quad V^i=\bm{e}^i(\bm{V})\quad\text{with shorthand}\quad(\nabla_j\,\omega)_i=\partial_j\,\omega_i-\Gamma_{ij}^k\,\omega_k
+	\end{align*}
+	\begin{center}
+		\vspace{2 mm}
+		\begin{Large}
+			$\boxed{\;\nabla_{\bm{u}}\,\omega=u^j\left(\partial_j\,\omega_i-\Gamma_{ij}^k\,\omega_k\right)\bm{e}^i\;}\quad\boxed{\;\nabla_j\,\bm{e}^k=-\Gamma_{ij}^k\,\bm{e}^i\;}$
+		\end{Large}
+		\begin{large}
+			\vspace{2 mm}\\
+			The Covariant Derivative on Covector Fields
+		\end{large}
+	\end{center}
+	\vspace{1 mm}
+	If not clear, the connection on $T^*M$ denoted by$\left.\nabla\right|_{T^*M}$ has an equivalent algebraic structure to that of the connection on $TM$ denoted by $\left.\nabla\right|_{TM}$. To be specific, the connection $\left.\nabla\right|_{T^*M}$ obeys the Leibniz rule and is $\mathbb{R}$-linear in the second (right) slot, and is $C^{\infty}(M,\mathbb{R})$-linear in the first (lower) slot analogously to $\left.\nabla\right|_{TM}$. 
+	
+	
+	\section*{Integral (Flow) Curves}
+	In light of the fact that every curve mapping $\gamma$ can be assigned a vector field via its tangents $\dot\gamma$, it ought to be that every vector field can be assigned (a congruence of) curve mappings. 
+	\vspace{3 mm}\\
+	The flow of a vector field is said to be a curve whose tangents are the vector field itself. In this respect, by definition, the integral curve (flow) mapping of $\bm{u}\in\Gamma(TM)$ initially passing through $p\in M$ is denoted by $\phi_{(\cdot)}^{\bm{u}}(p):I_p\subseteq\mathbb{R}\to M$, where $0\in I_p$, and is uniquely determined by the IVP over $I_p$ as given below:
+	\vspace{2 mm}
+	\begin{large}
+		\begin{center}
+			$\boxed{\;\dfrac{d}{dt}\left(\varphi\circ\phi_t^{\bm{u}}(p)\right)=\varphi_*(\bm{u})\circ\phi_t^{\bm{u}}(p)\quad\text{s.t.}\quad\phi_0^{\bm{u}}(p)=p\;}$
+			\vspace{2 mm}\\
+			Integral Curve Equation
+		\end{center}
+	\end{large}
+	\vspace{2 mm}
+	Due to the uniqueness of the solution to the above IVP, the flow (map) of $\bm{u}$ given by $\phi_t^{\bm{u}}:p\in M\mapsto\phi_t^{\bm{u}}(p)\in M$ is a diffeomorphism with an inverse $\phi_{-t}^{\bm{u}}$. Importantly, because $\varphi$ and $\varphi_*$ are local isomorphisms, the integral curve solution to the above IVP remains invariant under the (symbolic) coordinate swap $(\varphi,\varphi_*)\to(\bbar\varphi,\bbar\varphi_*)$. 
+	\vspace{3 mm}\\
+	It is also noteworthy to mention that the flow curves generated by the basis vectors pertaining to a particular coordinate system are the coordinate grid lines mapped (via $\varphi^{-1}$) from the chart onto the manifold.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.65]
+			\shade[inner color=white, outer color=black!10]
+			(0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4)
+			.. controls (9,-3) and (11,-3.5) .. (13,-4)
+			.. controls (11,-2) and (10.5,-1) .. (10,0)
+			.. controls (7,1) and (3.5,1.5) .. (0,0)
+			-- cycle;
+			\draw (0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4);
+			\draw (0,0) .. controls (3.5,1.5) and (7,1) .. (10,0);
+			\draw (6,-4) .. controls (9,-3) and (11,-3.5) .. (13,-4);
+			\draw (10,0) .. controls (10.5,-1) and (11,-2) .. (13,-4);
+			\draw node at (4,-3.5) {\LARGE{$M$}};
+			\draw[thin] (3,0) .. controls (5,-3) and (7,-1.5) .. (10,-1.625);
+			\filldraw (6.13,-1.89) circle (0.75 mm) node[anchor=north west]{$p$};
+			
+			
+			\filldraw[fill=gray!5] (-6.5,-0.5) rectangle (-3.5,-3.5);
+			\filldraw[fill=gray!5] (-6.25,-0.25) rectangle (-3.25,-3.25);
+			\filldraw[fill=gray!5] (-6,0) rectangle (-3,-3);
+			\filldraw (-4.5,-1.5) circle (0.75 mm) node[anchor=north east,yshift=-2mm,xshift=1mm]{$T_pM$};
+			\draw[-{latex},thick] (-4.5,-1.5) -- (-3.5,-0.5);
+			\draw[-{latex}] (-2.5,-1.5) .. controls (-1,-2) and (0.5,-2) .. (2,-1.5);
+			\draw node at (-0.25,-1.125) {\Large{$\phi_{I_p}^{(\cdot)}(p)$}};
+			\draw node at (-1.25,-3.5) {\LARGE{$\Gamma(TM)$}};
+		\end{tikzpicture}
+		\caption{Integral Curve (flow) of a Vector Field}
+	\end{figure}\noindent
+	Upon repeatedly (directionally) differentiating the integral curve equation, via induction, it follows that  for each $k\in\mathbb{N}_0$, $\frac{d^k}{dt^k}\left(\varphi\circ\phi_t^{\bm{u}}(p)\right)\left.\right|_{t=0}=D_{\bm{u}}^k\,\varphi\left(p\right)$, which implies by Taylor's Theorem:
+	\begin{equation*}
+		\varphi\left(\phi_t^{\bm{u}}(p)\right)=\sum\limits_{k=0}^N\dfrac{t^k}{k!}D_{\bm{u}}^k\,\varphi\left(p\right)+\dfrac{1}{N!}\int_0^t(t-\tau)^ND_{\bm{u}}^{N+1}\,\varphi\left(\phi_{\tau}^{\bm{u}}(p)\right)d\tau=\varphi(p)+t\varphi_*(\bm{u}(p))+\dots
+	\end{equation*}
+	In this respect, if $\bm{u}$ is analytic on $M$, or equivalently, $\phi^{\bm{u}}(p)$ is analytic on $I_p$ for all $p\in M$, then for each $p\in M$, $\exists\,\varepsilon_p>0$ such that $\forall\,t\in(-\varepsilon_p,\varepsilon_p)$, upon taking the limit as $N\to\infty$ (above), one could write the flow (map) of $\bm{u}$ more compactly via the exponential as follows:
+	\vspace{2 mm}
+	\begin{center}
+		$\boxed{\;\phi_t^{\bm{u}}=\varphi^{-1}\, e^{t\bm{u}}\,\varphi\quad\text{s.t.}\quad e^{t\bm{u}}\coloneq\sum\limits_{k=0}^{\infty}\dfrac{t^k}{k!}D^k_{\bm{u}}\;}$
+		\vspace{1.5 mm}\\
+		The Analytic Flow Mapping
+	\end{center}
+	\vspace{2 mm}
+	In this light, given $f\in C^{\infty}(M,\mathbb{R})$, via Taylor's Theorem, $f(\phi_t^{\bm{u}}(p))=\sum_{k=0}^N\frac{t^k}{k!}D^k_{\bm{u}}f(p)+\mathcal{O}(t^{N+1})$, and so if $f$ is analytic, then for each $p\in M$, $\exists\,\varepsilon_p>0$ such that $\forall\,t\in(-\varepsilon_p,\varepsilon_p)$, upon taking the limit as $N\to\infty$, one has $f(\phi_t^{\bm{u}}(p))=e^{t\bm{u}}f(p)$. The flow's pullback will be consistently (futuristically) given by $(\phi_t^{\bm{u}})^*=e^{t\bm{u}}$.
+	\vspace{3 mm}\\
+	In any case, observe that if $\bm{u}[f]=0$ on $M$, then $\frac{d}{dt}f(\phi_t^{u}(p))=0$ for all respective $p\in M$ and $t\in I_p$. In other words, $f$ is conserved on each integral curve of $\bm{u}$. That is, $f(\phi_{I_p}^{\bm{u}}(p))$ is constant for all respective $p\in M$.
+	
+	\section*{The Commutator}
+	By inspection the flows of vector fields do not commute. That is, given $\bm{X},\bm{Y}\in\Gamma(TM)$ and $\varepsilon_x,\varepsilon_y\in\mathbb{R}$, $\phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}\neq\phi_{\varepsilon_
+		y}^{\bm{Y}}\phi_{\varepsilon_x}^{\bm{X}}$ in general. In order to quantify this anti-commutativity, without loss of generality, assume $\bm{X}$ and $\bm{Y}$ are analytic, which implies $\phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}=(\varphi^{-1}\, e^{\varepsilon_x\bm{X}}\,\varphi)(\varphi^{-1}\,e^{\varepsilon_y\bm{Y}}\,\varphi)=\varphi^{-1}\,e^{\varepsilon_x\bm{X}}\,e^{\varepsilon_y\bm{Y}}\,\varphi$. Therefore:
+	\begin{equation*}
+		\phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}=\varphi^{-1}\, e^{\varepsilon_x\bm{X}+\varepsilon_y\bm{Y}}\,\varphi\quad\text{s.t.}\quad e^{\varepsilon_x\bm{X}+\varepsilon_y\bm{Y}}\coloneq\sum\limits_{k=0}^{\infty}\dfrac{\left(\varepsilon_xD_{\bm{X}}+\varepsilon_yD_{\bm{Y}}\right)^k}{k!}=\sum\limits_{k=0}^{\infty}\dfrac{1}{k!}\sum\limits_{j=0}^k\binom{k}{j}\varepsilon_x^j\varepsilon_y^{k-j}D_{\bm{X}}^jD_{\bm{Y}}^{k-j}
+	\end{equation*}
+	\\
+	Thus, regardless of analyticity, the commuted flow of $\bm{X}$ and $\bm{Y}$ can be truncated to second order on the chart given as $\varphi\circ\phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}=\left(1+(\varepsilon_xD_{\bm{X}}+\varepsilon_yD_{\bm{Y}})+\frac{1}{2}(\varepsilon_x^2D_{\bm{X}}^2+2\varepsilon_x\varepsilon_yD_{\bm{X}}D_{\bm{Y}}+\varepsilon_y^2D_{\bm{Y}}^2)\right)\varphi+\mathcal{O}\left((\varepsilon_x,\varepsilon_y)^3\right)$.
+	\vspace{3 mm}\\
+	With the understanding that $D_{\bm{X}}$ and $D_{\bm{Y}}$ generally do not commute, take particular note of the symmetry in the first order term versus the anti-symmetry in the second order term between their ordering. In this regard, the coordinate difference between the anti-commuted flows of $\bm{X}$ and $\bm{Y}$ is given as such: 
+	\vspace{2 mm}
+	\begin{center}
+		$\varphi\circ\phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}-\varphi\circ\phi_{\varepsilon_y}^{\bm{Y}}\phi_{\varepsilon_x}^{\bm{X}}=\varepsilon_x\varepsilon_y\left(D_{\bm{X}}D_{\bm{Y}}-D_{\bm{Y}}D_{\bm{X}}\right)\varphi+\varepsilon_x\varepsilon_y\mathcal{O}(\varepsilon_x,\varepsilon_y)$
+		\vspace{4 mm}\\
+		----- which motivates the definition -----
+		\vspace{4 mm}\\
+		\large
+		$\boxed{\;[\bm{X,\bm{Y}}][\cdot]\coloneq(D_{\bm{X}}D_{\bm{Y}}-D_{\bm{Y}}D_{\bm{X}})(\cdot)=\bm{X}[\bm{Y}[\cdot]]-\bm{Y}[\bm{X}[\cdot]]\quad\text{on}\quad C^2(M,\mathbb{R})\;}$
+		\vspace{1.5 mm}\\
+		The Commutator (Lie Bracket)
+	\end{center}
+	\vspace{2 mm}
+	The commutator is a (second order) local measure of the failure for anti-commuted vector field flows to close. Also, observe $[\bm{X},\bm{Y}][\cdot]$ is a linear differential operator, implying $[\bm{X},\bm{Y}]$ corresponds to a unique vector field.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.65]
+			\shade[inner color=white, outer color=black!10]
+			(0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4)
+			.. controls (9,-3) and (11,-3.5) .. (13,-4)
+			.. controls (11,-2) and (10.5,-1) .. (10,0)
+			.. controls (7,1) and (3.5,1.5) .. (0,0)
+			-- cycle;
+			\draw node at (-6.75,-2){\LARGE{$\left(\,p\in M\,\right)$}};
+			\draw[-{latex}] (-4.5,-1.75) -- (1.5,-1.75);
+			\draw node at (-1.5,-1.125){\Large{$\phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}$}};
+			\draw[-{latex}] (-4.5,-2.25) -- (1.5,-2.25);
+			\draw node at (-1.5,-3){\Large{$\phi_{\varepsilon_y}^{\bm{Y}}\phi_{\varepsilon_x}^{\bm{X}}$}};
+			\draw (0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4);
+			\draw (0,0) .. controls (3.5,1.5) and (7,1) .. (10,0);
+			\draw (6,-4) .. controls (9,-3) and (11,-3.5) .. (13,-4);
+			\draw (10,0) .. controls (10.5,-1) and (11,-2) .. (13,-4);
+			\draw node at (4,-3.5) {\LARGE{$M$}};
+			\draw[dashed] (3.5,-0.5) .. controls (5,-1) and (6,-1.5) .. (6.5,-2.5);
+			\draw node at (4.5,-1.5) {$(\bm{X})$};
+			\draw[dashed] (6.5,-2.5) .. controls (8,-1.75) and (9,-2) .. (10,-2.125);
+			\draw node at (8.25,-2.5) {$(\bm{Y})$};    \filldraw (6.5,-2.5) circle (0.75 mm);
+			\filldraw (3.5,-0.5) circle (0.75 mm) node[anchor=south east]{$p$};
+			\filldraw (6.5,-2.5) circle (0.75 mm);
+			\filldraw (10,-2.125) circle (0.75 mm); 
+			\draw[dashed] (3.5,-0.5) .. controls (4,0) and (5.5,0.5) .. (7.5,0);
+			\draw node at (5.75,-0.3) {$(\bm{Y})$};
+			\draw[dashed] (7.5,0) .. controls (7.75,-0.75) and (8,-0.75) .. (9.5, -1.25);
+			\draw node at (8.75,-0.4) {$(\bm{X})$};
+			\filldraw (7.5,0) circle (0.75 mm);
+			\filldraw (9.5, -1.25) circle (0.75 mm);
+		\end{tikzpicture}
+		\caption{Anti-Commuted Vector Field Flows}
+	\end{figure}\noindent
+	Using local coordinates, the commutator can be explicitly expanded with the (coordinate frame) convention that $\bm{e}_i[\cdot]=\partial_i(\cdot)$, which intuitively implies $[\bm{e}_i,\bm{e}_j]=0$ (see Appendix A). Upon coordinate expanding:
+	\vspace{1 mm}
+	\begin{align*}
+		[\bm{X},\bm{Y}][\cdot]&=X^i\partial_i\left(Y^j\partial_j(\cdot)\right)-Y^j\partial_j\left(X^i\partial_i(\cdot)\right)
+		\\[4 mm]
+		&=\left(X^i\partial_iY^j\partial_j(\cdot)+X^iY^j\partial_i\partial_j(\cdot)\right)-\left(Y^j\partial_jX^i\partial_i(\cdot)+Y^jX^i\partial_j\partial_i(\cdot)\right)
+		\\[4 mm]
+		&=\left(X^i\partial_iY^j\partial_j(\cdot)-Y^j\partial_jX^i\partial_i(\cdot)\right)+X^iY^j\left(\partial_i\partial_j(\cdot)-\partial_j\partial_i(\cdot)\right)
+		\\[4 mm]
+		&=\left(X^i\partial_iY^j\partial_j(\cdot)-Y^i\partial_iX^j\partial_j(\cdot)\right)+X^iY^j\left(\partial_i\partial_j(\cdot)-\partial_i\partial_j(\cdot)\right)
+		\\[4 mm]
+		&=\left(X^i\partial_iY^j-Y^i\partial_iX^j\right)\partial_j(\cdot)\quad\text{(or equivalently)}\quad\left(X^i\partial_iY^j-Y^i\partial_iX^j\right)\bm{e}_j[\cdot]
+	\end{align*}
+	\begin{center}
+		\vspace{1.25 mm}
+		\begin{large}
+			$\boxed{\;[\bm{X},\bm{Y}]=\left(X^i\partial_iY^j-Y^i\partial_iX^j\right)\bm{e}_j\;}$
+		\end{large}
+		\vspace{2 mm}\\
+		Local Coordinate Expansion of the Commutator\phantom{00} 
+	\end{center}
+	
+	\section*{Closing the Gap}
+	In general, for any $\bm{X},\bm{Y}\in\Gamma(TM)$, in light of the fact that $ \phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}\neq\phi_{\varepsilon_y}^{\bm{Y}}\phi_{\varepsilon_x}^{\bm{X}}$ with a (second order) closure discrepancy proportional to $\varepsilon_x\varepsilon_y$, there exists a closure field $\bm{C}\in\Gamma(TM)$ such that $\phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}=\phi_{\varepsilon_x\varepsilon_y}^{\bm{C}}\phi_{\varepsilon_y}^{\bm{Y}}\phi_{\varepsilon_x}^{\bm{X}}$. Although $\bm{C}$ is not uniquely determined, it is constrained to first order in $\varepsilon_x$ and $\varepsilon_y$.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.65]
+			\shade[inner color=white, outer color=black!10]
+			(0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4)
+			.. controls (9,-3) and (11,-3.5) .. (13,-4)
+			.. controls (11,-2) and (10.5,-1) .. (10,0)
+			.. controls (7,1) and (3.5,1.5) .. (0,0)
+			-- cycle;
+			\draw node at (-6.75,-2){\LARGE{$\left(\,p\in M\,\right)$}};
+			\draw[-{latex}] (-4.5,-1.75) -- (1.5,-1.75);
+			\draw node at (-1.5,-1.125){\Large{$\phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}$}};
+			\draw[-{latex}] (-4.5,-2.25) -- (1.5,-2.25);
+			\draw node at (-1.5,-3){\Large{$\phi_{\varepsilon_x\varepsilon_y}^{\bm{C}}\phi_{\varepsilon_y}^{\bm{Y}}\phi_{\varepsilon_x}^{\bm{X}}$}};
+			\draw (0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4);
+			\draw (0,0) .. controls (3.5,1.5) and (7,1) .. (10,0);
+			\draw (6,-4) .. controls (9,-3) and (11,-3.5) .. (13,-4);
+			\draw (10,0) .. controls (10.5,-1) and (11,-2) .. (13,-4);
+			\draw node at (4,-3.5) {\LARGE{$M$}};
+			\draw[dashed] (3.5,-0.5) .. controls (5,-1) and (6,-1.5) .. (6.5,-2.5);
+			\draw node at (4.5,-1.5) {$(\bm{X})$};
+			\draw[dashed] (6.5,-2.5) .. controls (8,-1.75) and (9,-2) .. (10,-2.125);
+			\draw node at (8.25,-2.5) {$(\bm{Y})$};    \filldraw (6.5,-2.5) circle (0.75 mm);
+			\filldraw (3.5,-0.5) circle (0.75 mm) node[anchor=south east]{$p$};
+			\filldraw (6.5,-2.5) circle (0.75 mm);
+			\filldraw (10,-2.125) circle (0.75 mm); 
+			\draw[dashed] (3.5,-0.5) .. controls (4,0) and (5.5,0.5) .. (7.5,0);
+			\draw node at (5.75,-0.3) {$(\bm{Y})$};
+			\draw[dashed] (7.5,0) .. controls (7.75,-0.75) and (8,-0.75) .. (9.5, -1.25);
+			\draw node at (8.75,-0.4) {$(\bm{X})$};
+			\filldraw (7.5,0) circle (0.75 mm);
+			\filldraw (9.5, -1.25) circle (0.75 mm);
+			\draw[thick] (9.5, -1.25) .. controls (9,-1.5) and (9.25,-1.75) .. (10,-2.125);
+			\draw node at (10.15,-1.55) {$(\bm{C})$};
+		\end{tikzpicture}
+		\caption{Closing the Gap with a Closure Field}
+	\end{figure}\noindent
+	Without loss of generality, $\phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}$ and $\phi_{\varepsilon_x\varepsilon_y}^{\bm{C}}\phi_{\varepsilon_y}^{\bm{Y}}\phi_{\varepsilon_x}^{\bm{X}}$ can be expanded analytically, truncated to second order, and then compared accordingly as follows in order to determine the local constraint on the closure field:
+	\vspace{2 mm}
+	\begin{center}
+		$\varphi\circ\phi_{\varepsilon_x\varepsilon_y}^{\bm{C}}\phi_{\varepsilon_y}^{\bm{Y}}\phi_{\varepsilon_x}^{\bm{X}}=\left(1+(\varepsilon_x\varepsilon_yD_{\bm{C}}+\varepsilon_yD_{\bm{Y}}+\varepsilon_xD_{\bm{X}})+\frac{1}{2}\left(\varepsilon_y^2D^2_{\bm{Y}}+2\varepsilon_y\varepsilon_xD_{\bm{Y}}D_{\bm{X}}+\varepsilon_x^2D_{\bm{X}}^2\right)\right)\varphi+\varepsilon_x\varepsilon_y\mathcal{O}(\varepsilon_x,\varepsilon_y)$
+		\vspace{4 mm}\\
+		----- it follows from the previous section -----
+		\vspace{4 mm}\\
+		$\varphi\circ\phi_{\varepsilon_x\varepsilon_y}^{\bm{C}}\phi_{\varepsilon_y}^{\bm{Y}}\phi_{\varepsilon_x}^{\bm{X}}-\varphi\circ\phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}=\varepsilon_x\varepsilon_y\left(D_{\bm{C}}-\left(D_{\bm{X}}D_{\bm{Y}}-D_{\bm{Y}}D_{\bm{X}}\right)\right)\varphi+\varepsilon_x\varepsilon_y\mathcal{O}(\varepsilon_x,\varepsilon_y)=0$
+		\vspace{4 mm}\\
+		----- this implies -----
+		\vspace{4 mm}\\
+		$\varepsilon_x\varepsilon_y\left(D_{\bm{C}}-[\bm{X},\bm{Y}]\right)\varphi=\varepsilon_x\varepsilon_y\mathcal{O}(\varepsilon_x,\varepsilon_y)\implies\left(D_{\bm{C}}-[\bm{X},\bm{Y}]\right)\varphi=\mathcal{O}(\varepsilon_x,\varepsilon_y)\implies \bm{C}=[\bm{X},\bm{Y}]+\mathcal{O}(\varepsilon_x,\varepsilon_y)$
+	\end{center}
+	\vspace{2 mm}  
+	The implication of the above analysis is the observation that any such $\bm{C}$ must be locally (to first order) identical to the commutator $[\bm{X},\bm{Y}]$. In this sense, the commutator $[\bm{X},\bm{Y}]$ is the infinitesimal closure field. Furthermore, the corresponding (coordinate) closure discrepancy is of the following form:
+	\vspace{1.5 mm}
+	\begin{center}
+		\large
+		$\boxed{\;\varphi\circ\phi_{\varepsilon_x}^{\bm{X}}\phi_{\varepsilon_y}^{\bm{Y}}-\varphi\circ\phi_{\varepsilon_x\varepsilon_y}^{[\bm{X},\bm{Y}]}\phi_{\varepsilon_y}^{\bm{Y}}\phi_{\varepsilon_x}^{\bm{X}}=\varepsilon_x\varepsilon_y\mathcal{O}(\varepsilon_x,\varepsilon_y)\;}$
+	\end{center}
+	
+	
+	\section*{Properties of the Commutator}
+	Let $\bm{X},\bm{Y},\bm{Z}\in\Gamma(TM)$, and let $f\in C^{\infty}(M,\mathbb{R})$. Also, consider the scalars $a,b\in\mathbb{R}$. Without explicit proof, the following properties hold point-wise, but can be easily checked.
+	\vspace{2 mm}
+	\begin{itemize}
+		\item $[a\bm{X}+b\bm{Y},\bm{Z}]=a[\bm{X},\bm{Z}]+b[\bm{Y},\bm{Z}]$\, ----------------------------------- Bilinearity in First Slot --------------------
+		\item $[\bm{X},a\bm{Y+}b\bm{Z}]=a[\bm{X},\bm{Y}]+b[\bm{X},\bm{Z}]$ ----------------------------------- Bilinearity in Second Slot -----------------
+		\item $[\bm{X},\bm{Y}]=-[\bm{Y,\bm{X}}]$\,\, --------------------------------------------------------- Antisymmetric ------------------------------
+		\item $[\bm{X},f\,\bm{Y}]=f\left[\bm{X},\bm{Y}\right]+\bm{X}[f]\,\bm{Y}$ ------------------------------------------ Derivation in Second Slot -----------------
+		\item $[f\,\bm{X},\bm{Y}]=f\left[\bm{X},\bm{Y}\right]-\bm{Y}[f]\,\bm{X}$ ------------------------------------------ Derivation in First Slot --------------------
+		\item $[\bm{X},[\bm{Y},\bm{Z}]]+[\bm{Y},[\bm{Z},\bm{X}]]+[\bm{Z},[\bm{X},\bm{Y}]]=0$\,\, --------------------------- Jacobi Identity ------------------------------
+	\end{itemize}
+	\vspace{2 mm}
+	Observe that $[\bm{X},\cdot\,]$ behaves as a derivation on $\Gamma(TM)$. That is to say, if $\mathscr{D}_{\bm{X}}(\cdot)=[\bm{X},\cdot\,]$, then it obeys the Leibniz rule $\mathscr{D}_{\bm{X}}(f\,\bm{Y})=f\mathscr{D}_{\bm{X}}\bm{Y}+\bm{X}[f]\,\bm{Y}$. Note $\mathscr{D}$ cannot be a linear connection. Upon further investigation, one can identify the pairing $(\Gamma(TM),[\cdot,\cdot])$ as a Lie algebra (hence the Jacobi identity).  
+	
+	\section*{The Pullback and Pushforward}
+	Suppose that $M$ and $N$ are smooth manifolds equipped with respective tangential bundle structures $\mathscr{T}(M)$ and $\mathscr{T}(N)$. Let $F:M\to N$ be a smooth mapping (local diffeomorphism). Under this mapping, curves in $M$ alongside their tangents in $TM$ can be deformed relative to their images in $N$ and $TN$. In this regard, let the pushforward be of the form $F_{*}:TM\to TN$, which will be made more concrete shortly.
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.55]
+			\shade[inner color=white, outer color=black!10]
+			(0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4)
+			.. controls (9,-3) and (11,-3.5) .. (13,-4)
+			.. controls (11,-2) and (10.5,-1) .. (10,0)
+			.. controls (7,1) and (3.5,1.5) .. (0,0)
+			-- cycle;
+			\draw (0,0) .. controls (2.5,-1) and (4.5,-2) .. (6,-4);
+			\draw (0,0) .. controls (3.5,1.5) and (7,1) .. (10,0);
+			\draw (6,-4) .. controls (9,-3) and (11,-3.5) .. (13,-4);
+			\draw (10,0) .. controls (10.5,-1) and (11,-2) .. (13,-4);
+			\draw node at (4,-3.5) {\LARGE{$M$}};
+			
+			\coordinate (P) at (6.75,-1);
+			\coordinate (A) at (2.1875,0.3125);  
+			\coordinate (B) at (-1.5625,1.75);  
+			
+			\coordinate (C1) at ($ (P) - 0.5*(A) - 0.5*(B) $); 
+			\coordinate (C2) at ($ (P) + 0.5*(A) - 0.5*(B) $);
+			\coordinate (C3) at ($ (P) + 0.5*(A) + 0.5*(B) $); 
+			\coordinate (C4) at ($ (P) - 0.5*(A) + 0.5*(B) $); 
+			
+			\filldraw[fill=white] (C1) -- (C2) -- (C3) -- (C4) -- cycle;
+			
+			\foreach \i in {0.25,0.5,0.75}
+			{
+				\draw[gray,very thin]
+				($(C1)!\i!(C4)$) -- ($(C2)!\i!(C3)$);
+			}
+			\foreach \i in {0.25,0.5,0.75}
+			{
+				\draw[gray,very thin]
+				($(C1)!\i!(C2)$) -- ($(C4)!\i!(C3)$);
+			}
+			\draw[-{latex},thick] (P) -- ($(P)+(1.25,-0.4)$);
+			\fill (P) circle (0.75 mm);
+			\draw node at (9,-0.75) {$T_pM$};
+			\draw node at (6.5,-0.75) {\footnotesize{$p$}};
+			\draw node at (7.25,-1.6) {\footnotesize{$\bm{v}_p$}};
+			
+			
+			\shade[inner color=white, outer color=black!10]
+			(16,0) 
+			.. controls (14.5,-1) and (21,-1.5) .. (16,-4)
+			.. controls (22,-3) and (25,-3) .. (27,-4)
+			.. controls (26,-3) and (25.5,-1) .. (26,1)
+			.. controls (21,1.5) and (17,1) .. (16,0)
+			-- cycle;
+			\draw (16,0) .. controls (14.5,-1) and (21,-1.5) .. (16,-4);
+			\draw (16,0) .. controls (17,1) and (21,1.5) .. (26,1);
+			\draw (16,-4) .. controls (22,-3) and (25,-3) .. (27,-4);
+			\draw (26,1) .. controls (25.5,-1) and (26,-3) .. (27,-4);
+			\draw node at (28,-3.5) {\LARGE{$N$}};
+			
+			\coordinate (P) at (21,-1);
+			\coordinate (A) at (2.5,0.5);  
+			\coordinate (B) at (-1.5,2);  
+			
+			\coordinate (C1) at ($ (P) - 0.5*(A) - 0.5*(B) $); 
+			\coordinate (C2) at ($ (P) + 0.5*(A) - 0.5*(B) $);
+			\coordinate (C3) at ($ (P) + 0.5*(A) + 0.5*(B) $); 
+			\coordinate (C4) at ($ (P) - 0.5*(A) + 0.5*(B) $); 
+			
+			\filldraw[fill=white] (C1) -- (C2) -- (C3) -- (C4) -- cycle;
+			
+			\foreach \i in {0.25,0.5,0.75}
+			{
+				\draw[gray,very thin]
+				($(C1)!\i!(C4)$) -- ($(C2)!\i!(C3)$);
+			}
+			\foreach \i in {0.25,0.5,0.75}
+			{
+				\draw[gray,very thin]
+				($(C1)!\i!(C2)$) -- ($(C4)!\i!(C3)$);
+			}
+			\draw[-{latex},thick] (P) -- ($(P)+(1.25,-0.125)$);
+			\fill (P) circle (0.75 mm);
+			\draw node at (23.25,-0.25) {$T_{F(p)}N$};
+			\draw node at (20.5,-0.55) {\footnotesize{$F(p)$}};
+			\draw node at (21.125,-1.6) {\footnotesize{$F_*(\bm{v}_p)$}};
+			
+			\draw[-{latex}] (11.5,-1.5) .. controls (13,-1) and (15,-1) .. (16.5,-1.5);
+			\draw node at (14,-0.5) {\LARGE{$F,F_*$}};
+		\end{tikzpicture}
+		\caption{Mapping Between Manifolds and Pushforward} 
+	\end{figure}\noindent
+	Before directly addressing the pushforward, a means of transforming functions on $N$ to functions on $M$ with respect to $F$ ought to be developed first. Define the pullback of $F$ denoted by $F^*:C^{\infty}(N,\mathbb{R})\to C^{\infty}(M,\mathbb{R})$ to be in accordance with $F^*f=f\circ F$. Observe the linear structure here and in the successive operations.
+	\vspace{3 mm}\\
+	As there is a unique correspondence between directional differential operators and tangent vectors, the pushforward can be defined implicitly as follows. On a point-wise basis, given any tangent vector $\bm{v}\in TM$, let $F_*(\bm{v}):f\in C^{\infty}(N,\mathbb{R})\mapsto\bm{v}[F^*f]\in\mathbb{R}$.
+	\vspace{3 mm}\\
+	Given local coordinate functions $y^i$ on $N$ and a coordinate frame $\left\{\bm{\varepsilon}_i\right\}$ on $TN$, the pushforward can be explicitly computed. In particular, provided that $F^i=y^i\circ F$ and $\bm{v}_p=v^i_p\bm{e}_i(p)$, it thus follows:
+	\vspace{2 mm}
+	\begin{center}
+		$F_*(\bm{v}_p)[f]=\bm{v}_p[F^*f]=v^j_p\partial_j(f\circ F)=v^j_p\left.\dfrac{\partial F^i}{\partial x^j}\right|_p\left.\dfrac{\partial f}{\partial y^i}\right|_{F(p)}=v^j_p\left.\dfrac{\partial F^i}{\partial x^j}\right|_p\bm{\varepsilon}_i(F(p))[f]=\bm{v}_p\left[F^i\right]\bm{\varepsilon}_i(F(p))[f]$
+		\vspace{5 mm}\\
+		$\implies\boxed{\;F_*(\bm{v}_p)=\bm{v}_p\left[F^i\right]\bm{\varepsilon}_i(F(p))\;}\quad(\text{due to the unique pairing}\;(\bm{z}[\cdot],\bm{z})\;\forall\,\bm{z}\in TN)$
+	\end{center}
+	\vspace{2 mm}
+	Given that $F$ is a diffeomorphism, for any $\bm{X}\in\Gamma(TM)$, let $F_*(\bm{X}):q\in N\mapsto F_*\left(\bm{X}\left(F^{-1}(q)\right)\right)$. In this regard, $[\cdot,\cdot]$ is preserved with respect to $F_*$. That is to say, if $\bm{Y}\in\Gamma(TM)$ as well, then on the one hand:
+	\vspace{2 mm}
+	\begin{center}
+		$F_*([\bm{X},\bm{Y}])[f]=[\bm{X},\bm{Y}][F^*f]=\bm{X}[\bm{Y}[F^*f]]-\bm{Y}[\bm{X}[F^*f]]=\bm{X}[F_*(\bm{Y})[f]\circ F]-\bm{Y}[F_*(\bm{X})[f]\circ F]$
+		\vspace{4 mm}\\
+		----- whilst on the other hand -----
+		\vspace{4 mm}\\
+		$[F_*(\bm{X}),F_*(\bm{Y})][f]=F_*(\bm{X})[F_*(\bm{Y)}[f]]-F_*(\bm{Y})[F_*(\bm{X)}[f]]=\bm{X}[F^*(F_*(\bm{Y})[f])]-\bm{Y}[F^*(F_*(\bm{X})[f])]$
+		\vspace{5 mm}\\
+		$\implies\boxed{\;F_*([\bm{X},\bm{Y}])=[F_*(\bm{X}),F_*(\bm{Y})]\;}\quad(\text{via transitivity as WLOG,}\;\,F^*(F_*(\bm{Y})[f])=F_*(\bm{Y})[f]\circ F)$
+	\end{center}
+	\vspace{3 mm}
+	In order for one-forms in $T^*N$ to act upon tangent vectors in $TM$ with respect to $F$, they can be pulled back similarly to scalar fields on $N$. Maintaining the assumption that $F$ is a diffeomorphism, the pullback on $\omega\in T^*N$ by $F$ is implicitly defined by $F^*\omega:\bm{v}\in T_{F^{-1}(\bm\pi^*\circ\,\omega)}M\mapsto\omega(F_*(\bm{v}))\in\mathbb{R}$. Using coordinates, provided that $\omega_{F(p)}=\omega_i\bm{\varepsilon}^i(F(p))$, it follows:
+	\vspace{2 mm}
+	\begin{center}
+		$F^*\omega_{F(p)}(\bm{e}_j(p))=\omega_{F(p)}\left(\bm{e}_j(p)[F^i]\bm{\varepsilon}_i(F(p))\right)=\omega_{F(p)}\left(\partial_jF^i(p)\bm{\varepsilon}_i(F(p)\right)=\omega_i\partial_jF^i(p)$ 
+		\vspace{5 mm}\\
+		$\implies\boxed{\;F^*\omega_{F(p)}=\omega_i\partial_jF^i(p)\,\bm{e}^j_p\;}\quad(\text{due to the linearity of}\;\,F^*\omega\;\,\text{on}\;\,TM\;\,\text{and the uniqueness of 1-forms})$
+	\end{center}
+	
+	\section*{Lie Drag}
+	At this point, one may think that the only way to compare tangent vectors on $TM$ is via a connection $\nabla$. However, there exists another way using flows of vector fields in conjunction with their pushforward maps.
+	\vspace{3 mm}\\
+	To be specific, provided that $\bm{X},\bm{Y}\in\Gamma(TM)$, consider how $\bm{Y}$ changes along the flow of $\bm{X}$. That is, in order to compare $\bm{Y}\left(\phi_t^{\bm{X}}(p)\right)$ relative to $\bm{Y}(p)$, push the tangent vector back to $T_pM$ along the flow of $\bm{X}$ using its reversed pushforward $\left(\phi_{-t}^{\bm{X}}\right)_*:\bm{v}\in TM\to T_{\phi_{-t}^{\bm{X}}(\bm\pi\circ\bm{v})}M$. This process is referred to as Lie drag. 
+	
+	\begin{figure}[h!]
+		\centering
+		\begin{tikzpicture}[scale=0.65]
+			\draw[color=gray,very thin] (0,0) grid (6,6);
+			\draw[black!75] (0,0) rectangle (6,6);
+			\draw node at (-1.5,0) {\LARGE{$T_pM$}};
+			\draw[-{latex},very thick,dashed] (0,0) -- (5,2) node[anchor=south east] {$\bm{Y}(p)$};
+			\draw[-{latex},very thick] (0,0) -- (3,4) node[anchor=south] {$\left(\phi_{-t}^{\bm{X}}\right)_*\left(\bm{Y}\left(\phi_t^{\bm{X}}(p)\right)\right)$};
+			\draw[-{latex},very thick] (0,0) -- (0,1) node[anchor=south east] {$\bm{e}_2(p)$};
+			\draw[-{latex},very thick] (0,0) -- (1,0) node[anchor=north west] {$\bm{e}_1(p)$};
+			\filldraw (0,0) circle (0.75 mm);
+			\draw[{latex}-] (7,3) -- (13,3);
+			\draw node at (10,4) {\LARGE{$\left(\phi_{-t}^{\bm{X}}\right)_*$}};
+			
+			\draw[color=gray,very thin] (14,0) grid (20,6);
+			\draw[black!75] (14,0) rectangle (20,6);
+			\draw node at (11.75,0) {\LARGE{$T_{\phi_t^{\bm{X}}(p)}M$}};
+			\draw[-{latex},very thick] (14,0) -- (19,3) node[anchor=south east] {$\bm{Y}\left(\phi_t^{\bm{X}}(p)\right)$};
+			\draw[-{latex},very thick] (14,0) -- (14,1) node[anchor=south east] {$\bm{e}_2\left(\phi_t^{\bm{X}}(p)\right)$};
+			\draw[-{latex},very thick] (14,0) -- (15,0) node[anchor=north west] {$\bm{e}_1\left(\phi_t^{\bm{X}}(p)\right)$};
+			\filldraw (14,0) circle (0.75 mm);
+		\end{tikzpicture}
+		\caption{Lie Dragging a Vector Field Along Another ($n=2$)}
+	\end{figure}\noindent 
+	In the above figure, the vector field $\bm{Y}$ was Lie dragged from $\phi_t^{\bm{X}}(p)$ back to $p$ along the vector field $\bm{X}$ (flow) via the map $(\phi_{-t}^{\bm{X}})_*$, thus enabling $\bm{Y}(\phi_t^{\bm{X}}(p))$ to be compared to $\bm{Y}(p)$. If not clear, this can only be done due to $\phi_t^{\bm{X}}$ being a diffeomorphism on $M$ (i.e. $\phi_{-t}^{\bm{X}}\circ\phi_t^{\bm{X}}=\mathrm{id}_M$). This is especially evident in coordinates:
+	\vspace{2 mm}
+	\begin{center}
+		$\left(\phi_{-t}^{\bm{X}}\right)_*\left(\bm{Y}\left(\phi_t^{\bm{X}}(p)\right)\right)=\bm{Y}\left(\phi_t^{\bm{X}}(p)\right)\left[x^i\circ\phi_{-t}^{\bm{X}}\right]\bm{e}_i\left(\phi_{-t}^{\bm{X}}\circ\phi_t^{\bm{X}}(p)\right)=\bm{Y}\left(\phi_t^{\bm{X}}(p)\right)\left[x^i\circ\phi_{-t}^{\bm{X}}\right]\bm{e}_i(p)\in T_pM$
+	\end{center}
+	\vspace{2 mm}
+	Using Lie drag, a new derivative operation on $\Gamma(TM)\times\Gamma(TM)$ referred to as the Lie derivative denoted by $\mathcal{L}$, although not a linear connection, can be constructed, and is contextually defined as such:
+	\vspace{0.5 mm}
+	\begin{center}
+		$\mathcal{L}_{\bm{X}}\bm{Y}(p)\coloneq\left.\dfrac{d}{dt}\right|_{t=0}\left(\phi_{-t}^{\bm{X}}\right)_*\left(\bm{Y}\left(\phi_t^{\bm{X}}(p)\right)\right)=\lim\limits_{\delta t\to0}\dfrac{\left(\phi_{-\delta t}^{\bm{X}}\right)_*\left(\bm{Y}\left(\phi_{\delta t}^{\bm{X}}(p)\right)\right)-\bm{Y}(p)}{\delta t}$
+	\end{center}
+	\vspace{0.5 mm}
+	To make this definition more manageable, an auxiliary function $f\in C^{\infty}(M,\mathbb{R})$ will be introduced. That way $\mathcal{L}_{\bm{X}}\bm{Y}(p)$ can act as a directional derivative operator, which can operate on $f$ as follows:
+	\vspace{1 mm}
+	\begin{align*}
+		\mathcal{L}_{\bm{X}}\bm{Y}(p)\left[f\right]&=\lim\limits_{\delta t\to0}\dfrac{\left(\phi_{-\delta t}^{\bm{X}}\right)_*\left(\bm{Y}\left(\phi_{\delta t}^{\bm{X}}(p)\right)\right)\left[f\right]-\bm{Y}(p)\left[f\right]}{\delta t}=\lim\limits_{\delta t\to0}\dfrac{\bm{Y}\left(\phi_{\delta t}^{\bm{X}}(p)\right)\left[f\left(\phi_{-\delta t}^{\bm{X}}\right)\right]-\bm{Y}(p)\left[f\right]}{\delta t}
+		\\[4 mm]
+		&=\lim\limits_{\delta t\to0}\dfrac{\bm{Y}\left(\phi_{\delta t}^{\bm{X}}(p)\right)\left[f\left(\phi_{-\delta t}^{\bm{X}}\right)\right]-\bm{Y}\left(\phi_{\delta t}^{\bm{X}}(p)\right)\left[f\right]}{\delta t}+\lim\limits_{\delta t\to0}\dfrac{\bm{Y}\left(\phi_{\delta t}^{\bm{X}}(p)\right)\left[f\right]-\bm{Y}(p)[f]}{\delta t}
+		\\[3 mm]
+		&=\lim\limits_{\delta t\to0}\bm{Y}\left(\phi_{\delta t}^{\bm{X}}(p)\right)\left[\dfrac{f\left(\phi_{-\delta t}^{\bm{X}}\right)-f}{\delta t}\right]+\lim\limits_{\delta t\to0}\dfrac{\bm{Y}[f]\left(\phi_{\delta t}^{\bm{X}}(p)\right)-\bm{Y}[f]\left(p\right)}{\delta t}
+		\\[3 mm]
+		&=\bm{Y}\left(\phi_0^{\bm{X}}(p)\right)\left[\lim\limits_{\delta t\to0}\dfrac{f\left(\phi_{-\delta t}^{\bm{X}}\right)-f}{\delta t}\right]+\bm{X}(p)\left[\bm{Y}[f]\right]\qquad\text{(directional differentiation)}
+		\\[4 mm]
+		&=\bm{Y}(p)\left[-\bm{X}[f]\right]+\bm{X}(p)\left[\bm{Y}[f]\right]=\bm{X}\left[\bm{Y}[f]\right](p)-\bm{Y}\left[\bm{X}[f]\right](p)=[\bm{X},\bm{Y}][f]\left(p\right)
+	\end{align*}
+	\begin{center}
+		\vspace{1 mm}
+		\begin{Large}
+			$\boxed{\;\mathcal{L}_{\bm{X}}\bm{Y}=[\bm{X},\bm{Y}]\;}$
+		\end{Large}
+		\vspace{3 mm}\\
+		(The Lie derivative on $\Gamma(TM)\times\Gamma(TM)$ is identical to the commutator, inheriting all of its properties.)
+	\end{center}
+	
+	\section*{Pulling Back Lie Drag}
+	In pursuit of extending the Lie derivative $\mathcal{L}$ into being applicable to $\Gamma(T^*M)$ and $C^{\infty}(M,\mathbb{R})$, the notion of Lie drag will be extended into the domain of $T^*M$ using the induced pullback on the flows of vector fields.
+	\vspace{3 mm}\\
+	In particular, provided that $\omega\in\Gamma(T^*M)$, $\bm{X}\in\Gamma(TM)$, and $f\in C^{\infty}(M,\mathbb{R})$, consider how $f$ or $\omega$ changes along the flow of $\bm{X}$. That is, in order to compare $f$ or $\omega_{\phi_t^{\bm{X}}(p)}$ relative to $\omega_p$, pull the scalar field or covector back to $p$ along the flow of $\bm{X}$ using its pullback $(\phi_t^{\bm{X}})^*$ defined in each case. Starting with scalar fields: 
+	\vspace{2 mm}
+	\begin{center}
+		$\mathcal{L}_{\bm{X}}f(p)\coloneq\left.\dfrac{d}{dt}\right|_{t=0}\left(\phi_t^{\bm{X}}\right)^*f(p)=\left.\dfrac{d}{dt}\right|_{t=0}f\left(\phi_t^{\bm{X}}(p)\right)=\bm{X}[f]\left(p\right)\implies\boxed{\;\mathcal{L}_{\bm{X}}f=\bm{X}[f]\;}$
+		\vspace{4 mm}\\
+		----- moving on to covector fields -----
+		\vspace{4 mm}\\
+		$\mathcal{L}_{\bm{X}}\,\omega\,(\bm{v}_p)\coloneq\left.\dfrac{d}{dt}\right|_{t=0}\left(\phi_t^{\bm{X}}\right)^*\omega_{\phi_t^{\bm{X}}(p)}(\bm{v}_p)=\left.\dfrac{d}{dt}\right|_{t=0}\omega_{\phi_t^{\bm{X}}(p)}\left(\left(\phi_t^{\bm{X}}\right)_*(\bm{v}_p)\right)=\lim\limits_{\delta t\to0}\dfrac{\omega_{\phi_{\delta t}^{\bm{X}}(p)}\left(\left(\phi_{\delta t}^{\bm{X}}\right)_*(\bm{v}_p)\right)-\omega_p(\bm{v}_p)}{\delta t}$
+	\end{center}
+	\vspace{1.75 mm}
+	To make this definition more manageable, an auxiliary vector field $\bm{V}\in\Gamma(TM)$ will be introduced instead of $\bm{v}_p\in T_pM$. That way the properties of the directional derivative could be taken advantage of as follows:
+	\begin{align*}
+		\mathcal{L}_{\bm{X}}\,\omega\,(\bm{V}(p))&=\lim\limits_{\delta t\to0}\dfrac{\omega_{\phi_{\delta t}^{\bm{X}}(p)}\left(\left(\phi_{\delta t}^{\bm{X}}\right)_*(\bm{V}(p))\right)-\omega_p(\bm{V}(p))}{\delta t}
+		\\[4 mm]
+		&=\lim\limits_{\delta t\to0}\dfrac{\omega_{\phi_{\delta t}^{\bm{X}}(p)}\left(\left(\phi_{\delta t}^{\bm{X}}\right)_*(\bm{V}(p))\right)-\omega_{\phi_{\delta t}^{\bm{X}}(p)}\left(\bm{V}\left(\phi_{\delta t}^{\bm{X}}(p)\right)\right)}{\delta t}+\lim\limits_{\delta t\to0}\dfrac{\omega_{\phi_{\delta t}^{\bm{X}}(p)}\left(\bm{V}\left(\phi_{\delta t}^{\bm{X}}(p)\right)\right)-\omega_p(\bm{V}(p))}{\delta t}
+		\\[4 mm]
+		&=\lim\limits_{\delta t\to0}\omega_{\phi_{\delta t}^{\bm{X}}(p)}\left(\dfrac{\left(\phi_{\delta t}^{\bm{X}}\right)_*(\bm{V}(p))-\bm{V}\left(\phi_{\delta t}^{\bm{X}}(p)\right)}{\delta t}\right)+\lim\limits_{\delta t\to0}\dfrac{\omega(\bm{V})\left(\phi_{\delta t}^{\bm{X}}(p)\right)-\omega(\bm{V})\left(p\right)}{\delta t}
+		\\[4 mm]
+		&=\lim\limits_{\delta t\to0}\omega_{\phi_{\delta t}^{\bm{X}}(p)}\left.\left(\dfrac{\left(\phi_{\delta t}^{\bm{X}}\right)_*\left(\bm{V}\left(\phi_{-\delta t}^{\bm{X}}\right)\right)-\bm{V}}{\delta t}\right)\right|_{\phi_{\delta t}^{\bm{X}}(p)}+\bm{X}(p)\left[\omega(\bm{V})\right]
+		\\[4 mm]
+		&=\omega_{\phi_0^{\bm{X}}(p)}\left.\left(\lim\limits_{\delta t\to0}\dfrac{\left(\phi_{\delta t}^{\bm{X}}\right)_*\left(\bm{V}\left(\phi_{-\delta t}^{\bm{X}}\right)\right)-\bm{V}}{\delta t}\right)\right|_{\lim\limits_{\delta t\to0}\phi_{\delta t}^{\bm{X}}(p)}+\bm{X}[\omega(\bm{V})]\left(p\right)
+		\\[4 mm]
+		&=\omega_p\left(\lim\limits_{\delta t\to0}\dfrac{\left(\phi_{\delta t}^{\bm{X}}\right)_*\left(\bm{V}\left(\phi_{-\delta t}^{\bm{X}}(p)\right)\right)-\bm{V}(p)}{\delta t}\right)+\bm{X}[\omega(\bm{V})]\left(p\right)
+		\\[4 mm]
+		&=\omega_p(-\mathcal{L}_{\bm{X}}\bm{V}(p))+\bm{X}[\omega(\bm{V})]\left(p\right)=\bm{X}[\omega(\bm{V})]\left(p\right)-\omega(\mathcal{L}_{\bm{X}}\bm{V})\left(p\right)=\bm{X}[\omega(\bm{V})]\left(p\right)-\omega([\bm{X},\bm{V}])\left(p\right)
+	\end{align*}
+	\begin{center}
+		\vspace{1.75 mm}
+		\begin{Large}
+			$\boxed{\;\mathcal{L}_{\bm{X}}\,\omega\,(\bm{V})=\bm{X}[\omega(\bm{V})]-\omega([\bm{X},\bm{V}])\;}$
+		\end{Large}
+		\begin{large}
+			\vspace{1.75 mm}\\
+			The Lie Derivative on Covector Fields\phantom{00}
+		\end{large}
+	\end{center}
+	\vspace{1 mm}
+	As expected, the above formula does not depend on the derivatives of $\bm{V}$. This is especially clear via a local coordinate expansion. In fact, upon simplifying $\mathcal{L}_{\bm{X}}\,\omega\,(\bm{V})=X^i\partial_i(\omega_jV^j)-\omega((X^i\partial_iV^j-V^i\partial_iX^j)\,\bm{e}_j)$, without explicit demonstration, one arrives at $(X^i\partial_i\,\omega_j+\partial_jX^i\omega_i)V^j$, which can be summarized as follows:
+	\vspace{1.25 mm}
+	\begin{center}
+		\begin{Large}
+			$\boxed{\;\mathcal{L}_{\bm{X}}\,\omega=\left(X^i\partial_i\,\omega_j+\partial_jX^i\omega_i\right)\bm{e}^j\;}$
+		\end{Large}
+		\vspace{2 mm}\\
+		\large
+		Local Coordinate Expansion of the Lie Derivative on Covector Fields\phantom{00}
+	\end{center}
+	
+	
+	
+	\section*{What is a Tensor?}
+	By definition, a type $(r,s)$ tensor at $p\in M$ is a multi-linear map $T_p: (T_p^*M)^r\times(T_pM)^s\to\mathbb{R}$, where $\otimes^{r,s}T_pM$ is the space of all such operations at $p\in M$. Specifically, provided that $T_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}\in C^{\infty}(M,\mathbb{R})$, upon specifying a coordinate frame $\left\{\bm{e}_i\right\}$ and a co-coordinate frame $\left\{\bm{e}^i\right\}$, one can write: 
+	\begin{center}
+		\large
+		$T_p:\left(\theta^1,\cdots,\theta^r;\bm{v}_1,\cdots,\bm{v}_s\right)\in\left(T^*_pM\right)^r\times\left(T_pM\right)^s\mapsto T_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}(p)\prod\limits_{j=1}^r\theta^j(\bm{e}_{\nu_j}(p))\prod\limits_{i=1}^s\bm{e}^{\mu_i}_p(\bm{v}_i)$ 
+	\end{center}
+	The object $T_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}\in C^{\infty}(M,\mathbb{R})$ is the $\nu_1\cdots\nu_r$ contravariant, $\mu_1\cdots\mu_s$ covariant component of the tensor field. Moreover, provided that $\bm{\pi}^{(r,s)}:T_p\in\otimes^{r,s}T_pM\mapsto p$, the collection of smooth tensor fields over $M$ can be fashioned as $\Gamma(\otimes^{r,s} TM)\coloneq\left\{T:M\times(T^*M)^r\times(TM)^s\to\mathbb{R}\,|\,\bm\pi^{(r,s)}\circ T=\mathrm{id}_M, T\;\text{smooth}\right\}$. 
+	\vspace{3 mm}\\
+	Via point-wise addition, $\otimes^{r,s}T_pM$
+	and $\Gamma(\otimes^{r,s}TM)$ can be interpreted as vector spaces over $\mathbb{R}$ and $C^{\infty}(M,\mathbb{R})$ respectively. That is, for any $f,g\in C^{\infty}(M,\mathbb{R})$, if $T,S\in\Gamma(\otimes^{r,s}TM)$, then $fT+gS\in\Gamma(\otimes^{r,s}TM)$, where:
+	\vspace{2 mm}
+	\begin{center}
+		\large
+		$(fT+gS)_p:\vartheta\in\left(T^*_pM\right)^r\times\left(T_pM\right)^s\mapsto f(p)T_p(\vartheta)+g(p)S_p(\vartheta)$
+		\vspace{4 mm}\\
+		----- and -----
+		\vspace{4 mm}\\
+		$(fT+gS)_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}=fT_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}+gS_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}$
+	\end{center}
+	\vspace{2 mm}
+	As a side note,  $\forall\,\bm{V}\in\Gamma(TM)$, let $\bm{V}:\omega\in\Gamma(T^*M)\mapsto\omega(\bm{V})$. Now, via the tensor product $\otimes$, any two tensor fields $A\in\Gamma(\otimes^{r,s}TM)$ and $B\in\Gamma(\otimes^{t,u}TM)$ can be multiplied to produce another (i.e. $A\otimes B$) given as such:
+	\begin{center}
+		\large
+		$(A\otimes B)_p:(\theta^1,\cdots,\theta^{r+t};\bm{v}_1,\cdots,\bm{v}_{s+u})\mapsto
+		A_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}(p)\,
+		B_{\mu_{s+1}\cdots\mu_{s+u}}^{\nu_{r+1}\cdots\nu_{r+t}}(p)\prod\limits_{j=1}^{r+t}\theta^j\left(\bm{e}_{\nu_j}(p)\right)\prod\limits_{i=1}^{s+u}\bm{e}_p^{\mu_i}(\bm{v}_i)$
+		\vspace{2mm}\\
+		----- and -----
+		\vspace{4mm}\\
+		$(A\otimes B)_{\mu_1\cdots\mu_{s+u}}^{\nu_1\cdots\nu_{r+t}}
+		=
+		A_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}
+		B_{\mu_{s+1}\cdots\mu_{s+u}}^{\nu_{r+1}\cdots\nu_{r+t}}$
+	\end{center}
+	\vspace{2 mm}
+	Upon observing $T_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}=T(\bm{e}^{\nu_1},\cdots,\bm{e}^{\nu_r};\bm{e}_{\mu_1},\cdots,\bm{e}_{\mu_s})$ point-wise, any type $(r,s)$ tensor field $T$ can be expanded over the tensor product over the coordinate basis $\left\{\bm{e}_{\nu_1}\otimes\cdots\otimes\bm{e}_{\nu_r}\otimes\bm{e}^{\mu_1}\otimes\cdots\otimes\bm{e}^{\mu_s}\right\}$ as such: 
+	\vspace{2 mm}
+	\begin{center}
+		\large
+		$T=T_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}\,\bm{e}_{\nu_1}\otimes\cdots\otimes\bm{e}_{\nu_r}\otimes\bm{e}^{\mu_1}\otimes\cdots\otimes\bm{e}^{\mu_s}$
+	\end{center}
+	\vspace{2 mm}
+	Because under the coordinate transformation $x\to\ibar{x}$ the (coordinate) basis elements transform via the Jacobian as $\bm{e}_i=\frac{\partial\bar{x}^j}{\partial x^i}\bbar{\bm{e}}_j$ and $\bm{e}^k=\frac{\partial x^k}{\partial \bar{x}^j}\bbar{\bm{e}}^j$ (see Appendix A), under the same coordinate transformation:
+	\vspace{2 mm}
+	\begin{center}
+		\begin{large}
+			$\boxed{\;\bbar{T}_{\alpha_1\cdots\alpha_s}^{\beta_1\cdots\beta_r}=\dfrac{\partial x^{\mu_1}}{\partial\bar{x}^{\alpha_1}}\cdots\dfrac{\partial x^{\mu_s}}{\partial\bar{x}^{\alpha_s}}\dfrac{\partial\bar{x}^{\beta_1}}{\partial x^{\nu_1}}\cdots\dfrac{\partial\bar{x}^{\beta_r}}{\partial x^{\nu_r}}\,T_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}\;}$
+			\vspace{2 mm}\\
+			Tensor Component Transformation Law
+		\end{large}
+	\end{center}
+	\vspace{2 mm}
+	This transformation law ensures that the tensor field $T$ remains coordinate invariant. If the components do not transform this way, the field is non-tensorial. The proof of the transformation law is given below: 
+	\vspace{2 mm}
+	\begin{align*}
+		T&=T_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}\left(\dfrac{\partial\bar{x}^{\beta_1}}{\partial x^{\nu_1}}\,\bbar{\bm{e}}_{\beta_1}\right)\otimes\cdots\otimes\left(\dfrac{\partial\bar{x}^{\beta_r}}{\partial x^{\nu_r}}\,\bbar{\bm{e}}_{\beta_r}\right)\otimes\left(\dfrac{\partial x^{\mu_1}}{\partial\bar{x}^{\alpha_1}}\,\bbar{\bm{e}}^{\alpha_1}\right)\otimes\cdots\otimes\left(\dfrac{\partial x^{\mu_s}}{\partial\bar{x}^{\alpha_s}}\,\bbar{\bm{e}}^{\alpha_s}\right)
+		\\[4 mm]
+		&=\dfrac{\partial x^{\mu_1}}{\partial\bar{x}^{\alpha_1}}\cdots\dfrac{\partial x^{\mu_s}}{\partial\bar{x}^{\alpha_s}}\dfrac{\partial\bar{x}^{\beta_1}}{\partial x^{\nu_1}}\cdots\dfrac{\partial\bar{x}^{\beta_r}}{\partial x^{\nu_r}}\,T_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}\,\bbar{\bm{e}}_{\beta_1}\otimes\cdots\otimes\bbar{\bm{e}}_{\beta_r}\otimes\bbar{\bm{e}}^{\alpha_1}\otimes\cdots\otimes\bbar{\bm{e}}^{\alpha_s}
+		\\[4 mm]
+		&=\bbar{T}_{\alpha_1\cdots\alpha_s}^{\beta_1\cdots\beta_r}\,\bbar{\bm{e}}_{\beta_1}\otimes\cdots\otimes\bbar{\bm{e}}_{\beta_r}\otimes\bbar{\bm{e}}^{\alpha_1}\otimes\cdots\otimes\bbar{\bm{e}}^{\alpha_s}\quad\square\quad\text{(due to linear independence)}
+	\end{align*}
+	
+	\section*{Properties of Tensor Fields ()}
+	Let $T,S\in\Gamma(\otimes^{r,s}TM)$, and let $f\in C^{\infty}(M,\mathbb{R})$. Also, consider the scalars $a,b\in\mathbb{R}$. Without explicit proof, the following properties hold point-wise, but can be easily checked.
+	\vspace{2 mm}
+	\begin{itemize}
+		\item $T(\cdots,a\omega,\cdots;\cdots,\bm{X},\cdots)=T(\cdots,\omega,\cdots;\cdots,a\bm{X},\cdots)=aT(\cdots,\omega,\cdots;\cdots,\bm{X},\cdots)$ -----------------
+		\item $T(\cdots,\alpha+\beta,\cdots;\cdots)=T(\cdots,\alpha,\cdots;\cdots)+T(\cdots,\beta,\cdots;\cdots)$ -------------
+		\item $T(\cdots;\cdots,\bm{X}+\bm{Y},\cdots)=T(\cdots;\cdots,\bm{X},\cdots)+T(\cdots;\cdots,\bm{Y},\cdots)$ -------------------------
+		\item $T_{\mu_1\cdots\mu_s}^{\nu_1\cdots\nu_r}=0\iff\bbar{T}_{\alpha_1\cdots\alpha_s}^{\beta_1\cdots\beta_r}=0$ ----------------------------------
+	\end{itemize}
+	
+	\pagebreak
+	
+	\section*{Tensor Contraction}
+	Given a type $(r,s)$ tensor field $T$, provided that $r,s\geq1$, tensor contraction is a linear operation with the property that $C:T\in\Gamma(\otimes^{r,s}TM)\mapsto C(T)\in\Gamma(\otimes^{r-1,s-1}TM)$. To be specific, on a point-wise basis, the operation contracts a pair of contravariant and covariant slots as follows:
+	\begin{center}
+		\vspace{2 mm}
+		\large
+		$C_i^j(T)\coloneq T_{\mu_1\cdots\mu_{i-1}\lambda\,\mu_{i+1}\cdots\mu_s}^{\nu_1\cdots\nu_{j-1}\lambda\,\nu_{j+1}\cdots\nu_r}\,\bm{e}_{\nu_1}\otimes\cdots\otimes\bm{e}_{\nu_{j-1}}\otimes\bm{e}_{\nu_{j+1}}\otimes\cdots\otimes\bm{e}_{\nu_r}\otimes\bm{e}^{\mu_1}\otimes\cdots\otimes\bm{e}^{\mu_{i-1}}\otimes\bm{e}^{\mu_{i+1}}\otimes\cdots\otimes\bm{e}^{\mu_s}$
+	\end{center}
+	\vspace{2 mm}
+	Although not immediately obvious, upon invoking a coordinate transformation on each term in the above definition, contraction can be demonstrated to be an intrinsic operation (i.e. coordinate independent). 
+	
+	\section*{Tensorial Analysis on Covariant Differentiation}
+	The covariant derivative of the vector field $\bm{V}$ is defined by $\nabla\bm{V}\coloneq\left(\nabla_j\bm{V}\right)^k\bm{e}_k\otimes\,\bm{e}^j$. This implies that, for any $\bm{u}\in\Gamma(TM)$ and $\omega\in\Gamma(T^*M)$, one has $\nabla\bm{V}(\omega\,;\bm{u})=\omega(\nabla_{\bm{u}}\bm{V})$, or equivalently, $\nabla\bm{V}(\bm{u})=\nabla_{\bm{u}}\bm{V}$. From this perspective, one can write $\left(\nabla_j\bm{V}\right)^k=\left(\nabla\bm{V}\right)_j^k$, where $\nabla\bm{V}$ is a type $(1,1)$ tensor field.
+	\vspace{3 mm}\\
+	One significant takeaway from this is that despite $\left(\nabla_j\bm{V}\right)^k=\partial_jV^k+\Gamma_{ij}^kV^i$ being a tensor field component, its constituents are not. To be specific, neither $\partial_jV^k$ nor $\Gamma_{ij}^k$ could be the component of a tensor field due to their (non-tensorial) coordinate dependencies. With the understanding that $\bbar{\nabla}_{\nu}=\nabla_{\bbar{\bm{e}}_{\nu}}$, the transformation law for the connection coefficients will be derived as such: 
+	\vspace{2 mm}
+	\begin{center}
+		$\Gamma_{ij}^k\,\bm{e}_k=\nabla_j\,\bm{e}_i=\dfrac{\partial\ibar{x}^\nu}{\partial x^j}\bbar{\nabla}_\nu\left(\dfrac{\partial\ibar{x}^\mu}{\partial x^i}\bbar{\bm{e}}_\mu\right)=\dfrac{\partial\ibar{x}^\nu}{\partial x^j}\left(\dfrac{\partial}{\partial\ibar{x}^\nu}\dfrac{\partial\ibar{x}^\lambda}{\partial x^i}+\bbar{\Gamma}_{\mu\nu}^\lambda\dfrac{\partial\ibar{x}^\mu}{\partial x^i}\right)\bbar{\bm{e}}_\lambda$
+		\vspace{4 mm}\\
+		$=\dfrac{\partial\ibar{x}^\nu}{\partial x^j}\left(\dfrac{\partial x^\sigma}{\partial\ibar{x}^\nu}\dfrac{\partial}{\partial x^\sigma}\dfrac{\partial\ibar{x}^\lambda}{\partial x^i}+\bbar{\Gamma}_{\mu\nu}^\lambda\dfrac{\partial\ibar{x}^\mu}{\partial x^i}\right)\dfrac{\partial x^k}{\partial\ibar{x}^\lambda}\bm{e}_k=\left(\dfrac{\partial\ibar{x}^\nu}{\partial x^j}\dfrac{\partial x^\sigma}{\partial\ibar{ x}^\nu}\dfrac{\partial^2\ibar{x}^\lambda}{\partial x^\sigma\partial x ^i}\dfrac{\partial x^k}{\partial\ibar{x}^\lambda}+\dfrac{\partial\ibar{x}^\nu}{\partial x^j}\bbar{\Gamma}_{\mu\nu}^\lambda\dfrac{\partial\ibar{x}^\mu}{\partial x^i}\dfrac{\partial x^k}{\partial\ibar{x}^\lambda}\right)\bm{e}_k$
+		\vspace{4 mm}\\
+		$=\left(\delta^\sigma_j\dfrac{\partial^2\ibar{x}^\lambda}{\partial x^\sigma\partial x^i}\dfrac{\partial x^k}{\partial\ibar{x}^\lambda}+\dfrac{\partial\ibar{x}^\nu}{\partial x^j}\bbar{\Gamma}_{\mu\nu}^\lambda\dfrac{\partial\ibar{x}^\mu}{\partial x^i}\dfrac{\partial x^k}{\partial\ibar{x}^\lambda}\right)\bm{e}_k=\left(\dfrac{\partial\ibar{x}^\mu}{\partial x^i}\dfrac{\partial\ibar{x}^\nu}{\partial x^j}\dfrac{\partial x^k}{\partial\ibar{x}^\lambda}\bbar{\Gamma}_{\mu\nu}^\lambda+\dfrac{\partial^2\ibar{x}^\lambda}{\partial x^i\partial x^j}\dfrac{\partial x^k}{\partial\ibar{x}^\lambda}\right)\bm{e}_k$
+		\vspace{4 mm}\\
+		----- which implies due to linear independence -----
+		\vspace{4 mm}\\
+		\begin{large}
+			$\boxed{\;\Gamma_{ij}^k=\dfrac{\partial\ibar{x}^\mu}{\partial x^i}\dfrac{\partial\ibar{x}^\nu}{\partial x^j}\dfrac{\partial x^k}{\partial\ibar{x}^\lambda}\bbar{\Gamma}_{\mu\nu}^\lambda+\dfrac{\partial^2\ibar{x}^\lambda}{\partial x^i\partial x^j}\dfrac{\partial x^k}{\partial\ibar{x}^\lambda}\;}$
+			\vspace{3 mm}\\
+			Transformation Law of the Connection Coefficients 
+		\end{large}
+	\end{center}
+	\vspace{2 mm}
+	By inspection, $\Gamma_{ij}^k$ does not transform as a type $(1,2)$ tensor field component due to the presence of the second order coordinate dependency. Likewise, in the appropriate context, the transformation law for $\partial_jV^k$ will be derived as such with the expectation that it is non-tensorial:
+	\vspace{2 mm}
+	\begin{center}
+		$\dfrac{\partial V^k}{\partial x^j}=\dfrac{\partial\bar{x}^\mu}{\partial x^j}\dfrac{\partial}{\partial\bar{x}^\mu}\left(\dfrac{\partial x^k}{\partial\bar{x}^\nu}\,\bbar{V}^\nu\right)=\dfrac{\partial\bar{x}^{\mu}}{\partial x^j}\left(\dfrac{\partial^2x^k}{\partial\bar{x}^{\mu}\partial\bar{x}^\nu}\bbar{V}^\nu+\dfrac{\partial x^k}{\partial\bar{x}^\nu}\dfrac{\partial\bbar{V}^{\nu}}{\partial\bar{x}^{\mu}}\right)=\dfrac{\partial\bar{x}^\mu}{\partial x^j}\dfrac{\partial x^k}{\partial\bar{x}^\nu}\dfrac{\partial\bbar{V}^{\nu}}{\partial\bar{x}^{\mu}}+\dfrac{\partial\bar{x}^\mu}{\partial x^j}\dfrac{\partial^2x^k}{\partial\bar{x}^{\mu}\partial\bar{x}^\nu}\bbar{V}^\nu$
+	\end{center}
+	\vspace{2 mm}
+	It is this reason as to why the naive operation $\bm{V}\mapsto\bm{u}\left[\bm{e}^k(\bm{V})\right]\bm{e}_k=u^j\partial_jV^k\bm{e}_k$ fails to measure intrinsic change over a manifold. The connection coefficients adjust the operation by eliminating its second order coordinate dependencies, thereby producing a coordinate invariant operation (covariant differentiation).
+	\vspace{3 mm}\\
+	As a side note, if there exists a coordinate system $\bar{x}^i$ and curve mapping $\gamma$ such that $\bbar{\Gamma}_{\mu\nu}^{\lambda}(\gamma)=0$, then in any coordinate system $x^i$, it strictly follows from the transformation law for connection coefficient  that $\Gamma_{ij}^k=\frac{\partial^2\ibar{x}^\lambda}{\partial x^i\partial x^j}\frac{\partial x^k}{\partial\ibar{x}^\lambda}$ when restricted to (the range of) the curve mapping $\gamma$ over its domain.
+	
+	\section*{Parallel Transporting Tensors - Sketch}
+	
+	\pagebreak
+	
+	
+	\section*{Covariant Divergence}
+	In light of the fact that $\nabla\bm{V}$ is a tensor field, the notion of divergence can be generalized by contracting the covariant derivative into a scalar field via the trace operation. In particular, define the covariant divergence of $\bm{V}$ by $\mathrm{div}(\bm{V})\coloneq\mathrm{tr}(\nabla\bm{V})=C_1^1(\nabla\bm{V})=\left(\nabla\bm{V}\right)_i^i=\left(\nabla_i\bm{V}\right)^i=\partial_iV^i+\Gamma_{ij}^jV^i$. Unlike the conventional divergence $\partial_iV^i$, because $\mathrm{div}(\bm{V})$ is a scalar field derived from contraction, no matter the coordinate system, for any fixed input in $M$, its output ($\mathbb{R}$) will always return the same value. The demonstration is as follows:
+	\begin{center}
+		$\mathrm{div}(\bm{V})=\left(\nabla\bm{V}\right)_i^i=\dfrac{\partial\bar{x}^j}{\partial x^i}\dfrac{\partial x^i}{\partial\bar{x}^k}\,\bbar{\left(\nabla\bm{V}\right)}_j^k=\delta_k^j\,\bbar{\left(\nabla\bm{V}\right)}_j^k=\bbar{\left(\nabla\bm{V}\right)}_j^j\quad\square$
+	\end{center}
+	
+	
+	\section*{The Metric Tensor - Sketch}
+	The metric tensor $g$ is a symmetric nondegenerate bilinear form on $TM$. In particular, there exist components $g_{\mu\nu}:M\to\mathbb{R}$ such that $g=g_{\mu\nu}\,\bm{e}^\mu\otimes\,\bm{e}^\nu$, where $g_{\mu\nu}=g_{\nu\mu}$. Given vector fields $\bm{X}$ and $\bm{Y}$, $g(\bm{X},\bm{Y})=g_{\mu\nu}X^\mu Y^\nu$, and so by definition, if $g(\bm{X},\bm{Y})=0$ for every vector field $\bm{X}$, then $\bm{Y}=0$. Therefore, $\exists\,g^{\mu\nu}:M\to\mathbb{R}$ such that $g_{\mu\lambda}g^{\lambda\nu}=\delta_{\mu}^\nu$. In other words, the matrix $[g^{\mu\nu}]$ is the inverse of the matrix $[g_{\mu\nu}]$.    
+	\vspace{3 mm}\\
+	The metric tensor $g$, apart from other symmetric nondegenerate bilinear forms, is unique in its ability to define lengths (of vectors) and angles (between vectors) on $TM$ within a specific context. Because the basis vectors $\bm{e}_\mu$ on $TM$ are linked to the respective coordinates on $M$ (see Appendix A), $g_{\mu\nu}=g(\bm{e}_\mu,\bm{e}_\nu)$ establishes the geometry on the Manifold itself. 
+	\vspace{3 mm}\\
+	The $\mu^{\text{th}}$ covariant component of the vector field $\bm{V}$ is defined by $V_\mu\coloneq g(\bm{e}_\mu,\bm{V})=g_{\mu\nu}V^\nu$. With this notational convention, the length of $\bm{V}$ will be defined as such:
+	\begin{equation*}
+		||\bm{V}||\coloneq\sqrt{g(\bm{V},\bm{V})}=\sqrt{\displaystyle{g_{\mu\nu}V^\mu V^\nu}}=\sqrt{\displaystyle{V_\mu V^\mu}}
+	\end{equation*}
+	Given the map $\gamma:I\subseteq\mathbb{R}\to M$ with a respective parametrized chart $\alpha$ and tangent field $\dot{\boldsymbol{\gamma}}$, the arc-length along the curve $\gamma(I)$, which describes the Manifold's intrinsic geometry, is defined as such:
+	\begin{equation*}
+		L(\gamma(I))\coloneq\int_I||\dot{\boldsymbol{\gamma}}(\gamma)||\,dt=\int_I\sqrt{g(\dot{\boldsymbol{\gamma}}(\gamma),\dot{\boldsymbol{\gamma}}(\gamma))}\;dt=\int_I\sqrt{g(\dot\alpha^\mu\bm{e}_\mu(\gamma),\dot\alpha^\nu\bm{e}_\nu(\gamma))}\;dt=\int_I\sqrt{\displaystyle{g_{\mu\nu}(\gamma)\dfrac{d\alpha^\mu}{dt}\dfrac{d\alpha^\nu}{dt}}}\;dt
+	\end{equation*}
+	These definitions implicitly assume $g$ to be positive definite. That is, vector lengths are always to be non-negative. However, there exists (non-Riemannian) geometries in which this is not the case. In such instances, only the square of the vector lengths and the moduli of the (path) arc-lengths are considered.
+	
+	\section*{Metric Compatibility - Sketch}
+	By definition, the connection $\nabla$ is metric compatible if, for any vector fields $\bm{X}$ and $\bm{Y}$, it obeys the following derivation/Leibniz rule on the metric tensor $g$:
+	\begin{equation*}
+		\nabla\left(g(\bm{X},\bm{Y})\right)=g(\nabla\bm{X},\bm{Y})+g(\bm{X},\nabla\bm{Y})
+	\end{equation*}
+	Equivalently, in any coordinate/basis direction $\sigma$, this statement can be reformulated as such:
+	\begin{align*}
+		\nabla_\sigma(g(\bm{X},\bm{Y}))&=g(\nabla_{\sigma}\bm{X},\bm{Y})+g(\bm{X},\nabla_\sigma\bm{Y})=g\left(\left(\partial_\sigma X^\mu+\Gamma_{\lambda\sigma}^\mu X^\lambda\right)\bm{e}_\mu,Y^\nu\bm{e}_\nu\right)+g\left(X^\mu\bm{e}_\mu,\left(\partial_\sigma Y^\nu+\Gamma_{\lambda\sigma}^\nu Y^\lambda\right)\bm{e}_\nu\right)
+		\\[3 mm]
+		&=\left(\partial_\sigma X^\mu+\Gamma_{\lambda\sigma}^\mu X^\lambda\right)Y^\nu g(\bm{e}_\mu,\bm{e}_\nu)+X^\mu\left(\partial_\sigma Y^\nu+\Gamma_{\lambda\sigma}^\nu Y^\lambda\right)g(\bm{e}_\mu,\bm{e}_\nu)
+		\\[3 mm]
+		&=g_{\mu\nu}\left(\partial_\sigma X^\mu Y^\nu+X^\mu\partial_\sigma Y^\nu\right)+X^\lambda Y^\nu\Gamma_{\lambda\sigma}^\mu g_{\mu\nu}+X^\mu Y^\lambda\Gamma_{\lambda\sigma}^\nu g_{\mu\nu}
+		\\[3 mm]
+		&=g_{\mu\nu}\partial_\sigma\left(X^\mu Y^\nu\right)+X^\mu Y^\nu\left(\Gamma_{\mu\sigma}^{\lambda}g_{\lambda\nu}+\Gamma_{\nu\sigma}^\lambda g_{\mu\lambda}\right)\,\text{---------------------------------------------------}\;(1)
+		\\[3 mm]
+		\text{(and)}\quad&=\nabla_\sigma\left(g_{\mu\nu}X^\mu Y^\nu\right)=\partial_\sigma\left(g_{\mu\nu}X^\mu Y^\nu\right)=\partial_\sigma g_{\mu\nu}X^\mu Y^\nu+g_{\mu\nu}\partial_\sigma\left(X^\mu Y^\nu\right)\,\text{-----------------------}\;(2)
+	\end{align*}
+	\begin{align*}
+		&\iff\partial_\sigma g_{\mu\nu}X^\mu Y^\nu+g_{\mu\nu}\partial_\sigma\left(X^\mu Y^\nu\right)=g_{\mu\nu}\partial_\sigma\left(X^\mu Y^\nu\right)+X^\mu Y^\nu\left(\Gamma_{\mu\sigma}^{\lambda}g_{\lambda\nu}+\Gamma_{\nu\sigma}^\lambda g_{\mu\lambda}\right)
+		\\[3 mm]
+		&\iff X^\mu Y^\nu\left(\partial_\sigma g_{\mu\nu}-\Gamma_{\mu\sigma}^\lambda g_{\lambda\nu}-\Gamma_{\nu\sigma}^\lambda g_{\mu\lambda}\right)=X^\mu Y^\nu\left(\nabla_\sigma g\right)_{\mu\nu}=0
+		\\[3 mm]
+		&\iff\nabla g=0\qquad\text{(i.e. the metric/geometry is invariant under parallel transportation)}
+	\end{align*}
+	Therefore, the statement of metric compatibility can be compressed into the below tensor equation:
+	\vspace{1 mm}
+	\begin{Large}
+		\begin{equation*}
+			\nabla\left(g(\bm{X},\bm{Y})\right)=g(\nabla\bm{X},\bm{Y})+g(\bm{X},\nabla\bm{Y})\iff\nabla g=0
+		\end{equation*}
+	\end{Large}
+	
+	\section*{Appendix A - Basis Evaluation}
+	Here, the directional derivative of scalar fields will be revisited. Previously, it was (implicitly) stated that for every $f\in C^1(M,\mathbb{R})$, one has $\bm{e}_i[f]=\partial_i f$. However, this is only a choice rooted in a specific convention. 
+	\vspace{3 mm}\\
+	Let
+	$\gamma:I=[0,1]\to M$ be a smooth map with a respective parameterized coordinate chart mapping $\alpha=\varphi\circ\gamma$. The directional derivative along the curve parameterization $\gamma$ of the scalar field $f$ at $p=\gamma(0)$ is defined by:
+	\begin{center}
+		$\left.D_{\dot\gamma}f\right|_{p}\coloneq\left.\dfrac{d}{dt}f(\gamma(t))\right|_{t=0}=\left.\dfrac{d}{dt}\left(f\left(\varphi^{-1}\right)\circ\alpha(t)\right)\right|_{t=0}=\left.\dfrac{d\alpha^j}{dt}\right|_{t=0}\left.\dfrac{\partial f}{\partial x^j}\right|_p\implies \left.D_{\dot\gamma}\right|_p=\dot\alpha^j(0)\left.\partial_j\right|_p$
+	\end{center}
+	Given the frame adapters $Q_i^j\in C^{\infty}(M,\mathbb{R})$, for any $\gamma$, $\exists\,\bm{u}=u^j\bm{e}_j\in\Gamma(TM)$ such that $\dot\alpha^j=Q_i^j(\gamma)\,u^i(\gamma)$. Therefore, on $\gamma(I)$, the operator $D_{\dot\gamma}=u^iQ_i^j\partial_j\in\mathrm{span}\{Q_i^j\partial_j\}\subseteq\mathrm{span}\{\partial_i\}\eqqcolon\mathcal{D}(M)$, the space of directional derivative operators $D$ along any curve on $M$. Due to linear independence, $\{\partial_i\}$ forms a basis on $\mathcal{D}(M)$. 
+	\vspace{3 mm}\\
+	Because $\mathrm{card}\{Q_i^j\partial_j\}=\mathrm{card}\{\partial_i\}$, $\mathrm{span}\{Q_i^j\partial_j\}=\mathcal{D}(M)$ if and only if $\{Q_i^j\partial_j\}$ is likewise linearly independent if and only if the corresponding matrix $Q$ is invertible (i.e. $\mathrm{det}(Q)\neq0$). In other words, for any coordinate chart $\varphi$, the map $\alpha$ uniquely determines $\bm{u}$ on $\gamma(I)$ if and only if $\{Q_i^j\partial_j\}$ forms a basis on $\mathcal{D}(M)$. 
+	\vspace{3 mm}\\
+	The directional derivative of $f$ in the direction $\bm{u}$ is defined point-wise by $D_{\bm{u}}f\coloneq\bm{u}[f]\coloneq D_{\dot\gamma}f$, which implies $\bm{u}[\cdot]=u^iQ_i^j\partial_j(\cdot)$. As the curve mapping $\gamma$ is arbitrary, it follows $\bm{e}_i[\cdot]=Q_i^j\partial_j(\cdot)$. Setting $\bm{e}_i=Q_i^j\partial_j$ naturally defines the basis elements on $TM$ assuming $\mathrm{det}(Q)\neq0$, thereby establishing $TM=\mathcal{D}(M)$ in that case. 
+	\vspace{3 mm}\\
+	If $\mathrm{det}(Q)\neq0$, the collection of basis elements $\{\bm{e}_i\}$ is said to be a frame on $TM$. Furthermore, if there exists local coordinate functions $y^i\in C^{\infty}(M,\mathbb{R})$ such that $\bm{e}_i[\cdot]=\frac{\partial}{\partial y^i}(\cdot)$, then $\{\bm{e}_i\}$ is said to be a coordinate frame on $TM$, which constrains $Q$. Given another coordinate frame $\left\{\bbar{\bm{e}}_i\right\}$ with respective coordinates $\bar{x}$ and $\bar{y}$:
+	\begin{center}
+		$\bm{e}_i[\cdot]=Q_i^j\frac{\partial}{\partial x^j}(\cdot)=\frac{\partial}{\partial y^i}(\cdot)=\frac{\partial x^j}{\partial y^i}\frac{\partial}{\partial x^j}(\cdot)\iff Q_i^j=\frac{\partial x^j}{\partial y^i}=\frac{\partial\bar{y}^l}{\partial y^i}\frac{\partial x^j}{\partial\bar{x}^k}\frac{\partial\bar{x}^k}{\partial\bar{y}^l}=\frac{\partial\bar{y}^l}{\partial y^i}\frac{\partial x^j}{\partial\bar{x}^k}\bbar{Q}_l^k$
+	\end{center}
+	\vspace{1 mm}
+	Without constraining the structure of the basis elements, the commutator, which reflects the failure for the anti-commuted coordinate flows to close, will be applied (with the assumption that $\partial_i\partial_j=\partial_j\partial_i$) as such:
+	\begin{align*}
+		[\bm{e}_i,\bm{e}_j][\cdot]&=\bm{e}_i[\bm{e}_j[\cdot]]-\bm{e}_j[\bm{e}_i[\cdot]]=Q_i^l\partial_l\left(Q_j^k\partial_k(\cdot)\right)-Q_j^k\partial_k\left(Q_i^l\partial_l(\cdot)\right)
+		\\[2 mm]
+		&=Q_i^l\partial_lQ_j^k\partial_k(\cdot)+Q_i^lQ_j^k\partial_l\partial_k(\cdot)-Q_j^k\partial_kQ_i^l\partial_l(\cdot)-Q_j^kQ_i^l\partial_k\partial_l(\cdot)
+		\\[2 mm]
+		&=Q_i^l\partial_lQ_j^k\partial_k(\cdot)+Q_i^lQ_j^k\left(\partial_l\partial_k-\partial_k\partial_l\right)(\cdot)-Q_j^l\partial_lQ_i^k\partial_k(\cdot)=\left(Q_i^l\partial_lQ_j^k-Q_j^l\partial_lQ_i^k\right)\partial_k(\cdot)
+	\end{align*}
+	Non-trivially, with $[\bm{e}_i,\bm{e}_j]=0$ being equivalent to $Q_i^l\partial_lQ_j^k=Q_j^l\partial_lQ_i^k$, in conjunction with the demand that $\{\bm{e}_i\}$ forms a frame on $TM$, the structure is forced on the basis. In particular, by Frobenius's Theorem:
+	\vspace{0.25 mm}
+	\begin{large}
+		\begin{center}
+			$\boxed{\;[\bm{e}_i,\bm{e}_j]=0\;\wedge\;\{\bm{e}_i\}\;\text{is a frame}\;\iff\;\{\bm{e}_i\}\;\text{is a coordinate frame}\;}$
+		\end{center}
+		\vspace{0.25 mm}
+	\end{large}
+	Given $\{\bm{e}_i\}$ and $\{\bbar{\bm{e}}_i\}$ are coordinate frames on $TM$, there exists local coordinate functions $y^i,\bar{y}^i\in C^{\infty}(M,\mathbb{R})$ such that $\bm{e}_i[\cdot]=\frac{\partial}{\partial y^i}(\cdot)$ and $\bbar{\bm{e}}_i[\cdot]=\frac{\partial}{\partial\bar{y}^i}(\cdot)$, which implies $\bm{e}_i=\frac{\partial\bar{y}^j}{\partial y^i}\bbar{\bm{e}}_j=Q_i^l\frac{\partial\bar{x}^k}{\partial x^l}(\bbar{Q}^{-1})_k^j\bbar{\bm{e}}_j$ via the chain rule.
+	\vspace{2 mm}\\
+	Also, the co-coordinate frame $\left\{\bm{e}^j\right\}$ on $T^*M$ can be constructed utilizing (generalized) differential one-forms $df:\bm{v}\in TM\mapsto\bm{v}[f]$. In particular, $\left\{\bm{e}^j\right\}$ is uniquely governed by $\bm{e}^j=(Q^{-1})_k^j\,dx^k$, which implies ($\iff$): 
+	\vspace{1 mm}
+	\begin{center}
+		$\bm{e}^j(\bm{e}_i)=(Q^{-1})_k^j\,dx^k(\bm{e}_i)=(Q^{-1})_k^j\,\bm{e}_i[x^k]=(Q^{-1})_k^jQ_i^l\partial_lx^k=(Q^{-1})_k^jQ_i^l\delta_l^k=(Q^{-1})_k^jQ_i^k=\delta_i^j$
+		\vspace{2.25 mm}\\
+		----- the complimentary frame change law thus follows -----
+		\vspace{2.25 mm}\\
+		$\bm{e}^k(\bm{e}_i)=\delta_i^k=\frac{\partial y^k}{\partial\bar{y}^j}\frac{\partial\bar{y}^l}{\partial y^i}\delta_l^j=\frac{\partial y^k}{\partial\bar{y}^j}\frac{\partial\bar{y}^l}{\partial y^i}\bbar{\bm{e}}^j(\bbar{\bm{e}}_l)=\frac{\partial y^k}{\partial\bar{y}^j}\bbar{\bm{e}}^j\left(\frac{\partial\bar{y}^l}{\partial y^i}\bbar{\bm{e}}_l\right)=\frac{\partial y^k}{\partial\bar{y}^j}\bbar{\bm{e}}^j(\bm{e}_i)\iff\bm{e}^k=\frac{\partial y^k}{\partial\bar{y}^j}\bbar{\bm{e}}^j=(Q^{-1})_i^k\frac{\partial x^i}{\partial\bar{x}^l}\bbar{Q}_j^l\bbar{\bm{e}}^j$
+	\end{center}    
+	From the frame change laws, if $\frac{\partial\bar{y}^i}{\partial y^j}=\frac{\partial\bar{x}^i}{\partial x^j}$, or equivalently, $Q_i^j=\frac{\partial\bar{x}^l}{\partial x^i}\frac{\partial x^j}{\partial\bar{x}^k}\bbar{Q}_l^k$ (i.e. the elements of $Q$ transform as type (1,1) tensor field components), then the contravariant and covariant transformation laws follow:
+	\begin{center}
+		\large
+		-----$\boxed{\;\text{contravariant}\;}$---------$\boxed{\;\bm{e}_i=\tfrac{\partial\bar{x}^j}{\partial x^i}\bbar{\bm{e}}_j\;}\qquad\underline{\text{and}}\qquad\boxed{\;\bm{e}^k=\tfrac{\partial x^k}{\partial\bar{x}^j}\bbar{\bm{e}}^j\;}$---------$\boxed{\;\;\;\;\text{covariant}\;\;\;\;}$-----
+	\end{center}
+	
+	\section*{Appendix B - Covariant Derivative of Tensors}
+	Want to show:
+	\begin{align*}
+		(\nabla_{\bm{u}}T)_p\left(\omega^1_p,\cdots,\omega^r_p\,;\bm{V}_1(p),\cdots,\bm{V}_s(p)\right)&=\nabla_{\bm{u}}\left(T\left(\omega^1,\cdots,\omega^r\,;\bm{V}_1,\cdots,\bm{V}_s\right)\right)(p)
+		\\[4 mm]
+		&\,-\sum_{j=1}^rT\left(\omega^1,\cdots,\omega^{j-1},\nabla_{\bm{u}}\,\omega^j,\omega^{j+1},\cdots,\omega^r\,;\bm{V}_1,\cdots,\bm{V}_s\right)(p)
+		\\[4 mm]
+		&\,-\sum_{i=1}^sT\left(\omega^1,\cdots,\omega^r\,;\bm{V}_1,\cdots,\bm{V}_{i-1},\nabla_{\bm{u}}\bm{V}_i,\bm{V}_{i+1},\cdots,\bm{V}_s\right)(p)
+	\end{align*}
+	\vspace{3 mm}
+	via telescoping summation:
+	\vspace{3 mm}
+	\begin{align*}
+		&T_{\gamma(\delta t)}\left((\mathcal{P}^\gamma_{\delta t,0})^*\omega_p^1,\cdots,(\mathcal{P}^\gamma_{\delta t,0})^*\omega_p^r\,;\mathcal{P}^\gamma_{0,\delta t}(\bm{V}_1(p)),\cdots,\mathcal{P}^\gamma_{0,\delta t}(\bm{V}_s(p))\right)-T_p\left(\omega_p^1,\cdots,\omega_p^r\,;\bm{V}_1(p),\cdots,\bm{V}_s(p)\right)
+		\\[4 mm]
+		&=\sum\limits_{j=1}^r\Bigl[\Bigr.T_{\gamma(\delta t)}\left(\omega^1_{\gamma(\delta t)},\cdots,\omega^{j-1}_{\gamma(\delta t)},(\mathcal{P}^\gamma_{\delta t,0})^*\omega_p^j,\cdots,(\mathcal{P}^\gamma_{\delta t,0})^*\omega_p^r\,;\mathcal{P}^\gamma_{0,\delta t}(\bm{V}_1(p)),\cdots,\mathcal{P}^\gamma_{0,\delta t}(\bm{V}_s(p))\right)
+		\\[4 mm]
+		&\qquad-T_{\gamma(\delta t)}\left(\omega^1_{\gamma(\delta t)},\cdots,\omega^j_{\gamma(\delta t)},(\mathcal{P}^\gamma_{\delta t,0})^*\omega_p^{j+1},\cdots,(\mathcal{P}^\gamma_{\delta t,0})^*\omega_p^r\,;\mathcal{P}^\gamma_{0,\delta t}(\bm{V}_1(p)),\cdots,\mathcal{P}^\gamma_{0,\delta t}(\bm{V}_s(p))\right)\Bigl]\Bigr.
+		\\[4 mm]
+		&\,+\sum\limits_{i=1}^s\Bigl[\Bigr.T_{\gamma(\delta t)}\left(\omega^1_{\gamma(\delta t)},\cdots,\omega^r_{\gamma(\delta t)}\,;\bm{V}_1(\gamma(t)),\cdots,\bm{V}_{i-1}(\gamma(t)),\mathcal{P}^\gamma_{0,\delta t}(\bm{V}_i(p)),\cdots,\mathcal{P}^\gamma_{0,\delta t}(\bm{V}_s(p))\right)
+		\\[4 mm]
+		&\qquad-T_{\gamma(\delta t)}\left(\omega^1_{\gamma(\delta t)},\cdots,\omega^r_{\gamma(\delta t)}\,;\bm{V}_1(\gamma(t)),\cdots,\bm{V}_i(\gamma(t)),\mathcal{P}^\gamma_{0,\delta t}(\bm{V}_{i+1}(p)),\cdots,\mathcal{P}^\gamma_{0,\delta t}(\bm{V}_s(p))\right)\Bigl]\Bigr.
+		\\[4 mm]
+		&\,+T_{\gamma(\delta t)}\left(\omega^1_{\gamma(\delta t)},\cdots,\omega^r_{\gamma(\delta t)}\,;\bm{V}_1(\gamma(t)),\cdots,\bm{V}_s(\gamma(\delta t))\right)-T_p\left(\omega_p^1,\cdots,\omega_p^r\,;\bm{V}_1(p),\cdots,\bm{V}_s(p)\right)
+	\end{align*}
+	\vspace{3 mm}
+	etc...
+\end{document}
