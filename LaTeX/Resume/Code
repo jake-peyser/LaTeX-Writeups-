@@ -1,0 +1,116 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[a4paper,margin=0.85in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{comment}
+
+\pagestyle{empty}
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+
+\begin{document}
+
+{\centering
+    {\Large \textbf{Jacob Peyser}} \\[6pt]
+    \small{{NY $\vert$ 516-808-7313 $\vert$ jacob.peyser@gmail.com $\vert$
+    \href{https://www.linkedin.com/in/jacob-peyser-98aa8b1b3/}{linkedin.com/in/jacob-peyser}} $\vert$ \href{https://github.com/jake-peyser}{github.com/jake-peyser}}
+\vspace{-0.25 cm}\par} 
+\section*{Education}
+\textbf{The Cooper Union for the Advancement of Science and Art} \\
+Bachelor of Engineering in Mechanical Engineering\\
+\textbf{Cumulative GPA:} 3.78/4.00\hfill Expected Graduation: May 2027
+\vspace{0.125 cm}\\
+\textbf{Notable Projects:}
+\begin{itemize}[noitemsep,topsep=0pt] 
+    \item\textbf{Accelerometer Telemetry:} Designed a wireless telemetry system using a Raspberry Pi Pico and WiFi-based data acquisition pipeline (Pico $\to$ WiFi router $\to$ PC) for 3-axis flight data with a calibration protocol for sensor bias, orientation determination, and axis scaling.
+    \vspace{0.125 cm}
+    \item \textbf{Controller Design:} Designed a lead-lag compensator in MATLAB Simulink to stabilize a motorized disc voltage input under rise-time, disturbance, and steady-state error constraints.
+    \vspace{0.125 cm}
+    \item \textbf{Beam Design}: Optimized a structural beam under geometric \& material constraints using Wolfram Mathematica, achieving the highest failure load-to-weight ratio among 20+ students.
+\end{itemize}
+\vspace{0.125 cm}
+\textbf{Honors \& Research:}
+\begin{itemize}[noitemsep,topsep=0pt]
+   \item \textbf{Tau Beta Pi, Engineering Honor Society:} Top 12.5\% of Cooper juniors/seniors (2025) %(11/13/2025)
+   \vspace{0.0625 cm}
+    \item \textbf{Class of 1907 Award}: Annual award recognizing Cooper's top student in calculus (2026) %(5/21/2026)
+    \vspace{0.0625 cm}
+    \item \textbf{Dean's List:} All Semesters (Fall 2023 -- Spring 2026) 
+    \vspace{0.0625 cm}
+    \item \textbf{Math Research Award:} Cooper Math Department Summer Stipend (2024): Numerically solved and animated PDEs via the Forward Euler Method using Wolfram Mathematica. 
+    \vspace{0.0625 cm}
+    \item \textbf{Physics Research:} Cooper (2026): Simulated the fluid dynamics of vortexes, and developed their relation to photon rings around black holes in General Relativity. 
+\end{itemize} 
+\vspace{0.125 cm}
+\textbf{Notable Coursework:}
+\begin{itemize}[noitemsep,topsep=0pt]
+    \item \textbf{Completed:} 
+        \begin{itemize}[noitemsep,topsep=0pt]
+            \item\textbf{Applied Engineering:} Feedback Control, Signal Processing, CFD, Circuits, Vibrations\vspace{0.0625 cm}
+            \item\textbf{Applied Physics:} Dynamics, E\&M, Mat-Sci, Solid Mechanics, Fluids, Heat Transfer\vspace{0.0625 cm}
+            \item\textbf{Math:} Abstract Linear Algebra, Differential Geometry, Complex Analysis, ODEs
+        \end{itemize}
+    \vspace{0.0625 cm}
+    \item \textbf{Currently Enrolled:} Senior Capstone, PDEs, Manufacturing, Advanced Thermo 
+\end{itemize}
+\vspace{-0.25 cm}
+\section*{Professional Experience}
+\textbf{Alpal Precision Machining Co.} - \textit{Intern} \hfill \textbf{June--August 2023, January 2024} 
+\vspace{1 mm}
+\begin{itemize}[noitemsep,topsep=0pt]
+\item Conducted aircraft component tolerance inspections, ensuring dimensional conformance.
+\vspace{0.0625 cm}
+\item Operated CNC mills and refined post-processing (sanding, deburring) to tolerance specs.
+\item Designed facility floor plans for the installation and integration of new machinery.
+\vspace{0.0625 cm}
+\item Analyzed \& documented draft schematics of aluminum components in Excel.
+\end{itemize}
+\vspace{0.125 cm}
+\textbf{Tal Ron Home Improvement} - \textit{General Contracting Apprentice} \hfill \textbf{June--August 2021} 
+\vspace{1 mm}
+\begin{itemize}[noitemsep,topsep=0pt]
+    \item Assisted in home and office renovation, including vinyl floor tiling, sheetrock, and PVC piping.\vspace{0.0625 cm}
+    \item Prepared painting surfaces via proper sanding \& taping techniques, followed by painting.\vspace{0.0625 cm}
+    \item Conducted floor demolition (tiling/carpeting) and ensured thorough cleanup.
+\end{itemize}
+\vspace{-0.25 cm}
+\section*{Technical Skills}
+\begin{comment}
+\textbf{Technical:}
+\end{comment}
+\begin{itemize}[noitemsep,topsep=0pt]
+    \item Computer Aided Design: Ansys Fluent Workbench, Autodesk Fusion 360, Inventor, AutoCAD\vspace{0.0625 cm}
+    \item Programming: MATLAB (Control System \& DSP), Wolfram Mathematica, Python, C++
+    \vspace{0.0625 cm}
+    \item Microsoft Office Suite: Excel, PowerPoint, Word
+    \vspace{0.0625 cm}
+    \item Controls \& Signal Processing: Feedback Optimization, Digital Filter Design, Modal Analysis
+\end{itemize}
+\vspace{0.125 cm}
+\begin{comment}
+\textbf{Educational:}
+\begin{itemize}[noitemsep,topsep=0pt]
+    \item Self-employed (private) tutor in AP Physics, AP Calculus, Pre-Calculus, and Algebra
+    \item Developed interactive teaching materials using MATLAB, Desmos, and \LaTeX
+\end{itemize}
+\vspace{0.125 cm}
+\textbf{Specialized Interests:}
+\begin{itemize}[noitemsep,topsep=0pt]
+    \item Personal Financial Modeling, Constrained
+    Optimal Control, Differential Equation Modeling, Tensor Calculus
+    \item Rocket Dynamics (aerospace), Classical Lagrangian/Hamiltonian Mechanics, Special/General Relativity
+\end{itemize}
+\end{comment}
+\begin{comment}
+    \vspace{0.25 cm}
+            \item \textbf{Ping-pong Ball Launcher}: Developed an inclinable flywheel ping-pong launcher with magazine-fed operation.
+            \vspace{0.25 cm}
+    \item \textbf{Educational Toy}: Constructed an educational physics toy that demonstrated the principle of path optimization via modular/customizable paths by which balls could ride and race against.
+    \vspace{0.25 cm}
+    \item \textbf{Domino Modeling}: Developed and experimentally validated a mathematical model describing the propagation dynamics of a falling-domino mechanical wave. Simulation results were validated by slow-motion footage.
+    \vspace{0.0625 cm}
+    \item Instrumentation: Accelerometer Calibration, Sensor Bias Correction, Wireless Data Acquisition
+    \vspace{0.0625 cm}
+    \item Manufacturing: CNC Milling Operation, Precision Tolerance Inspection, Part Finishing
+\end{comment}
+\end{document}
